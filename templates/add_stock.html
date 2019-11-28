@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Flask Stock Portfolio App</h1>
+<br>
+<h2>Add a Stock:</h2>
+<form method="post">
+  <label for="stockSymbol">Stock Symbol:</label>
+  <input type="text" id="stockSymbol" name="stockSymbol" required />
+  <br>
+  <label for="numberOfShares">Number of Shares:</label>
+  <input type="text" id="numberOfShares" name="numberOfShares"required />
+  <br>
+  <label for="sharePrice">Share Price:</label>
+  <input type="text" id="sharePrice" name="sharePrice"required />
+  <br>
+  <input type="submit">
+</form>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Flask Stock Portfolio App</h1>
+<br>
+<h2>List of Stocks:</h2>
+<br>
+
+<table id="stock-table">
+  <!-- Table Header Row -->
+  <tr>
+    <th>Stock Symbol</th>
+    <th>Number of Stocks</th>
+    <th>Share Price</th>
+  </tr>
+
+  <!-- Table Elements (Rows) -->
+  <tr>
+    <td>{{ session['stockSymbol'] }}</td>
+    <td>{{ session['numberOfShares'] }}</td>
+    <td>{{ session['sharePrice'] }}</td>
+  </tr>
+</table>
+{% endblock %}
