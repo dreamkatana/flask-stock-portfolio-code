@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 
+{% block styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_stock_style.css') }}">
+{% endblock %}
+
 {% block content %}
-<h2>Add a Stock:</h2>
+<h2 class="add-stock-heading">Add a Stock:</h2>
 <form method="post">
   <label for="stockSymbol">Stock Symbol:</label>
   <input type="text" id="stockSymbol" name="stockSymbol" required />
   <br>
   <label for="numberOfShares">Number of Shares:</label>
-  <input type="text" id="numberOfShares" name="numberOfShares"required />
+  <input type="text" id="numberOfShares" name="numberOfShares" required />
   <br>
   <label for="sharePrice">Share Price:</label>
-  <input type="text" id="sharePrice" name="sharePrice"required />
+  <input type="text" id="sharePrice" name="sharePrice" required />
   <br>
-  <input type="submit">
+  <button>Submit</button>
 </form>
 {% endblock %}

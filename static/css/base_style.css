@@ -1,0 +1,65 @@
+/* Overall Styling
+ *****************/
+* {
+  box-sizing:border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: #f1f3f5;
+  font-family: segoe ui,helvetica neue,sans-serif;
+  color: #345;
+  overflow-x: hidden;
+}
+
+
+/* CSS Grid Styling
+ ******************/
+header {
+  grid-area: header;
+}
+.content {
+  grid-area: content;
+}
+footer {
+  grid-area: footer;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 10% 35% 35% 10%;
+  grid-auto-rows: minmax(100px, auto);
+  grid-gap: 10px;
+  max-width: 1080px;
+  margin: auto;
+  grid-template-areas:
+    "header   header     header    header"
+    "...      content    content   ..."
+    "footer   footer     footer    footer";
+}
+
+
+/* Header Styling
+ ****************/
+header {
+  margin: auto;
+}
+
+header h1 {
+  font-size: 2.5em;
+}
+
+
+/* Content Styling
+ *****************/
+.content {
+  margin: auto;
+}
+
+
+/* Footer Styling
+ ****************/
+footer {
+  margin: auto;
+}

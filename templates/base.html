@@ -5,17 +5,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Flask Stock Portfolio App</title>
+
+    <!-- Local CSS file for styling the application-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base_style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+
+    <!-- Additional Styling -->
+    {% block styling %}
+    {% endblock %}
   </head>
 
   <body>
-    <header>
-      <h1>Flask Stock Portfolio App</h1>
-    </header>
+    <div class="grid-container">
+      <header>
+        <h1>Flask Stock Portfolio App</h1>
+      </header>
 
-    <div>
-      <!-- child template -->
-      {% block content %}
-      {% endblock %}
+      <div class="content">
+        <!-- child template -->
+        {% block content %}
+        {% endblock %}
+      </div>
+
+      <footer>
+        <h3>testdriven.io 2020</h3>
+      </footer>
     </div>
   </body>
 </html>
