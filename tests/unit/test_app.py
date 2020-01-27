@@ -44,3 +44,7 @@ def test_post_add_stock_page():
         assert b'Stock Symbol' in response.data
         assert b'Number of Shares' in response.data
         assert b'Share Price' in response.data
+        assert b'AAPL' in response.data
+        assert b'23' in response.data
+        assert b'432.17' in response.data
+        assert b'Added new stock (AAPL)!' in response.data

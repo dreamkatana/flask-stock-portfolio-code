@@ -19,6 +19,9 @@ body {
 header {
   grid-area: header;
 }
+.messages {
+  grid-area: messages;
+}
 .content {
   grid-area: content;
 }
@@ -29,14 +32,15 @@ footer {
 .grid-container {
   display: grid;
   grid-template-columns: 10% 35% 35% 10%;
-  grid-auto-rows: minmax(100px, auto);
+  grid-auto-rows: minmax(40px, auto);
   grid-gap: 10px;
   max-width: 1080px;
   margin: auto;
   grid-template-areas:
-    "header   header     header    header"
-    "...      content    content   ..."
-    "footer   footer     footer    footer";
+    "header    header     header    header"
+    "messages  messages   messages  messages"
+    "...       content    content   ..."
+    "footer    footer     footer    footer";
 }
 
 
@@ -48,6 +52,34 @@ header {
 
 header h1 {
   font-size: 2.5em;
+}
+
+
+/* Message Styling
+ *****************/
+
+.flash-message {
+  width: 100%;
+  margin-bottom: 15px;
+  background: purple;
+}
+
+.flash-message p {
+  padding: 15px;
+  color: white;
+  width: auto;
+}
+
+.flash-message-error {
+  background: red;
+}
+
+.flash-message-success {
+  background: green;
+}
+
+.flash-message-info {
+  background: blue
 }
 
 

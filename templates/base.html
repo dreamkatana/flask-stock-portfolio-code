@@ -21,6 +21,25 @@
         <h1>Flask Stock Portfolio App</h1>
       </header>
 
+      <div class="messages">
+        <!-- flash messages -->
+        {% for error_message in get_flashed_messages(category_filter=["error"]) %}
+          <div class="flash-message flash-message-error"><p>{{ error_message }}</p></div>
+        {% endfor %}
+
+        {% for success_message in get_flashed_messages(category_filter=["success"]) %}
+          <div class="flash-message flash-message-success"><p>{{ success_message }}</p></div>
+        {% endfor %}
+
+        {% for info_message in get_flashed_messages(category_filter=["info"]) %}
+          <div class="flash-message flash-message-info"><p>{{ info_message }}</p></div>
+        {% endfor %}
+
+        {% for message in get_flashed_messages(category_filter=["message"]) %}
+          <div class="flash-message"><p>{{ message }}</p></div>
+        {% endfor %}
+      </div>
+
       <div class="content">
         <!-- child template -->
         {% block content %}

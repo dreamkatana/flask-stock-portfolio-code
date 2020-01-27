@@ -1,4 +1,4 @@
-from flask import Flask, escape, render_template, request, session, redirect, url_for
+from flask import Flask, escape, render_template, request, session, redirect, url_for, flash
 
 app = Flask(__name__)
 
@@ -14,6 +14,7 @@ def index():
 
 @app.route('/about')
 def about():
+    flash('Thanks for learning about this site!', 'info')
     return render_template('about.html', company_name='TestDriven.io')
 
 
@@ -38,6 +39,7 @@ def add_stock():
         session['stockSymbol'] = request.form['stockSymbol']
         session['numberOfShares'] = request.form['numberOfShares']
         session['sharePrice'] = request.form['sharePrice']
+        flash(f"Added new stock ({ request.form['stockSymbol'] })!", 'success')
         return redirect(url_for('list_stocks'))
     else:
         return render_template('add_stock.html')
