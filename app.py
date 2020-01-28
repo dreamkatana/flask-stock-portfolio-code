@@ -1,7 +1,18 @@
 from flask import Flask, escape, render_template, request, session, redirect, url_for, flash
+from logging.handlers import RotatingFileHandler
+import logging
 
 app = Flask(__name__)
 
+# Logging Configuration
+file_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(filename)s:%(lineno)d]')
+file_handler = RotatingFileHandler('instance/logs/flask-stock-portfolio.log',
+                                   maxBytes=16384,
+                                   backupCount=20)
+file_handler.setFormatter(file_formatter)
+file_handler.setLevel(logging.INFO)
+app.logger.addHandler(file_handler)
+app.logger.info('Starting the Flask Stock Portfolio App...')
 
 # TEMPORARY - Set the secret key to a temporary value!
 app.secret_key = 'BAD_SECRET_KEY'
@@ -9,6 +20,7 @@ app.secret_key = 'BAD_SECRET_KEY'
 
 @app.route('/')
 def index():
+    app.logger.info('Calling the index() function.')
     return render_template('index.html')
 
 
@@ -40,6 +52,7 @@ def add_stock():
         session['numberOfShares'] = request.form['numberOfShares']
         session['sharePrice'] = request.form['sharePrice']
         flash(f"Added new stock ({ request.form['stockSymbol'] })!", 'success')
+        app.logger.info(f"Added new stock ({ request.form['stockSymbol'] })!")
         return redirect(url_for('list_stocks'))
     else:
         return render_template('add_stock.html')

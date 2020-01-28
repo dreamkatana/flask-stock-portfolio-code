@@ -12,6 +12,7 @@ __pycache__/
 # Instance Folder - used for configuration parameters
 instance/*_full.py
 instance/*.db
+instance/logs/
 
 # Initialization file for Postgress Docker Image
 /postgresql/Dockerfile
