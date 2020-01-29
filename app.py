@@ -1,8 +1,27 @@
 from flask import Flask, escape, render_template, request, session, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from logging.handlers import RotatingFileHandler
 import logging
+import os
 
+
+# Determine the folder of the top-level directory of this project
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
+
+# Create the Flask application
 app = Flask(__name__)
+
+# Database Configuration (SQLAlchemy)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASEDIR, 'instance', 'app.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configure the Flask extensions
+database = SQLAlchemy(app)
+db_migration = Migrate(app, database)
+
+import models
+from models import Stock
 
 # Logging Configuration
 file_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(filename)s:%(lineno)d]')
@@ -47,10 +66,12 @@ def add_stock():
         for key, value in request.form.items():
             print(f'{key}: {value}')
 
-        # Save the form data to the session object
-        session['stockSymbol'] = request.form['stockSymbol']
-        session['numberOfShares'] = request.form['numberOfShares']
-        session['sharePrice'] = request.form['sharePrice']
+        new_stock = Stock(request.form['stockSymbol'],
+                          request.form['numberOfShares'],
+                          request.form['sharePrice'])
+        database.session.add(new_stock)
+        database.session.commit()
+
         flash(f"Added new stock ({ request.form['stockSymbol'] })!", 'success')
         app.logger.info(f"Added new stock ({ request.form['stockSymbol'] })!")
         return redirect(url_for('list_stocks'))
@@ -60,4 +81,5 @@ def add_stock():
 
 @app.route('/stocks')
 def list_stocks():
-    return render_template('stocks.html')
+    stocks = Stock.query.order_by(Stock.id).all()
+    return render_template('stocks.html', stocks=stocks)

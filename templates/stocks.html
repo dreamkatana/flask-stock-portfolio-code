@@ -17,10 +17,12 @@
   </tr>
 
   <!-- Table Elements (Rows) -->
-  <tr>
-    <td>{{ session['stockSymbol'] }}</td>
-    <td>{{ session['numberOfShares'] }}</td>
-    <td>${{ session['sharePrice'] }}</td>
-  </tr>
+  {% for stock in stocks %}
+    <tr>
+      <td>{{ stock.symbol }}</td>
+      <td>{{ stock.shares }}</td>
+      <td>${{ stock.price }}</td>
+    </tr>
+  {% endfor %}
 </table>
 {% endblock %}
