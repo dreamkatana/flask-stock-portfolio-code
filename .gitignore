@@ -11,6 +11,7 @@ __pycache__/
 
 # Instance Folder - used for configuration parameters
 instance/*_full.py
+instance/*_override.cfg
 instance/*.db
 instance/logs/
 

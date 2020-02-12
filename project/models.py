@@ -1,4 +1,4 @@
-from app import database
+from project import database
 
 
 class Stock(database.Model):
