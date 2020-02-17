@@ -1,6 +1,6 @@
 from project.stocks import stocks_blueprint
 from project.users import users_blueprint
-from flask import Flask
+from flask import Flask, render_template
 from logging.handlers import RotatingFileHandler
 import logging
 
@@ -17,8 +17,13 @@ def create_app(config_filename='flask.cfg'):
 
     register_blueprints(app)
     configure_logging(app)
+    register_error_pages(app)
     return app
 
+
+#######################
+### Helper Function ###
+#######################
 
 def register_blueprints(app):
     # Since the application instance is now created, register each Blueprint
@@ -37,3 +42,17 @@ def configure_logging(app):
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
     app.logger.info('Starting the Flask Stock Portfolio App...')
+
+
+def register_error_pages(app):
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('404.html'), 404
+
+    @app.errorhandler(403)
+    def page_forbidden(e):
+        return render_template('403.html'), 403
+
+    @app.errorhandler(410)
+    def page_gone(e):
+        return render_template('410.html'), 410
