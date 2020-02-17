@@ -10,17 +10,12 @@ __pycache__/
 .idea/
 
 # Instance Folder - used for configuration parameters
-instance/*_full.py
-instance/*_override.cfg
+instance/*_sensitive.cfg
 instance/*.db
 instance/logs/
 
-# Initialization file for Postgress Docker Image
-/postgresql/Dockerfile
-
 # Coverage output
-/web/.coverage
-/web/htmlcov/
+.coverage
 
 # Virtual Environment
 /venv/

@@ -1,4 +1,6 @@
-from flask import Flask
+from project.stocks import stocks_blueprint
+from project.users import users_blueprint
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from logging.handlers import RotatingFileHandler
@@ -20,15 +22,16 @@ db_migration = Migrate()
 #### Application Factory Function ####
 ######################################
 
-def create_app(config_filename=None, include_override_config=False):
+def create_app(config_filename='flask.cfg'):
     # Create the Flask application
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile(config_filename, silent=False)
-    if include_override_config:
-        app.config.from_pyfile('flask_override.cfg', silent=True)
+    app.config.from_pyfile('flask_sensitive.cfg', silent=True)
+
     initialize_extensions(app)
     register_blueprints(app)
     configure_logging(app)
+    register_error_pages(app)
     return app
 
 
@@ -41,6 +44,13 @@ def initialize_extensions(app):
     # extension instance to bind it to the Flask application instance (app)
     database = SQLAlchemy(app)
     db_migration = Migrate(app, database)
+
+
+def register_blueprints(app):
+    # Since the application instance is now created, register each Blueprint
+    # with the Flask application instance (app)
+    app.register_blueprint(stocks_blueprint)
+    app.register_blueprint(users_blueprint)
 
 
 def configure_logging(app):
@@ -57,11 +67,15 @@ def configure_logging(app):
     app.logger.info(f"  Secret Key: {app.config['SECRET_KEY']}")
 
 
-def register_blueprints(app):
-    # Since the application instance is now created, register each Blueprint
-    # with the Flask application instance (app)
-    from project.stocks import stocks_blueprint
-    from project.users import users_blueprint
+def register_error_pages(app):
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('404.html'), 404
 
-    app.register_blueprint(stocks_blueprint)
-    app.register_blueprint(users_blueprint)
+    @app.errorhandler(403)
+    def page_forbidden(e):
+        return render_template('403.html'), 403
+
+    @app.errorhandler(410)
+    def page_gone(e):
+        return render_template('410.html'), 410

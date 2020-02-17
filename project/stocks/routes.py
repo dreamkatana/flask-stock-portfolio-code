@@ -1,11 +1,11 @@
 #################
 #### imports ####
 #################
-
 from . import stocks_blueprint
 from flask import escape, render_template, request, session, redirect, url_for, flash, current_app
 from project.models import Stock
 from project import database
+
 
 ################
 #### routes ####
@@ -43,7 +43,7 @@ def add_stock():
 
         flash(f"Added new stock ({ request.form['stockSymbol'] })!", 'success')
         current_app.logger.info(f"Added new stock ({ request.form['stockSymbol'] })!")
-        return redirect(url_for('list_stocks'))
+        return redirect(url_for('stocks.list_stocks'))
     else:
         return render_template('stocks/add_stock.html')
 
