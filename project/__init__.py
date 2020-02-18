@@ -1,5 +1,3 @@
-from project.stocks import stocks_blueprint
-from project.users import users_blueprint
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -11,9 +9,9 @@ import logging
 #### Configuration ####
 #######################
 
-# Create the instances of the Flask extensions (flask-sqlalchemy, etc.) in
-# the global scope, but without any arguments passed in.  These instances are
-# not attached to the Flask application at this point.
+# Create the instances of the Flask extensions (flask-sqlalchemy, flask-migrate,
+# etc.) in the global scope, but without any arguments passed in.  These instances
+# are not attached to the Flask application at this point.
 database = SQLAlchemy()
 db_migration = Migrate()
 
@@ -47,6 +45,9 @@ def initialize_extensions(app):
 
 
 def register_blueprints(app):
+    from project.stocks import stocks_blueprint
+    from project.users import users_blueprint
+
     # Since the application instance is now created, register each Blueprint
     # with the Flask application instance (app)
     app.register_blueprint(stocks_blueprint)
