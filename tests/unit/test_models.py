@@ -9,6 +9,6 @@ def test_new_stock(new_stock):
     WHEN a new Stock is created
     THEN check the symbol, number of shares, and share price fields are defined correctly
     """
-    assert stock.symbol == 'AAPL'
-    assert stock.shares == 16
-    assert stock.price == 406.78
+    assert new_stock.symbol == 'AAPL'
+    assert new_stock.shares == 16
+    assert new_stock.price == 406.78

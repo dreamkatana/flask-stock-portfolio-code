@@ -28,7 +28,7 @@ def test_get_add_stock_page(test_client):
     assert b'Share Price:' in response.data
 
 
-def test_post_add_stock_page(test_client):
+def test_post_add_stock_page(test_client, init_database):
     response = test_client.post('/add_stock',
                                 data=dict(stockSymbol='AAPL',
                                           numberOfShares='23',
