@@ -90,6 +90,17 @@ header h1 {
 }
 
 
+/* Error Page Styling
+ ********************/
+.errorpage_title {
+  text-align: center;
+}
+
+.errorpage_section {
+  margin-top: 1em;
+  text-align: center;
+}
+
 /* Footer Styling
  ****************/
 footer {

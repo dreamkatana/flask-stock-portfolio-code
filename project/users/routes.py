@@ -1,7 +1,6 @@
 #################
 #### imports ####
 #################
-
 from . import users_blueprint
 
 
