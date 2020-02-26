@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_bcrypt import Bcrypt
 from logging.handlers import RotatingFileHandler
 import logging
 
@@ -14,6 +15,7 @@ import logging
 # are not attached to the Flask application at this point.
 database = SQLAlchemy()
 db_migration = Migrate()
+bcrypt = Bcrypt()
 
 
 ######################################
@@ -40,8 +42,9 @@ def create_app(config_filename='flask.cfg'):
 def initialize_extensions(app):
     # Since the application instance is now created, pass it to each Flask
     # extension instance to bind it to the Flask application instance (app)
-    database = SQLAlchemy(app)
-    db_migration = Migrate(app, database)
+    database.init_app(app)
+    db_migration.init_app(app, database)
+    bcrypt.init_app(app)
 
 
 def register_blueprints(app):
@@ -64,8 +67,6 @@ def configure_logging(app):
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
     app.logger.info('Starting the Flask Stock Portfolio App...')
-    app.logger.info(f"  SQLite Database location: {app.config['SQLALCHEMY_DATABASE_URI']}")
-    app.logger.info(f"  Secret Key: {app.config['SECRET_KEY']}")
 
 
 def register_error_pages(app):

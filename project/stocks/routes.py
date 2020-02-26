@@ -5,7 +5,7 @@ from . import stocks_blueprint
 from flask import escape, render_template, request, session, redirect, url_for, flash, current_app
 from project.models import Stock
 from project import database
-
+from .forms import AddStockForm
 
 ################
 #### routes ####
@@ -30,22 +30,24 @@ def display_blog_post(post_id):
 
 @stocks_blueprint.route('/add_stock', methods=['GET', 'POST'])
 def add_stock():
+    form = AddStockForm()
+
     if request.method == 'POST':
-        # DEBUG - Print the form data to the console
-        for key, value in request.form.items():
-            print(f'{key}: {value}')
+        if form.validate_on_submit():
+            new_stock = Stock(form.symbol.data,
+                              form.shares.data,
+                              form.price.data)
+            database.session.add(new_stock)
+            database.session.commit()
+            database.session.commit()
 
-        new_stock = Stock(request.form['stockSymbol'],
-                          request.form['numberOfShares'],
-                          request.form['sharePrice'])
-        database.session.add(new_stock)
-        database.session.commit()
+            flash(f"Added new stock ({ form.symbol.data })!", 'success')
+            current_app.logger.info(f"Added new stock ({ form.symbol.data })!")
+            return redirect(url_for('stocks.list_stocks'))
+        else:
+            flash(f"Error in form data!")
 
-        flash(f"Added new stock ({ request.form['stockSymbol'] })!", 'success')
-        current_app.logger.info(f"Added new stock ({ request.form['stockSymbol'] })!")
-        return redirect(url_for('stocks.list_stocks'))
-    else:
-        return render_template('stocks/add_stock.html')
+    return render_template('stocks/add_stock.html', form=form)
 
 
 @stocks_blueprint.route('/stocks')

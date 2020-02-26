@@ -101,6 +101,13 @@ header h1 {
   text-align: center;
 }
 
+
+/* Validation Errors Styling
+ ***************************/
+.validation_error {
+  color: red;
+}
+
 /* Footer Styling
  ****************/
 footer {

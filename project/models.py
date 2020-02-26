@@ -1,4 +1,5 @@
 from project import database
+from project import bcrypt
 
 
 class Stock(database.Model):
@@ -22,3 +23,33 @@ class Stock(database.Model):
         self.symbol = stock_symbol
         self.shares = number_of_shares
         self.price = purchase_price
+
+
+class User(database.Model):
+    """
+    Class that represents a user of the application
+
+    The following attributes of a user are stored in this table:
+        email
+        hashed password
+
+    REMEMBER: Never store the plaintext password in a database!
+    """
+    __tablename__ = 'users'
+
+    id = database.Column(database.Integer, primary_key=True, autoincrement=True)
+    email = database.Column(database.String, unique=True, nullable=False)
+    hashed_password = database.Column(database.Binary(60), nullable=False)
+
+    def __init__(self, email, password_plaintext):
+        self.email = email
+        self.hashed_password = bcrypt.generate_password_hash(password_plaintext)
+
+    def set_password(self, password_plaintext):
+        self.hashed_password = bcrypt.generate_password_hash(password_plaintext)
+
+    def is_password_correct(self, password_plaintext):
+        return bcrypt.check_password_hash(self.hashed_password, password_plaintext)
+
+    def __repr__(self):
+        return f'<User: {self.email}>'
