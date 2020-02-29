@@ -64,8 +64,6 @@ Run development server to serve the Flask application:
 (venv) $ flask run
 ```
 
-- Need to keep instance/logs/ folder in repo.
-
 ## Key Python Modules Used
 
 - Flask: micro-framework for web application development
