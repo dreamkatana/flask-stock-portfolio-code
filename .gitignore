@@ -12,7 +12,7 @@ __pycache__/
 # Instance Folder - used for configuration parameters
 instance/*_sensitive.cfg
 instance/*.db
-instance/logs/*.log
+instance/logs/*.log*
 
 # Coverage output
 .coverage
