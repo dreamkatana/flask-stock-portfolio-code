@@ -5,10 +5,27 @@ routes (routes.py) in the Stocks blueprint.
 
 
 def test_index_page(test_client):
+    """
+    GIVEN a Flask application
+    WHEN the '/' page is requested (GET)
+    THEN check the response is valid
+    """
     response = test_client.get('/')
     assert response.status_code == 200
     assert b'Flask Stock Portfolio App' in response.data
     assert b'Welcome to the Flask Stock Portfolio App!' in response.data
+
+
+def test_home_page_post(test_client):
+    """
+    GIVEN a Flask application
+    WHEN the '/' page is is posted to (POST)
+    THEN check that a '405' status code is returned
+    """
+    response = test_client.post('/')
+    assert response.status_code == 405
+    assert b'Welcome to the Flask Stock Portfolio App!' not in response.data
+
 
 
 def test_about_page(test_client):

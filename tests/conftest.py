@@ -1,6 +1,6 @@
 import pytest
 from project import create_app, database
-from project.models import Stock
+from project.models import Stock, User
 
 
 @pytest.fixture(scope='module')
@@ -34,3 +34,9 @@ def init_database():
     yield database  # this is where the testing happens!
 
     database.drop_all()
+
+
+@pytest.fixture(scope='module')
+def new_user():
+    user = User('patrick@email.com', 'FlaskIsAwesome123')
+    return user
