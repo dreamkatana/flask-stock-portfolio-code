@@ -97,7 +97,7 @@ def test_valid_login_and_logout(test_client, init_database, register_default_use
 
     """
     GIVEN a Flask application
-    WHEN the '/logout' page is posted to (POST) for a logged in user
+    WHEN the '/logout' page is requested (GET) for a logged in user
     THEN check the response is valid
     """
     response = test_client.get('/logout', follow_redirects=True)
@@ -143,11 +143,26 @@ def test_valid_login_when_logged_in_already(test_client, init_database, register
 def test_invalid_logout(test_client, init_database):
     """
     GIVEN a Flask application
-    WHEN the '/logout' page is posted to (POST) when a user is not logged in
-    THEN check the response is valid
+    WHEN the '/logout' page is posted to (POST)
+    THEN check that a 405 error is returned
     """
     response = test_client.post('/logout', follow_redirects=True)
     assert response.status_code == 405
     assert b"Goodbye!" not in response.data
     assert b'Flask Stock Portfolio App' in response.data
     assert b'Method Not Allowed' in response.data
+
+
+def test_invalid_logout_not_logged_in(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/logout' page is requested (GET) when the user is not logged in
+    THEN check that the user is redirected to the login page
+    """
+    test_client.get('/logout', follow_redirects=True)  # Double-check that there are no logged in users!
+    response = test_client.get('/logout', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Goodbye!" not in response.data
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Login' in response.data
+    assert b'Please log in to access this page.' in response.data

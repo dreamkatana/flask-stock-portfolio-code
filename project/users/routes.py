@@ -69,10 +69,10 @@ def login():
 @users_blueprint.route('/logout')
 @login_required
 def logout():
-    if not current_user.authenticated:
-        return render_template('405.html'), 405
-
-    # user = current_user
+    # if not current_user.authenticated:
+    #     return render_template('405.html'), 405
+    #
+    # # user = current_user
     current_user.authenticated = False
     database.session.add(current_user)
     database.session.commit()
