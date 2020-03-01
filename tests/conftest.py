@@ -47,4 +47,17 @@ def register_default_user(init_database):
     user = User('patrick@gmail.com', 'FlaskIsAwesome123')
     database.session.add(user)
     database.session.commit()
-    return
+    return user
+
+
+@pytest.fixture(scope='function')
+def log_in_user(test_client, register_default_user):
+    # Log in the user
+    test_client.post('/login',
+                     data=dict(email='patrick@gmail.com', password='FlaskIsAwesome123'),
+                     follow_redirects=True)
+
+    yield register_default_user  # this is where the testing happens!
+
+    # Log out the user
+    test_client.get('/logout', follow_redirects=True)

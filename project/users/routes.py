@@ -14,9 +14,10 @@ from project import database
 #### routes ####
 ################
 
-@users_blueprint.route('/users/<email>')
-def user_profile(email):
-    return render_template('users/user_profile.html', email=email)
+@users_blueprint.route('/user_profile')
+@login_required
+def user_profile():
+    return render_template('users/user_profile.html')
 
 
 @users_blueprint.route('/register', methods=['GET', 'POST'])
@@ -31,7 +32,7 @@ def register():
                 database.session.commit()
                 flash('Thanks for registering, {}!'.format(new_user.email))
                 current_app.logger.info(f"Registered new user: ({form.email.data})!")
-                return redirect(url_for('users.user_profile', email=form.email.data))
+                return redirect(url_for('users.user_profile'))
             except IntegrityError:
                 database.session.rollback()
                 flash('ERROR! Email ({}) already exists.'.format(form.email.data), 'error')
@@ -46,7 +47,7 @@ def login():
     # If the User is already logged in, don't allow them to try to log in again
     if current_user.is_authenticated:
         flash('Already logged in!  Redirecting to your User Profile page...')
-        return redirect(url_for('users.user_profile', email=current_user.email))
+        return redirect(url_for('users.user_profile'))
 
     form = LoginForm()
 
@@ -60,7 +61,7 @@ def login():
                 database.session.commit()
                 login_user(user, remember=form.remember_me.data)
                 flash('Thanks for logging in, {}!'.format(current_user.email))
-                return redirect(url_for('users.user_profile', email=form.email.data))
+                return redirect(url_for('users.user_profile'))
 
         flash('ERROR! Incorrect login credentials.')
     return render_template('users/login.html', form=form)

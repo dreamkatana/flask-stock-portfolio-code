@@ -166,3 +166,66 @@ def test_invalid_logout_not_logged_in(test_client, init_database):
     assert b'Flask Stock Portfolio App' in response.data
     assert b'Login' in response.data
     assert b'Please log in to access this page.' in response.data
+
+
+def test_navigation_links_not_logged_in(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/' page is requested (GET) when the user is not logged in
+    THEN check that the Register and Login links are present
+    """
+    test_client.get('/logout', follow_redirects=True)  # Double-check that there are no logged in users!
+    response = test_client.get('/')
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Welcome to the Flask Stock Portfolio App!' in response.data
+    assert b'Register' in response.data
+    assert b'Login' in response.data
+    assert b'Logout' not in response.data
+    assert b'User Profile' not in response.data
+
+
+def test_navigation_links_logged_in(test_client, init_database, log_in_user):
+    """
+    GIVEN a Flask application
+    WHEN the '/' page is requested (GET) when the user is logged in
+    THEN check that the Logout and User Profile links are present
+    """
+    response = test_client.get('/')
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Welcome to the Flask Stock Portfolio App!' in response.data
+    assert b'Register' not in response.data
+    assert b'Login' not in response.data
+    assert b'Logout' in response.data
+    assert b'User Profile' in response.data
+
+
+def test_user_profile_logged_in(test_client, init_database, log_in_user):
+    """
+    GIVEN a Flask application
+    WHEN the '/user_profile' page is requested (GET) when the user is logged in
+    THEN check that profile for the current user is presented
+    """
+    response = test_client.get('/user_profile')
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'User Profile' in response.data
+    assert b'Email: patrick@gmail.com' in response.data
+
+
+def test_user_profile_not_logged_in(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/user_profile' page is requested (GET) when the user is NOT logged in
+    THEN check that the user is redirected to the login page
+    """
+    test_client.get('/logout', follow_redirects=True)  # Double-check that there are no logged in users!
+    response = test_client.get('/user_profile', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'User Profile!' not in response.data
+    assert b'Email: patrick@gmail.com' not in response.data
+    assert b'Login' in response.data
+    assert b'Please log in to access this page.' in response.data
