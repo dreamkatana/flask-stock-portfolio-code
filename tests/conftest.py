@@ -40,3 +40,11 @@ def init_database():
 def new_user():
     user = User('patrick@email.com', 'FlaskIsAwesome123')
     return user
+
+
+@pytest.fixture(scope='module')
+def register_default_user(init_database):
+    user = User('patrick@gmail.com', 'FlaskIsAwesome123')
+    database.session.add(user)
+    database.session.commit()
+    return

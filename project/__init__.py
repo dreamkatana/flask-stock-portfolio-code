@@ -2,6 +2,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 from logging.handlers import RotatingFileHandler
 import logging
 
@@ -16,6 +17,8 @@ import logging
 database = SQLAlchemy()
 db_migration = Migrate()
 bcrypt = Bcrypt()
+login = LoginManager()
+login.login_view = "users.login"
 
 
 ######################################
@@ -45,6 +48,14 @@ def initialize_extensions(app):
     database.init_app(app)
     db_migration.init_app(app, database)
     bcrypt.init_app(app)
+    login.init_app(app)
+
+    # Flask-Login configuration
+    from project.models import User
+
+    @login.user_loader
+    def load_user(user_id):
+        return User.query.filter(User.id == int(user_id)).first()
 
 
 def register_blueprints(app):
