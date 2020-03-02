@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_mail import Mail
 from logging.handlers import RotatingFileHandler
 import logging
 
@@ -19,6 +20,7 @@ db_migration = Migrate()
 bcrypt = Bcrypt()
 login = LoginManager()
 login.login_view = "users.login"
+mail = Mail()
 
 
 ######################################
@@ -49,6 +51,7 @@ def initialize_extensions(app):
     db_migration.init_app(app, database)
     bcrypt.init_app(app)
     login.init_app(app)
+    mail.init_app(app)
 
     # Flask-Login configuration
     from project.models import User

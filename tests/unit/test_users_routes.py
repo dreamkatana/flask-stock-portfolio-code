@@ -2,6 +2,7 @@
 This file (test_users_routes.py) contains the unit tests for testing the
 routes (routes.py) in the Users blueprint.
 """
+from project import mail
 
 
 def test_get_registration_page(test_client, init_database):
@@ -229,3 +230,22 @@ def test_user_profile_not_logged_in(test_client, init_database):
     assert b'Email: patrick@gmail.com' not in response.data
     assert b'Login' in response.data
     assert b'Please log in to access this page.' in response.data
+
+
+def test_user_registration_email(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/register' page is posted to (POST) with valid data
+    THEN check that an email was queued up to send
+    """
+    with mail.record_messages() as outbox:
+        response = test_client.post('/register',
+                                    data=dict(email='patrick@yahoo.com',
+                                              password='FlaskIsAwesome123'),
+                                    follow_redirects=True)
+        print(response.data)
+        assert response.status_code == 200
+        assert len(outbox) == 1
+        assert outbox[0].subject == 'Registration - Flask Stock Portfolio App'
+        assert outbox[0].sender == 'flaskstockportfolioapp@gmail.com'
+        assert outbox[0].recipients[0] == 'patrick@yahoo.com'
