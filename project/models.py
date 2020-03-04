@@ -1,5 +1,6 @@
 from project import database
 from project import bcrypt
+from datetime import datetime
 
 
 class Stock(database.Model):
@@ -30,9 +31,13 @@ class User(database.Model):
     Class that represents a user of the application
 
     The following attributes of a user are stored in this table:
-        email
-        hashed password
-        authenticated
+        * email - email address of the user
+        * hashed password - hashed password (using Flask-Bcrypt)
+        * authenticated - flag indicating if the user is currently logged in
+        * registered_on - date & time that the user registered
+        * email_confirmation_sent_on - date & time that the confirmation email was sent
+        * email_confirmed - flag indicating if the user's email address has been confirmed
+        * email_confirmed_on - date & time that the user's email address was confirmed
 
     REMEMBER: Never store the plaintext password in a database!
     """
@@ -42,11 +47,19 @@ class User(database.Model):
     email = database.Column(database.String, unique=True, nullable=False)
     password_hashed = database.Column(database.LargeBinary(60), nullable=False)
     authenticated = database.Column(database.Boolean, default=False)
+    registered_on = database.Column(database.DateTime, nullable=True)
+    email_confirmation_sent_on = database.Column(database.DateTime, nullable=True)
+    email_confirmed = database.Column(database.Boolean, nullable=True, default=False)
+    email_confirmed_on = database.Column(database.DateTime, nullable=True)
 
-    def __init__(self, email, password_plaintext):
+    def __init__(self, email, password_plaintext, email_confirmation_sent_on=None):
         self.email = email
         self.password_hashed = bcrypt.generate_password_hash(password_plaintext)
         self.authenticated = False
+        self.registered_on = datetime.now()
+        self.email_confirmation_sent_on = email_confirmation_sent_on
+        self.email_confirmed = False
+        self.email_confirmed_on = None
 
     # def set_password(self, password_plaintext):
     #     self.password_hashed = bcrypt.generate_password_hash(password_plaintext)
