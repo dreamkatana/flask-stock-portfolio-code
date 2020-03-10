@@ -61,3 +61,22 @@ def log_in_user(test_client, register_default_user):
 
     # Log out the user
     test_client.get('/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='function')
+def confirm_email_user(test_client, log_in_user):
+    # Log in the user
+    test_client.post('/login',
+                     data=dict(email='patrick@gmail.com', password='FlaskIsAwesome123'),
+                     follow_redirects=True)
+
+    user = User.query.filter_by(email='patrick@gmail.com').first()
+    user.email_confirmed = True
+    database.session.add(user)
+    database.session.commit()
+
+    yield user  # this is where the testing happens!
+
+    user.email_confirmed = False
+    database.session.add(user)
+    database.session.commit()

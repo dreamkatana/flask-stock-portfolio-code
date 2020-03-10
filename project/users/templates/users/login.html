@@ -29,4 +29,6 @@
 
   <button>Login</button>
 </form>
+
+<p><em>Forgot your password?  </em><a href="{{ url_for('users.password_reset_via_email') }}">Click Here to Reset!</a></p>
 {% endblock %}

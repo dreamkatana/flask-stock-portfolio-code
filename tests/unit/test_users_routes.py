@@ -4,6 +4,8 @@ routes (routes.py) in the Users blueprint.
 """
 from project import mail
 from project.models import User
+from itsdangerous import URLSafeTimedSerializer
+from flask import current_app
 
 
 def test_get_registration_page(test_client, init_database):
@@ -82,6 +84,8 @@ def test_get_login_page(test_client, init_database):
     assert b"Login" in response.data
     assert b"Email" in response.data
     assert b"Password" in response.data
+    assert b'Forgot your password?' in response.data
+    assert b'Click Here to Reset!' in response.data
 
 
 def test_valid_login_and_logout(test_client, init_database, register_default_user):
@@ -311,3 +315,129 @@ def test_confirm_email_invalid(test_client, init_database):
     print(response.data)
     assert response.status_code == 200
     assert b'The confirmation link is invalid or has expired.' in response.data
+
+
+def test_get_password_reset_via_email_page(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/password_reset_via_email' page is requested (GET)
+    THEN check that the page is successfully returned
+    """
+    response = test_client.get('/password_reset_via_email', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Password Reset via Email' in response.data
+    assert b'Email:' in response.data
+    assert b'Submit' in response.data
+
+
+def test_post_password_reset_via_email_page_valid(test_client, confirm_email_user):
+    """
+    GIVEN a Flask application
+    WHEN the '/password_reset_via_email' page is posted to (POST) with a valid email address
+    THEN check that an email was queued up to send
+    """
+    with mail.record_messages() as outbox:
+        response = test_client.post('/password_reset_via_email',
+                                    data=dict(email='patrick@gmail.com'),
+                                    follow_redirects=True)
+        assert response.status_code == 200
+        assert b'Please check your email for a password reset link.' in response.data
+        assert len(outbox) == 1
+        assert outbox[0].subject == 'Flask Stock Portfolio App - Password Reset Requested'
+        assert outbox[0].sender == 'flaskstockportfolioapp@gmail.com'
+        assert outbox[0].recipients[0] == 'patrick@gmail.com'
+        assert 'Questions? Comments? Email flaskstockportfolioapp@gmail.com' in outbox[0].html
+        assert 'http://localhost/password_reset_via_token/' in outbox[0].html
+
+
+def test_post_password_reset_via_email_page_invalid(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/password_reset_via_email' page is posted to (POST) with an invalid email address
+    THEN check that an error message is flashed
+    """
+    with mail.record_messages() as outbox:
+        response = test_client.post('/password_reset_via_email',
+                                    data=dict(email='notpatrick@gmail.com'),
+                                    follow_redirects=True)
+        assert response.status_code == 200
+        print(response.data)
+        assert len(outbox) == 0
+        assert b'Error! Invalid email address!' in response.data
+
+
+def test_post_password_reset_via_email_page_not_confirmed(test_client, init_database, log_in_user):
+    """
+    GIVEN a Flask application
+    WHEN the '/password_reset_via_email' page is posted to (POST) with a email address that has not been confirmed
+    THEN check that an error message is flashed
+    """
+    with mail.record_messages() as outbox:
+        response = test_client.post('/password_reset_via_email',
+                                    data=dict(email='patrick@gmail.com'),
+                                    follow_redirects=True)
+        assert response.status_code == 200
+        assert len(outbox) == 0
+        assert b'Your email address must be confirmed before attempting a password reset.' in response.data
+
+
+def test_get_password_reset_valid_token(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/password_reset_via_email/<token>' page is requested (GET) with a valid token
+    THEN check that the page is successfully returned
+    """
+    password_reset_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    token = password_reset_serializer.dumps('patrick@gmail.com', salt='password-reset-salt')
+    response = test_client.get('/password_reset_via_token/' + token, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Password Reset:' in response.data
+    assert b'New Password:' in response.data
+    assert b'Submit' in response.data
+
+
+def test_get_password_reset_invalid_token(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/password_reset_via_email/<token>' page is requested (GET) with an invalid token
+    THEN check that the page is successfully returned
+    """
+    token = 'invalid_token'
+    response = test_client.get('/password_reset_via_token/' + token, follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Password Reset:' not in response.data
+    assert b'The password reset link is invalid or has expired.' in response.data
+
+
+def test_post_password_reset_valid_token(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/password_reset_via_email/<token>' page is posted to (POST) with a valid token
+    THEN check that the password provided is processed
+    """
+    password_reset_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    token = password_reset_serializer.dumps('patrick@gmail.com', salt='password-reset-salt')
+    response = test_client.post('/password_reset_via_token/' + token,
+                                data=dict(password='FlaskIsStillGreat45678'),
+                                follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Your password has been updated!' in response.data
+
+
+def test_post_password_reset_valid_intoken(test_client, init_database):
+    """
+    GIVEN a Flask application
+    WHEN the '/password_reset_via_email/<token>' page is posted to (POST) with a invalid token
+    THEN check that the password provided is processed
+    """
+    token = 'invalid_token'
+    response = test_client.post('/password_reset_via_token/' + token,
+                                data=dict(password='FlaskIsStillGreat45678'),
+                                follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Your password has been updated!' not in response.data
+    assert b'The password reset link is invalid or has expired.' in response.data

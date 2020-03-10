@@ -61,8 +61,8 @@ class User(database.Model):
         self.email_confirmed = False
         self.email_confirmed_on = None
 
-    # def set_password(self, password_plaintext):
-    #     self.password_hashed = bcrypt.generate_password_hash(password_plaintext)
+    def set_password(self, password_plaintext):
+        self.password_hashed = bcrypt.generate_password_hash(password_plaintext)
 
     def is_password_correct(self, password_plaintext):
         return bcrypt.check_password_hash(self.password_hashed, password_plaintext)
