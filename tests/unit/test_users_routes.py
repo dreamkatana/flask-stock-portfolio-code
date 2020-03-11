@@ -433,7 +433,6 @@ def test_get_password_reset_invalid_token(test_client, init_database):
     """
     token = 'invalid_token'
     response = test_client.get('/password_reset_via_token/' + token, follow_redirects=True)
-    print(response.data)
     assert response.status_code == 200
     assert b'Password Reset:' not in response.data
     assert b'The password reset link is invalid or has expired.' in response.data
@@ -448,14 +447,13 @@ def test_post_password_reset_valid_token(test_client, init_database):
     password_reset_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     token = password_reset_serializer.dumps('patrick@gmail.com', salt='password-reset-salt')
     response = test_client.post('/password_reset_via_token/' + token,
-                                data=dict(password='FlaskIsStillGreat45678'),
+                                data=dict(password='FlaskIsAwesome123'),
                                 follow_redirects=True)
-    print(response.data)
     assert response.status_code == 200
     assert b'Your password has been updated!' in response.data
 
 
-def test_post_password_reset_valid_intoken(test_client, init_database):
+def test_post_password_reset_invalid_token(test_client, init_database):
     """
     GIVEN a Flask application
     WHEN the '/password_reset_via_email/<token>' page is posted to (POST) with a invalid token
@@ -465,7 +463,58 @@ def test_post_password_reset_valid_intoken(test_client, init_database):
     response = test_client.post('/password_reset_via_token/' + token,
                                 data=dict(password='FlaskIsStillGreat45678'),
                                 follow_redirects=True)
-    print(response.data)
     assert response.status_code == 200
     assert b'Your password has been updated!' not in response.data
     assert b'The password reset link is invalid or has expired.' in response.data
+
+
+def test_get_change_password_logged_in(test_client, init_database, log_in_user):
+    """
+    GIVEN a Flask application with the user logged in
+    WHEN the '/password_change' page is retrieved (GET)
+    THEN check that the page is retrieved successfully
+    """
+    response = test_client.get('/password_change', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Password Change' in response.data
+    assert b'New Password:' in response.data
+
+
+def test_get_change_password_not_logged_in(test_client, init_database):
+    """
+    GIVEN a Flask application with the user not logged in
+    WHEN the '/password_change' page is retrieved (GET)
+    THEN check that an error message is flashed
+    """
+    response = test_client.get('/password_change', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Password Change' not in response.data
+    assert b'New Password:' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_post_change_password_logged_in(test_client, init_database, log_in_user):
+    """
+    GIVEN a Flask application with the user logged in
+    WHEN the '/password_change' page is posted to (POST) with valid data
+    THEN check that the page is retrieved successfully
+    """
+    response = test_client.post('/password_change',
+                                data=dict(password='FlaskIsTheBest987'),
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Password has been updated!' in response.data
+
+
+def test_post_change_password_not_logged_in(test_client, init_database):
+    """
+    GIVEN a Flask application with the user not logged in
+    WHEN the '/password_change' page is posted to (POST) with valid data
+    THEN check that the page is retrieved successfully
+    """
+    response = test_client.post('/password_change',
+                                data=dict(password='FlaskIsTheBest987'),
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Password has been updated!' not in response.data
+    assert b'Please log in to access this page.' in response.data

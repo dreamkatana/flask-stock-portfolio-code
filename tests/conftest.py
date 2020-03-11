@@ -54,10 +54,10 @@ def register_default_user(init_database):
 @pytest.fixture(scope='function')
 def log_in_user(test_client, register_default_user):
     # Log in the user
-    test_client.post('/login',
+    response = test_client.post('/login',
                      data=dict(email='patrick@gmail.com', password='FlaskIsAwesome123'),
                      follow_redirects=True)
-
+    print(f'Login Response: \n{response.data}')
     yield register_default_user  # this is where the testing happens!
 
     # Log out the user

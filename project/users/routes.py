@@ -203,9 +203,20 @@ def process_password_reset_token(token):
     return render_template('users/reset_password_with_token.html', form=form)
 
 
-@users_blueprint.route('/change_password', methods=['GET', 'POST'])
-def change_password():
-    return '<h1>Page Is Under Construction</h1>'
+@users_blueprint.route('/password_change', methods=['GET', 'POST'])
+@login_required
+def password_change():
+    form = PasswordForm()
+
+    if form.validate_on_submit():
+        user = current_user
+        user.set_password(form.password.data)
+        database.session.add(user)
+        database.session.commit()
+        flash('Password has been updated!', 'success')
+        return redirect(url_for('users.user_profile'))
+
+    return render_template('users/password_change.html', form=form)
 
 
 @users_blueprint.route('/resend_email_confirmation')
