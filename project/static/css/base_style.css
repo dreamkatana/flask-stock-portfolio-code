@@ -19,6 +19,9 @@ body {
 header {
   grid-area: header;
 }
+nav {
+  grid-area: nav;
+}
 .messages {
   grid-area: messages;
 }
@@ -31,13 +34,13 @@ footer {
 
 .grid-container {
   display: grid;
-  grid-template-columns: 10% 35% 35% 10%;
+  grid-template-columns: 10% 40% 40% 10%;
   grid-auto-rows: minmax(40px, auto);
   grid-gap: 10px;
   max-width: 1080px;
   margin: auto;
   grid-template-areas:
-    "header    header     header    header"
+    "header    header     nav       nav"
     "messages  messages   messages  messages"
     "...       content    content   ..."
     "footer    footer     footer    footer";
@@ -51,7 +54,33 @@ header {
 }
 
 header h1 {
-  font-size: 2.5em;
+  font-size: 1.8em;
+  margin-left: 1em;
+}
+
+header h1 a {
+  text-decoration: none
+}
+
+
+/* Navigation Links Styling
+***************************/
+nav {
+  margin: auto;
+}
+
+nav ul {
+  list-style: none;
+}
+
+nav li {
+  display: inline-block;
+  padding-left: 1em;
+  font-size: 1.5em;
+}
+
+nav li a {
+  text-decoration: none
 }
 
 
@@ -99,6 +128,13 @@ header h1 {
 .errorpage_section {
   margin-top: 1em;
   text-align: center;
+}
+
+
+/* Validation Errors Styling
+ ***************************/
+.validation_error {
+  color: red;
 }
 
 /* Footer Styling

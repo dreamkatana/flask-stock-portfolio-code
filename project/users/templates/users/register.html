@@ -5,28 +5,21 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="form-heading">Add a Stock:</h2>
+<h2 class="form-heading">User Registration:</h2>
 
 <form method="post">
   {{ form.csrf_token }}
 
-  {{ form.symbol.label }}
-  {{ form.symbol }}
-  {% for error in form.symbol.errors %}
+  {{ form.email.label }}
+  {{ form.email }}
+  {% for error in form.email.errors %}
     <span class="validation_error">[{{ error }}]</span>
   {% endfor %}
   <br>
 
-  {{ form.shares.label }}
-  {{ form.shares }}
-  {% for error in form.shares.errors %}
-    <span class="validation_error">[{{ error }}]</span>
-  {% endfor %}
-  <br>
-
-  {{ form.price.label }}
-  {{ form.price }}
-  {% for error in form.price.errors %}
+  {{ form.password.label }}
+  {{ form.password }}
+  {% for error in form.password.errors %}
     <span class="validation_error">[{{ error }}]</span>
   {% endfor %}
   <br>

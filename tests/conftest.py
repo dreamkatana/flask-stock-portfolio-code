@@ -1,6 +1,7 @@
 import pytest
 from project import create_app, database
-from project.models import Stock
+from project.models import Stock, User
+from datetime import date
 
 
 @pytest.fixture(scope='module')
@@ -34,3 +35,59 @@ def init_database():
     yield database  # this is where the testing happens!
 
     database.drop_all()
+
+
+@pytest.fixture(scope='module')
+def new_user():
+    user = User('patrick@email.com', 'FlaskIsAwesome123')
+    return user
+
+
+@pytest.fixture(scope='module')
+def register_default_user(init_database):
+    user = User('patrick@gmail.com', 'FlaskIsAwesome123')
+    database.session.add(user)
+    database.session.commit()
+    return user
+
+
+@pytest.fixture(scope='function')
+def log_in_user(test_client, register_default_user):
+    # Log in the user
+    response = test_client.post('/login',
+                     data=dict(email='patrick@gmail.com', password='FlaskIsAwesome123'),
+                     follow_redirects=True)
+    print(f'Login Response: \n{response.data}')
+
+    yield register_default_user  # this is where the testing happens!
+
+    # Since some unit tests are changing the password for the default user,
+    # reset the password back to the default password
+    response = test_client.post('/password_change',
+                                data=dict(password='FlaskIsAwesome123'),
+                                follow_redirects=True)
+    print(f'Password Change (to default): \n{response.data}')
+
+    # Log out the user
+    test_client.get('/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='function')
+def confirm_email_user(test_client, log_in_user):
+    # Log in the user
+    test_client.post('/login',
+                     data=dict(email='patrick@gmail.com', password='FlaskIsAwesome123'),
+                     follow_redirects=True)
+
+    user = User.query.filter_by(email='patrick@gmail.com').first()
+    user.email_confirmed = True
+    user.email_confirmed_on = date(2020, 3, 10)
+    database.session.add(user)
+    database.session.commit()
+
+    yield user  # this is where the testing happens!
+
+    user.email_confirmed = False
+    user.email_confirmed_on = None
+    database.session.add(user)
+    database.session.commit()
