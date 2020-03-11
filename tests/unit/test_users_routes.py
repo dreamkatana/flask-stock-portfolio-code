@@ -219,6 +219,34 @@ def test_user_profile_logged_in(test_client, init_database, log_in_user):
     assert b'Flask Stock Portfolio App' in response.data
     assert b'User Profile' in response.data
     assert b'Email: patrick@gmail.com' in response.data
+    assert b'Account Statistics' in response.data
+    assert b'Joined on' in response.data
+    assert b'Email address has not been confirmed!' in response.data
+    assert b'Email address confirmed on' not in response.data
+    assert b'Account Actions' in response.data
+    assert b'Change Password' in response.data
+    assert b'Resend Email Confirmation' in response.data
+
+
+def test_user_profile_logged_in_email_confirmed(test_client, init_database, confirm_email_user):
+    """
+    GIVEN a Flask application
+    WHEN the '/user_profile' page is requested (GET) when the user is logged in and their email address is confirmed
+    THEN check that profile for the current user is presented
+    """
+    response = test_client.get('/user_profile')
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'User Profile' in response.data
+    assert b'Email: patrick@gmail.com' in response.data
+    assert b'Account Statistics' in response.data
+    assert b'Joined on' in response.data
+    assert b'Email address has not been confirmed!' not in response.data
+    assert b'Email address confirmed on Tuesday, March 10, 2020' in response.data
+    assert b'Account Actions' in response.data
+    assert b'Change Password' in response.data
+    assert b'Resend Email Confirmation' not in response.data
 
 
 def test_user_profile_not_logged_in(test_client, init_database):

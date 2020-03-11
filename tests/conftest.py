@@ -1,6 +1,7 @@
 import pytest
 from project import create_app, database
 from project.models import Stock, User
+from datetime import date
 
 
 @pytest.fixture(scope='module')
@@ -72,11 +73,13 @@ def confirm_email_user(test_client, log_in_user):
 
     user = User.query.filter_by(email='patrick@gmail.com').first()
     user.email_confirmed = True
+    user.email_confirmed_on = date(2020, 3, 10)
     database.session.add(user)
     database.session.commit()
 
     yield user  # this is where the testing happens!
 
     user.email_confirmed = False
+    user.email_confirmed_on = None
     database.session.add(user)
     database.session.commit()
