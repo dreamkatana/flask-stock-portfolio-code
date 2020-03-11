@@ -518,3 +518,36 @@ def test_post_change_password_not_logged_in(test_client, init_database):
     assert response.status_code == 200
     assert b'Password has been updated!' not in response.data
     assert b'Please log in to access this page.' in response.data
+
+
+def test_get_resend_email_confirmation_logged_in(test_client, log_in_user):
+    """
+    GIVEN a Flask application when the user is logged in (email address not confirmed)
+    WHEN the '/resend_email_confirmation' page is retrieved (GET)
+    THEN check that an email was queued up to send
+    """
+    with mail.record_messages() as outbox:
+        response = test_client.get('/resend_email_confirmation', follow_redirects=True)
+        assert response.status_code == 200
+        print(response.data)
+        assert b'Email sent to confirm your email address.  Please check your email!' in response.data
+        assert len(outbox) == 1
+        assert outbox[0].subject == 'Flask Stock Portfolio App - Confirm Your Email Address'
+        assert outbox[0].sender == 'flaskstockportfolioapp@gmail.com'
+        assert outbox[0].recipients[0] == 'patrick@gmail.com'
+        assert 'Questions? Comments? Email flaskstockportfolioapp@gmail.com' in outbox[0].html
+        assert 'http://localhost/confirm/' in outbox[0].html
+
+
+def test_get_resend_email_confirmation_not_logged_in(test_client, init_database):
+    """
+    GIVEN a Flask application when the user is not logged in
+    WHEN the '/resend_email_confirmation' page is retrieved (GET)
+    THEN check that an email was queued up to send
+    """
+    with mail.record_messages() as outbox:
+        response = test_client.get('/resend_email_confirmation', follow_redirects=True)
+        assert response.status_code == 200
+        assert b'Email sent to confirm your email address.  Please check your email!' not in response.data
+        assert len(outbox) == 0
+        assert b'Please log in to access this page.' in response.data

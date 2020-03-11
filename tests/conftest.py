@@ -58,7 +58,15 @@ def log_in_user(test_client, register_default_user):
                      data=dict(email='patrick@gmail.com', password='FlaskIsAwesome123'),
                      follow_redirects=True)
     print(f'Login Response: \n{response.data}')
+
     yield register_default_user  # this is where the testing happens!
+
+    # Since some unit tests are changing the password for the default user,
+    # reset the password back to the default password
+    response = test_client.post('/password_change',
+                                data=dict(password='FlaskIsAwesome123'),
+                                follow_redirects=True)
+    print(f'Password Change (to default): \n{response.data}')
 
     # Log out the user
     test_client.get('/logout', follow_redirects=True)
