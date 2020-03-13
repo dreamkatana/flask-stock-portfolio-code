@@ -19,11 +19,16 @@ class Stock(database.Model):
     symbol = database.Column(database.String, nullable=False)
     shares = database.Column(database.Integer, nullable=False)
     price = database.Column(database.Float, nullable=False)
+    user_id = database.Column(database.Integer, database.ForeignKey('users.id'))
 
-    def __init__(self, stock_symbol, number_of_shares, purchase_price):
+    def __init__(self, stock_symbol, number_of_shares, purchase_price, user_id):
         self.symbol = stock_symbol
         self.shares = number_of_shares
         self.price = purchase_price
+        self.user_id = user_id
+
+    def __repr__(self):
+        return f'<Stock: {self.symbol}>'
 
 
 class User(database.Model):
@@ -51,6 +56,7 @@ class User(database.Model):
     email_confirmation_sent_on = database.Column(database.DateTime, nullable=True)
     email_confirmed = database.Column(database.Boolean, nullable=True, default=False)
     email_confirmed_on = database.Column(database.DateTime, nullable=True)
+    recipes = database.relationship('Stock', backref='user', lazy='dynamic')
 
     def __init__(self, email, password_plaintext, email_confirmation_sent_on=None):
         self.email = email

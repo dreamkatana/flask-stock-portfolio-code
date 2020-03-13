@@ -27,7 +27,6 @@ def test_home_page_post(test_client):
     assert b'Welcome to the Flask Stock Portfolio App!' not in response.data
 
 
-
 def test_about_page(test_client):
     response = test_client.get('/about')
     assert b'Flask Stock Portfolio App' in response.data
@@ -36,7 +35,7 @@ def test_about_page(test_client):
     assert b'Course developed by TestDriven.io.' in response.data
 
 
-def test_get_add_stock_page(test_client):
+def test_get_add_stock_page(test_client, stocks_blueprint_user_login):
     response = test_client.get('/add_stock')
     assert b'Flask Stock Portfolio App' in response.data
     assert b'Add a Stock:' in response.data
@@ -45,7 +44,14 @@ def test_get_add_stock_page(test_client):
     assert b'Share Price:' in response.data
 
 
-def test_post_add_stock_page(test_client, init_database):
+def test_get_add_stock_page_not_logged_in(test_client):
+    response = test_client.get('/add_stock', follow_redirects=True)
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Add a Stock:' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_post_add_stock_page(test_client, stocks_blueprint_user_login):
     response = test_client.post('/add_stock',
                                 data=dict(symbol='AAPL',
                                           shares='23',
@@ -62,7 +68,18 @@ def test_post_add_stock_page(test_client, init_database):
     assert b'Added new stock (AAPL)!' in response.data
 
 
-def test_post_add_stock_no_data(test_client, init_database):
+def test_post_add_stock_page_not_logged_in(test_client):
+    response = test_client.post('/add_stock',
+                                data=dict(symbol='AAPL',
+                                          shares='23',
+                                          price='432.17'),
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Stocks:' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_post_add_stock_no_data(test_client, stocks_blueprint_user_login):
     response = test_client.post('/add_stock',
                                 data=dict(stockSymbol='',
                                           numberOfShares='',
@@ -78,7 +95,7 @@ def test_post_add_stock_no_data(test_client, init_database):
     assert b'Share Price:' in response.data
 
 
-def test_post_add_stock_only_symbol_data(test_client, init_database):
+def test_post_add_stock_only_symbol_data(test_client, stocks_blueprint_user_login):
     response = test_client.post('/add_stock',
                                 data=dict(stockSymbol='SAM',
                                           numberOfShares='',
@@ -94,7 +111,7 @@ def test_post_add_stock_only_symbol_data(test_client, init_database):
     assert b'Share Price:' in response.data
 
 
-def test_post_add_stock_invalid_number_of_shares(test_client, init_database):
+def test_post_add_stock_invalid_number_of_shares(test_client, stocks_blueprint_user_login):
     response = test_client.post('/add_stock',
                                 data=dict(stockSymbol='SAM',
                                           numberOfShares='I_AM_INCORRECT_DATA',
@@ -108,3 +125,37 @@ def test_post_add_stock_invalid_number_of_shares(test_client, init_database):
     assert b'Stock Symbol:' in response.data
     assert b'Number of Shares:' in response.data
     assert b'Share Price:' in response.data
+
+
+def test_get_stock_data_logged_in(test_client, stocks_blueprint_user_login):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/stocks' page is requested (GET)
+    THEN check the response is valid
+    """
+    response = test_client.get('/stocks', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Stock Symbol' in response.data
+    assert b'Number of Shares' in response.data
+    assert b'Share Price' in response.data
+    assert b'AAPL' in response.data
+    assert b'COST' in response.data
+    assert b'HD' in response.data
+
+
+def test_get_stock_data_not_logged_in(test_client, init_database):
+    """
+    GIVEN a Flask application with a user not logged in
+    WHEN the '/stocks' page is requested (GET)
+    THEN check that no data is displayed and the user is redirected to the Login page
+    """
+    response = test_client.get('/stocks', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'AAPL' not in response.data
+    assert b'COST' not in response.data
+    assert b'HD' not in response.data
+    assert b'Please log in to access this page.' in response.data

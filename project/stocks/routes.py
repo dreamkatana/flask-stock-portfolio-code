@@ -3,9 +3,11 @@
 #################
 from . import stocks_blueprint
 from flask import escape, render_template, request, session, redirect, url_for, flash, current_app
+from flask_login import login_required, current_user
 from project.models import Stock
 from project import database
 from .forms import AddStockForm
+
 
 ################
 #### routes ####
@@ -29,6 +31,7 @@ def display_blog_post(post_id):
 
 
 @stocks_blueprint.route('/add_stock', methods=['GET', 'POST'])
+@login_required
 def add_stock():
     form = AddStockForm()
 
@@ -36,7 +39,8 @@ def add_stock():
         if form.validate_on_submit():
             new_stock = Stock(form.symbol.data,
                               form.shares.data,
-                              form.price.data)
+                              form.price.data,
+                              current_user.id)
             database.session.add(new_stock)
             database.session.commit()
             database.session.commit()
@@ -51,6 +55,7 @@ def add_stock():
 
 
 @stocks_blueprint.route('/stocks')
+@login_required
 def list_stocks():
-    stocks = Stock.query.order_by(Stock.id).all()
+    stocks = Stock.query.order_by(Stock.id).filter_by(user_id=current_user.id).all()
     return render_template('stocks/stocks.html', stocks=stocks)
