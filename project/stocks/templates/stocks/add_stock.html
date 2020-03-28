@@ -30,6 +30,29 @@
     <span class="validation_error">[{{ error }}]</span>
   {% endfor %}
   <br>
+  <br>
+
+  <h3>Purchase Date:</h3>
+  {{ form.purchase_date_month.label }}
+  {{ form.purchase_date_month }}
+  {% for error in form.purchase_date_month.errors %}
+    <span class="validation_error">[{{ error }}]</span>
+  {% endfor %}
+  <br>
+
+  {{ form.purchase_date_day.label }}
+  {{ form.purchase_date_day }}
+  {% for error in form.purchase_date_day.errors %}
+    <span class="validation_error">[{{ error }}]</span>
+  {% endfor %}
+  <br>
+
+  {{ form.purchase_date_year.label }}
+  {{ form.purchase_date_year }}
+  {% for error in form.purchase_date_year.errors %}
+    <span class="validation_error">[{{ error }}]</span>
+  {% endfor %}
+  <br>
 
   <button>Submit</button>
 </form>

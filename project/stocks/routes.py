@@ -7,6 +7,7 @@ from flask_login import login_required, current_user
 from project.models import Stock
 from project import database
 from .forms import AddStockForm
+from datetime import datetime
 
 
 ################
@@ -37,12 +38,15 @@ def add_stock():
 
     if request.method == 'POST':
         if form.validate_on_submit():
+            purchase_date = datetime(form.purchase_date_year.data,
+                                     form.purchase_date_month.data,
+                                     form.purchase_date_day.data)
             new_stock = Stock(form.symbol.data,
                               form.shares.data,
                               form.price.data,
+                              purchase_date,
                               current_user.id)
             database.session.add(new_stock)
-            database.session.commit()
             database.session.commit()
 
             flash(f"Added new stock ({ form.symbol.data })!", 'success')
@@ -58,4 +62,11 @@ def add_stock():
 @login_required
 def list_stocks():
     stocks = Stock.query.order_by(Stock.id).filter_by(user_id=current_user.id).all()
-    return render_template('stocks/stocks.html', stocks=stocks)
+
+    current_account_value = 0.0
+    for stock in stocks:
+        stock.get_stock_data()
+        current_account_value += stock.position_value
+    database.session.commit()
+
+    return render_template('stocks/stocks.html', stocks=stocks, value=round(current_account_value, 2))

@@ -1,12 +1,52 @@
 import pytest
 from project import create_app, database
 from project.models import Stock, User
-from datetime import date
+from datetime import datetime
+import requests
 
 
-@pytest.fixture(scope='module')
+########################
+#### Helper Classes ####
+########################
+
+class MockSuccessResponse(object):
+    def __init__(self, url):
+        self.status_code = 200
+        self.url = url
+
+    def json(self):
+        return {
+            'Meta Data': {
+                "2. Symbol": "AAPL",
+                "3. Last Refreshed": "2020-03-24"
+            },
+            'Time Series (Daily)': {
+                "2020-03-24": {
+                    "4. close": "148.3400",
+                },
+                "2020-03-23": {
+                    "4. close": "135.9800",
+                }
+            }
+        }
+
+
+class MockFailedResponse(object):
+    def __init__(self, url):
+        self.status_code = 404
+        self.url = url
+
+    def json(self):
+        return {'error': 'bad'}
+
+
+##################
+#### Fixtures ####
+##################
+
+@pytest.fixture(scope='function')
 def new_stock():
-    stock = Stock('AAPL', 16, 406.78, 0)
+    stock = Stock('AAPL', 16, 406.78, datetime(2020, 3, 12), 0)
     return stock
 
 
@@ -81,7 +121,7 @@ def confirm_email_user(test_client, log_in_user):
 
     user = User.query.filter_by(email='patrick@gmail.com').first()
     user.email_confirmed = True
-    user.email_confirmed_on = date(2020, 3, 10)
+    user.email_confirmed_on = datetime(2020, 3, 10)
     database.session.add(user)
     database.session.commit()
 
@@ -110,12 +150,46 @@ def stocks_blueprint_user_login(test_client, stocks_blueprint_user_registration)
     print(f'Login response: {response.data}')
 
     # Create three new stock entries for User 1
-    test_client.post('/add_stock', data=dict(symbol='AAPL', shares='23', price='432.17'))
-    test_client.post('/add_stock', data=dict(symbol='COST', shares='27', price='295.67'))
-    response = test_client.post('/add_stock', data=dict(symbol='HD', shares='35', price='190.56'))
+    test_client.post('/add_stock', data=dict(symbol='AAPL',
+                                             shares='23',
+                                             price='432.17',
+                                             purchase_date_month='4',
+                                             purchase_date_day='23',
+                                             purchase_date_year='2019'))
+    test_client.post('/add_stock', data=dict(symbol='COST',
+                                             shares='27',
+                                             price='295.67',
+                                             purchase_date_month='5',
+                                             purchase_date_day='30',
+                                             purchase_date_year='2018'))
+    response = test_client.post('/add_stock', data=dict(symbol='HD',
+                                                        shares='35',
+                                                        price='190.56',
+                                                        purchase_date_month='12',
+                                                        purchase_date_day='11',
+                                                        purchase_date_year='2017'))
     print(f'Add Stock (HD) response: {response.data}')
 
     yield  # this is where the testing happens!
 
     # Logout User 1
     test_client.get('/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_success(monkeypatch):
+    # Create a mock for the requests.get() call to prevent making the actual API call
+    def mock_get(url):
+        return MockSuccessResponse(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_failure(monkeypatch):
+    def mock_get(url):
+        return MockFailedResponse(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)

@@ -51,11 +51,14 @@ def test_get_add_stock_page_not_logged_in(test_client):
     assert b'Please log in to access this page.' in response.data
 
 
-def test_post_add_stock_page(test_client, stocks_blueprint_user_login):
+def test_post_add_stock_page(test_client, mock_requests_get_success, stocks_blueprint_user_login):
     response = test_client.post('/add_stock',
                                 data=dict(symbol='AAPL',
                                           shares='23',
-                                          price='432.17'),
+                                          price='432.17',
+                                          purchase_date_month='4',
+                                          purchase_date_day='23',
+                                          purchase_date_year='2019'),
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b'List of Stocks:' in response.data
@@ -65,6 +68,7 @@ def test_post_add_stock_page(test_client, stocks_blueprint_user_login):
     assert b'AAPL' in response.data
     assert b'23' in response.data
     assert b'432.17' in response.data
+    assert b'4/23/2019' in response.data
     assert b'Added new stock (AAPL)!' in response.data
 
 
@@ -72,7 +76,10 @@ def test_post_add_stock_page_not_logged_in(test_client):
     response = test_client.post('/add_stock',
                                 data=dict(symbol='AAPL',
                                           shares='23',
-                                          price='432.17'),
+                                          price='432.17',
+                                          purchase_date_month='4',
+                                          purchase_date_day='23',
+                                          purchase_date_year='2019'),
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b'List of Stocks:' not in response.data
@@ -83,7 +90,10 @@ def test_post_add_stock_no_data(test_client, stocks_blueprint_user_login):
     response = test_client.post('/add_stock',
                                 data=dict(stockSymbol='',
                                           numberOfShares='',
-                                          sharePrice=''),
+                                          sharePrice='',
+                                          purchase_date_month='',
+                                          purchase_date_day='',
+                                          purchase_date_year=''),
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b'Error in form data!' in response.data
@@ -99,7 +109,10 @@ def test_post_add_stock_only_symbol_data(test_client, stocks_blueprint_user_logi
     response = test_client.post('/add_stock',
                                 data=dict(stockSymbol='SAM',
                                           numberOfShares='',
-                                          sharePrice=''),
+                                          sharePrice='',
+                                          purchase_date_month='',
+                                          purchase_date_day='',
+                                          purchase_date_year=''),
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b'Error in form data!' in response.data
@@ -115,7 +128,10 @@ def test_post_add_stock_invalid_number_of_shares(test_client, stocks_blueprint_u
     response = test_client.post('/add_stock',
                                 data=dict(stockSymbol='SAM',
                                           numberOfShares='I_AM_INCORRECT_DATA',
-                                          sharePrice='123.45'),
+                                          sharePrice='123.45',
+                                          purchase_date_month='4',
+                                          purchase_date_day='23',
+                                          purchase_date_year='2019'),
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b'Error in form data!' in response.data
@@ -127,7 +143,7 @@ def test_post_add_stock_invalid_number_of_shares(test_client, stocks_blueprint_u
     assert b'Share Price:' in response.data
 
 
-def test_get_stock_data_logged_in(test_client, stocks_blueprint_user_login):
+def test_get_stock_data_logged_in(test_client, mock_requests_get_success, stocks_blueprint_user_login):
     """
     GIVEN a Flask application with a user logged in
     WHEN the '/stocks' page is requested (GET)
@@ -139,10 +155,14 @@ def test_get_stock_data_logged_in(test_client, stocks_blueprint_user_login):
     assert b'Flask Stock Portfolio App' in response.data
     assert b'Stock Symbol' in response.data
     assert b'Number of Shares' in response.data
-    assert b'Share Price' in response.data
+    assert b'Purchase Price' in response.data
+    assert b'Purchase Date' in response.data
+    assert b'Current Share Price' in response.data
+    assert b'Stock Position Value' in response.data
     assert b'AAPL' in response.data
     assert b'COST' in response.data
     assert b'HD' in response.data
+    assert b'TOTAL VALUE' in response.data
 
 
 def test_get_stock_data_not_logged_in(test_client, init_database):
