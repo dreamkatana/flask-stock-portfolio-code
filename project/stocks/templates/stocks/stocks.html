@@ -23,7 +23,7 @@
   <!-- Table Elements (Rows) -->
   {% for stock in stocks %}
     <tr>
-      <td>{{ stock.symbol }}</td>
+      <td><a href="{{ url_for('stocks.stock_details', id=stock.id) }}">{{ stock.symbol }}</a></td>
       <td>{{ stock.shares }}</td>
       <td>${{ stock.purchase_price }}</td>
       <td>{{ stock.purchase_date.strftime("%m/%d/%Y") }}</td>

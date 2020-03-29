@@ -9,7 +9,7 @@ import requests
 #### Helper Classes ####
 ########################
 
-class MockSuccessResponse(object):
+class MockSuccessResponseDaily(object):
     def __init__(self, url):
         self.status_code = 200
         self.url = url
@@ -25,6 +25,28 @@ class MockSuccessResponse(object):
                     "4. close": "148.3400",
                 },
                 "2020-03-23": {
+                    "4. close": "135.9800",
+                }
+            }
+        }
+
+
+class MockSuccessResponseWeekly(object):
+    def __init__(self, url):
+        self.status_code = 200
+        self.url = url
+
+    def json(self):
+        return {
+            'Meta Data': {
+                "2. Symbol": "AAPL",
+                "3. Last Refreshed": "2020-03-27"
+            },
+            'Weekly Adjusted Time Series': {
+                "2020-03-27": {
+                    "4. close": "148.3400",
+                },
+                "2020-03-20": {
                     "4. close": "135.9800",
                 }
             }
@@ -201,10 +223,10 @@ def stocks_blueprint_user_login(test_client, stocks_blueprint_user_registration,
 
 
 @pytest.fixture(scope='function')
-def mock_requests_get_success(monkeypatch):
+def mock_requests_get_success_daily(monkeypatch):
     # Create a mock for the requests.get() call to prevent making the actual API call
     def mock_get(url):
-        return MockSuccessResponse(url)
+        return MockSuccessResponseDaily(url)
 
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
@@ -216,4 +238,14 @@ def mock_requests_get_failure(monkeypatch):
         return MockFailedResponse(url)
 
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_success_weekly(monkeypatch):
+    # Create a mock for the requests.get() call to prevent making the actual API call
+    def mock_get(url):
+        return MockSuccessResponseWeekly(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)

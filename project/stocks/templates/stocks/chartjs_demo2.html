@@ -34,13 +34,22 @@ var myChart = new Chart(ctx, {
         }]
     },
     options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
+      title: {
+        display: true,
+        text: "{{ title }}"
+      },
+      legend: {
+        display: true,
+        position: 'bottom',
+        align: 'center'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
     }
 });
 </script>

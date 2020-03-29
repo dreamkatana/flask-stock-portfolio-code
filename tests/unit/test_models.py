@@ -33,7 +33,7 @@ def test_set_password(new_user):
     assert new_user.password_hashed != 'FlaskIsStillAwesome456'
 
 
-def test_get_stock_data_success(test_client, mock_requests_get_success, new_stock):
+def test_get_stock_data_success(test_client, mock_requests_get_success_daily, new_stock):
     """
     GIVEN a Flask application and a monkeypatched version of requests.get()
     WHEN the HTTP response is set to successful
@@ -65,7 +65,7 @@ def test_get_stock_data_failure(test_client, mock_requests_get_failure, new_stoc
     assert new_stock.position_value == 0.0
 
 
-def test_get_stock_data_success_two_calls(test_client, mock_requests_get_success, new_stock):
+def test_get_stock_data_success_two_calls(test_client, mock_requests_get_success_daily, new_stock):
     """
     GIVEN a Flask application and a monkeypatched version of requests.get()
     WHEN the HTTP response is set to successful

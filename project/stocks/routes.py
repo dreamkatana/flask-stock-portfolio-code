@@ -8,6 +8,19 @@ from project.models import Stock
 from project import database
 from .forms import AddStockForm, DeleteStock, EditStock
 from datetime import datetime
+import requests
+
+
+##########################
+#### helper functions ####
+##########################
+
+def create_alpha_vantage_get_url_weekly(stock_symbol):
+    return 'https://www.alphavantage.co/query?function={}&symbol={}&apikey={}'.format(
+        'TIME_SERIES_WEEKLY_ADJUSTED',
+        stock_symbol,
+        current_app.config['ALPHA_VANTAGE_API_KEY']
+    )
 
 
 ################
@@ -125,15 +138,15 @@ def chartjs_demo1():
 
 @stocks_blueprint.route("/chartjs_demo2")
 def chartjs_demo2():
-    legend = 'Monthly Data'
+    title = 'Monthly Data'
     labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August']
     values = [10.3, 9.2, 8.7, 7.1, 6.0, 4.4, 7.6, 8.9]
-    return render_template('stocks/chartjs_demo2.html', values=values, labels=labels, legend=legend)
+    return render_template('stocks/chartjs_demo2.html', values=values, labels=labels, title=title)
 
 
 @stocks_blueprint.route("/chartjs_demo3")
 def chartjs_demo3():
-    legend = 'Daily Prices'
+    title = 'Daily Prices'
     labels = [datetime(2020, 2, 10),   # Monday 2/10/2020
               datetime(2020, 2, 11),   # Tuesday 2/11/2020
               datetime(2020, 2, 12),   # Wednesday 2/12/2020
@@ -143,4 +156,39 @@ def chartjs_demo3():
               datetime(2020, 2, 18),   # Tuesday 2/18/2020
               datetime(2020, 2, 19)]   # Wednesday 2/19/2020
     values = [10.3, 9.2, 8.7, 7.1, 6.0, 4.4, 7.6, 8.9]
-    return render_template('stocks/chartjs_demo3.html', values=values, labels=labels, legend=legend)
+    return render_template('stocks/chartjs_demo3.html', values=values, labels=labels, title=title)
+
+
+@stocks_blueprint.route('/stock/<id>')
+@login_required
+def stock_details(id):
+    stock = Stock.query.filter_by(id=id).first()
+
+    if stock.user_id == current_user.id:
+        title = ''
+        labels = []
+        values = []
+
+        url = create_alpha_vantage_get_url_weekly(stock.symbol)
+
+        try:
+            r = requests.get(url)
+
+            if r.status_code == 200:
+                weekly_data = r.json()
+                title = f'Weekly Prices ({stock.symbol})'
+
+                for element in weekly_data['Weekly Adjusted Time Series']:
+                    date = datetime.fromisoformat(element).date()
+                    if date > stock.purchase_date.date():
+                        labels.append(date)
+                        values.append(weekly_data['Weekly Adjusted Time Series'][element]['4. close'])
+
+                labels.reverse()
+                values.reverse()
+        except requests.exceptions.ConnectionError:
+            flash('Error! Network problem preventing retrieving the stock data!', 'error')
+
+        return render_template('stocks/stock_details.html', stock=stock, labels=labels, values=values, title=title)
+    else:
+        return render_template('403.html'), 403

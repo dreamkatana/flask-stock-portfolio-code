@@ -6,9 +6,17 @@
 {% endblock %}
 
 {% block content %}
-<h2>ChartJS Demo #3</h2>
+<h2>Stock Details:</h2>
 <br>
-<canvas id="stockChart" width="500" height="400"></canvas>
+<h3>Symbol: {{ stock.symbol }}</h3>
+<h3>Number of Shares: {{ stock.shares }}</h3>
+<h3>Purchase Price: ${{ stock.purchase_price }}</h3>
+<h3>Purchase Date: {{ stock.purchase_date.strftime("%B %d, %Y") }}</h3>
+<br>
+
+{% if title %}
+  <canvas id="stockChart" width="500" height="400"></canvas>
+{% endif %}
 {% endblock %}
 
 {% block javascript %}
@@ -18,20 +26,20 @@ var ctx = document.getElementById('stockChart').getContext('2d');
 var myChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels:
-          [{% for item in labels %}
-             "{{item.strftime("%m/%d/%Y")}}",
+      labels:
+        [{% for item in labels %}
+           "{{item.strftime("%m/%d/%Y")}}",
+        {% endfor %}],
+      datasets: [{
+        label: 'Share Price ($)',
+        data:
+          [{% for item in values %}
+            {{item}},
           {% endfor %}],
-        datasets: [{
-          label: 'Price ($)',
-          data:
-            [{% for item in values %}
-              {{item}},
-            {% endfor %}],
-          backgroundColor: 'lightblue',
-          borderColor: 'black',
-          borderWidth: 1
-        }]
+        backgroundColor: 'lightblue',
+        borderColor: 'black',
+        borderWidth: 1
+      }]
     },
     options: {
       title: {
