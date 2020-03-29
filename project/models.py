@@ -74,6 +74,12 @@ class Stock(database.Model):
 
         return ''
 
+    def update_data(self, shares, purchase_price, purchase_date):
+        self.shares = shares
+        self.purchase_price = purchase_price
+        self.purchase_date = purchase_date
+
+
 class User(database.Model):
     """
     Class that represents a user of the application

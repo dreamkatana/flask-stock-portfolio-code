@@ -15,3 +15,12 @@ class AddStockForm(FlaskForm):
 
 class DeleteStock(FlaskForm):
     submit = SubmitField('Delete Stock')
+
+
+class EditStock(FlaskForm):
+    shares = IntegerField('Number of Shares:', validators=[DataRequired()])
+    price = DecimalField('Purchase Price:', validators=[DataRequired()])
+    purchase_date_month = IntegerField('month ("mm"):', validators=[DataRequired()])
+    purchase_date_day = IntegerField('day ("dd"):', validators=[DataRequired()])
+    purchase_date_year = IntegerField('year ("yy"):', validators=[DataRequired()])
+    submit = SubmitField('Edit Stock')

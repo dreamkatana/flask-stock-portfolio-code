@@ -164,6 +164,7 @@ def test_get_stock_data_logged_in(test_client, mock_requests_get_success, stocks
     assert b'COST' in response.data
     assert b'HD' in response.data
     assert b'Delete' in response.data
+    assert b'Edit' in response.data
     assert b'TOTAL VALUE' in response.data
 
 
@@ -201,7 +202,7 @@ def test_get_delete_stock_invalid_owner(test_client, stocks_blueprint_user_regis
     """
     GIVEN a Flask application with a user logged in
     WHEN the '/delete_stock/2' page is requested (GET) from a user that does NOT own the stock
-    THEN check the response is valid
+    THEN check that a 403 error is returned
     """
     response = test_client.get('/delete_stock/2', follow_redirects=True)
     print(response.data)
@@ -215,27 +216,119 @@ def test_get_delete_stock_invalid_owner(test_client, stocks_blueprint_user_regis
 def test_post_delete_stock_valid_owner(test_client, stocks_blueprint_user_login, mock_requests_get_success):
     """
     GIVEN a Flask application with a user logged in
-    WHEN the '/delete_stock/2' page is requested (GET) from the user that owns that stock
+    WHEN the '/delete_stock/2' page is posted to (POST) from the user that owns that stock
     THEN check the response is valid
     """
     response = test_client.post('/delete_stock/2', follow_redirects=True)
     print(response.data)
     assert response.status_code == 200
     assert b'Flask Stock Portfolio App' in response.data
-    assert b'Stock COST was deleted!' in response.data
+    assert b'Stock (COST) was deleted!' in response.data
     assert b'List of Stocks' in response.data
 
 
 def test_post_delete_stock_invalid_owner(test_client, stocks_blueprint_user_registration, stocks_blueprint_login_user2):
     """
     GIVEN a Flask application with a user logged in
-    WHEN the '/delete_stock/1' page is requested (GET) from a user that does NOT own the stock
-    THEN check the response is valid
+    WHEN the '/delete_stock/1' page is posted to (POST) from a user that does NOT own the stock
+    THEN check that a 403 error is returned
     """
     response = test_client.post('/delete_stock/1', follow_redirects=True)
     print(response.data)
     assert response.status_code == 403
     assert b'Flask Stock Portfolio App' in response.data
-    assert b'Stock COST was deleted!' not in response.data
+    assert b'Stock (COST) was deleted!' not in response.data
+    assert b'List of Stocks' not in response.data
+    assert b"You don't have the permission to access the requested resource." in response.data
+
+
+def test_get_edit_stock_valid_owner(test_client, stocks_blueprint_user_login):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/edit_stock/3' page is requested (GET) from the user that owns that stock
+    THEN check the response is valid
+    """
+    response = test_client.get('/edit_stock/1', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Stock: AAPL' in response.data
+    assert b'Edit Stock' in response.data
+
+
+def test_get_edit_stock_invalid_owner(test_client, stocks_blueprint_user_registration, stocks_blueprint_login_user2):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/edit_stock/3' page is requested (GET) from a user that does NOT own the stock
+    THEN check that a 403 error is returned
+    """
+    response = test_client.get('/edit_stock/3', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 403
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Stock: AAPL' not in response.data
+    assert b'Edit Stock' not in response.data
+    assert b"You don't have the permission to access the requested resource." in response.data
+
+
+def test_post_edit_stock_valid_owner_valid_data(test_client, stocks_blueprint_user_login, mock_requests_get_success):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/edit_stock/3' page is posted to (POST) from the user that owns that stock
+    THEN check the response is valid
+    """
+    response = test_client.post('/edit_stock/3',
+                                data=dict(shares='25',
+                                          price='222.33',
+                                          purchase_date_month='5',
+                                          purchase_date_day='30',
+                                          purchase_date_year='2018'),
+                                follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Stock (HD) has been updated!' in response.data
+    assert b'List of Stocks' in response.data
+
+
+def test_post_edit_stock_valid_owner_invalid_data(test_client, stocks_blueprint_user_login, mock_requests_get_success):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/edit_stock/3' page is posted to (POST) from the user that owns that stock
+    THEN check the response is valid
+    """
+    response = test_client.post('/edit_stock/3',
+                                data=dict(shares='25',
+                                          price='',
+                                          purchase_date_month='5',
+                                          purchase_date_day='30',
+                                          purchase_date_year='2018'),
+                                follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Stock: HD' in response.data
+    assert b'This field is required.' in response.data
+    assert b'Stock (AAPL) has been updated!' not in response.data
+    assert b'List of Stocks' not in response.data
+
+
+def test_post_edit_stock_invalid_owner(test_client, stocks_blueprint_user_registration, stocks_blueprint_login_user2):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/edit_stock/3' page is posted to (POST) from a user that does NOT own the stock
+    THEN check the response is valid
+    """
+    response = test_client.post('/edit_stock/3',
+                                data=dict(numberOfShares='25',
+                                          sharePrice='222.33',
+                                          purchase_date_month='5',
+                                          purchase_date_day='30',
+                                          purchase_date_year='2018'),
+                                follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 403
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Stock (AAPL) has been updated!' not in response.data
     assert b'List of Stocks' not in response.data
     assert b"You don't have the permission to access the requested resource." in response.data

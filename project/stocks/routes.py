@@ -6,7 +6,7 @@ from flask import escape, render_template, request, session, redirect, url_for, 
 from flask_login import login_required, current_user
 from project.models import Stock
 from project import database
-from .forms import AddStockForm, DeleteStock
+from .forms import AddStockForm, DeleteStock, EditStock
 from datetime import datetime
 
 
@@ -86,9 +86,33 @@ def delete_stock(id):
         if form.validate_on_submit():
             database.session.delete(stock)
             database.session.commit()
-            flash(f'Stock {stock.symbol} was deleted!', 'info')
+            flash(f'Stock ({stock.symbol}) was deleted!', 'info')
             return redirect(url_for('stocks.list_stocks'))
 
         return render_template('stocks/delete_stock.html', form=form, stock=stock)
+    else:
+        return render_template('403.html'), 403
+
+
+@stocks_blueprint.route('/edit_stock/<id>', methods=['GET', 'POST'])
+@login_required
+def edit_stock(id):
+    stock = Stock.query.filter_by(id=id).first()
+
+    if stock.user_id == current_user.id:
+        form = EditStock()
+
+        if form.validate_on_submit():
+            stock.update_data(form.shares.data,
+                              form.price.data,
+                              datetime(form.purchase_date_year.data,
+                                       form.purchase_date_month.data,
+                                       form.purchase_date_day.data))
+            database.session.add(stock)
+            database.session.commit()
+            flash(f'Stock ({stock.symbol}) has been updated!', 'info')
+            return redirect(url_for('stocks.list_stocks'))
+
+        return render_template('stocks/edit_stock.html', form=form, stock=stock)
     else:
         return render_template('403.html'), 403
