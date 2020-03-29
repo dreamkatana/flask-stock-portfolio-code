@@ -45,7 +45,7 @@ def test_get_stock_data_success(test_client, mock_requests_get_success, new_stoc
     assert new_stock.purchase_price == 406.78
     assert new_stock.purchase_date.date() == datetime(2020, 3, 12).date()
     assert new_stock.current_price == 148.34
-    assert new_stock.current_price_date.date() == datetime(2020, 3, 24).date()
+    assert new_stock.current_price_date.date() == datetime.now().date()
     assert new_stock.position_value == (148.34*16)
 
 
@@ -78,10 +78,10 @@ def test_get_stock_data_success_two_calls(test_client, mock_requests_get_success
     new_stock.get_stock_data()
     assert new_stock.symbol == 'AAPL'
     assert new_stock.current_price == 148.34
-    assert new_stock.current_price_date.date() == datetime(2020, 3, 24).date()
+    assert new_stock.current_price_date.date() == datetime.now().date()
     assert new_stock.position_value == (148.34*16)
     new_stock.get_stock_data()
     assert new_stock.symbol == 'AAPL'
     assert new_stock.current_price == 148.34
-    assert new_stock.current_price_date.date() == datetime(2020, 3, 24).date()
+    assert new_stock.current_price_date.date() == datetime.now().date()
     assert new_stock.position_value == (148.34*16)

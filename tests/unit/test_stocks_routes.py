@@ -159,9 +159,11 @@ def test_get_stock_data_logged_in(test_client, mock_requests_get_success, stocks
     assert b'Purchase Date' in response.data
     assert b'Current Share Price' in response.data
     assert b'Stock Position Value' in response.data
+    assert b'Actions' in response.data
     assert b'AAPL' in response.data
     assert b'COST' in response.data
     assert b'HD' in response.data
+    assert b'Delete' in response.data
     assert b'TOTAL VALUE' in response.data
 
 
@@ -179,3 +181,61 @@ def test_get_stock_data_not_logged_in(test_client, init_database):
     assert b'COST' not in response.data
     assert b'HD' not in response.data
     assert b'Please log in to access this page.' in response.data
+
+
+def test_get_delete_stock_valid_owner(test_client, stocks_blueprint_user_login):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/delete_stock/2' page is requested (GET) from the user that owns that stock
+    THEN check the response is valid
+    """
+    response = test_client.get('/delete_stock/2', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Click below to delete COST (27 shares purchased on 05/30/2018) from your portfolio:' in response.data
+    assert b'Delete Stock' in response.data
+
+
+def test_get_delete_stock_invalid_owner(test_client, stocks_blueprint_user_registration, stocks_blueprint_login_user2):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/delete_stock/2' page is requested (GET) from a user that does NOT own the stock
+    THEN check the response is valid
+    """
+    response = test_client.get('/delete_stock/2', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 403
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Click below to delete' not in response.data
+    assert b'Delete Stock' not in response.data
+    assert b"You don't have the permission to access the requested resource." in response.data
+
+
+def test_post_delete_stock_valid_owner(test_client, stocks_blueprint_user_login, mock_requests_get_success):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/delete_stock/2' page is requested (GET) from the user that owns that stock
+    THEN check the response is valid
+    """
+    response = test_client.post('/delete_stock/2', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Stock COST was deleted!' in response.data
+    assert b'List of Stocks' in response.data
+
+
+def test_post_delete_stock_invalid_owner(test_client, stocks_blueprint_user_registration, stocks_blueprint_login_user2):
+    """
+    GIVEN a Flask application with a user logged in
+    WHEN the '/delete_stock/1' page is requested (GET) from a user that does NOT own the stock
+    THEN check the response is valid
+    """
+    response = test_client.post('/delete_stock/1', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 403
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Stock COST was deleted!' not in response.data
+    assert b'List of Stocks' not in response.data
+    assert b"You don't have the permission to access the requested resource." in response.data

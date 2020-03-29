@@ -144,7 +144,31 @@ def stocks_blueprint_user_registration(test_client, init_database):
 
 
 @pytest.fixture(scope='function')
-def stocks_blueprint_user_login(test_client, stocks_blueprint_user_registration):
+def stocks_blueprint_login_user1(test_client, stocks_blueprint_user_registration):
+    # Login User 1
+    response = test_client.post('/login', data=dict(email='patrick1@gmail.com', password='FlaskIsAwesome123'))
+    print(f'Login response: {response.data}')
+
+    yield  # this is where the testing happens!
+
+    # Logout User 1
+    test_client.get('/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='function')
+def stocks_blueprint_login_user2(test_client, stocks_blueprint_user_registration):
+    # Login User 2
+    response = test_client.post('/login', data=dict(email='patrick2@gmail.com', password='FlaskIsReallyAwesome123'))
+    print(f'Login response: {response.data}')
+
+    yield  # this is where the testing happens!
+
+    # Logout User 2
+    test_client.get('/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='function')
+def stocks_blueprint_user_login(test_client, stocks_blueprint_user_registration, stocks_blueprint_login_user1):
     # Login User 1
     response = test_client.post('/login', data=dict(email='patrick1@gmail.com', password='FlaskIsAwesome123'))
     print(f'Login response: {response.data}')

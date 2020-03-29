@@ -11,3 +11,7 @@ class AddStockForm(FlaskForm):
     purchase_date_day = IntegerField('day ("dd"):', validators=[DataRequired()])
     purchase_date_year = IntegerField('year ("yy"):', validators=[DataRequired()])
     submit = SubmitField('Add Stock')
+
+
+class DeleteStock(FlaskForm):
+    submit = SubmitField('Delete Stock')

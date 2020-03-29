@@ -55,7 +55,11 @@ class Stock(database.Model):
     def get_stock_data(self):
         if self.current_price_date is None or self.current_price_date.date() != datetime.now().date():
             url = self.create_alpha_vantage_get_url_daily_compact()
-            r = requests.get(url)
+
+            try:
+                r = requests.get(url)
+            except requests.exceptions.ConnectionError:
+                return 'Error! Network problem preventing retrieving the stock data!'
 
             if r.status_code == 200:
                 daily_data = r.json()
@@ -63,11 +67,12 @@ class Stock(database.Model):
                 for element in daily_data['Time Series (Daily)']:
                     current_price = float(daily_data['Time Series (Daily)'][element]['4. close'])
                     self.current_price = current_price
-                    self.current_price_date = datetime.fromisoformat(element)
+                    self.current_price_date = datetime.now()
                     self.position_value = round(current_price * self.shares, 2)
                     database.session.add(self)
                     break
 
+        return ''
 
 class User(database.Model):
     """

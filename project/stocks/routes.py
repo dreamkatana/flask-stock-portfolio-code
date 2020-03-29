@@ -6,7 +6,7 @@ from flask import escape, render_template, request, session, redirect, url_for, 
 from flask_login import login_required, current_user
 from project.models import Stock
 from project import database
-from .forms import AddStockForm
+from .forms import AddStockForm, DeleteStock
 from datetime import datetime
 
 
@@ -65,8 +65,30 @@ def list_stocks():
 
     current_account_value = 0.0
     for stock in stocks:
-        stock.get_stock_data()
+        return_value = stock.get_stock_data()
+        if return_value != '':
+            flash(return_value, 'error')
+            break
         current_account_value += stock.position_value
-    database.session.commit()
 
+    database.session.commit()
     return render_template('stocks/stocks.html', stocks=stocks, value=round(current_account_value, 2))
+
+
+@stocks_blueprint.route('/delete_stock/<id>', methods=['GET', 'POST'])
+@login_required
+def delete_stock(id):
+    stock = Stock.query.filter_by(id=id).first()
+
+    if stock.user_id == current_user.id:
+        form = DeleteStock()
+
+        if form.validate_on_submit():
+            database.session.delete(stock)
+            database.session.commit()
+            flash(f'Stock {stock.symbol} was deleted!', 'info')
+            return redirect(url_for('stocks.list_stocks'))
+
+        return render_template('stocks/delete_stock.html', form=form, stock=stock)
+    else:
+        return render_template('403.html'), 403
