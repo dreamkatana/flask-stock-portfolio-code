@@ -18,14 +18,19 @@
   <body>
     <div class="grid-container">
       <header>
-        <h1><a class="header-link" href="{{ url_for('stocks.index') }}">Flask Stock Portfolio App</a></h1>
+        {% if current_user.is_authenticated %}
+          <h1><a class="header-link" href="{{ url_for('stocks.list_stocks') }}">Flask Stock Portfolio App</a></h1>
+        {% else %}
+          <h1><a class="header-link" href="{{ url_for('stocks.index') }}">Flask Stock Portfolio App</a></h1>
+        {% endif %}
       </header>
 
       <nav>
         <ul>
           {% if current_user.is_authenticated %}
-            <li><a class="nav-link" href="{{ url_for('users.logout') }}">Logout</a></li>
+            <li><a class="nav-link" href="{{ url_for('stocks.add_stock') }}">Add Stock</a></li>
             <li><a class="nav-link" href="{{ url_for('users.user_profile') }}">User Profile</a></li>
+            <li><a class="nav-link" href="{{ url_for('users.logout') }}">Logout</a></li>
           {% else %}
             <li><a class="nav-link" href="{{ url_for('users.register') }}">Register</a></li>
             <li><a class="nav-link" href="{{ url_for('users.login') }}">Login</a></li>
@@ -62,5 +67,9 @@
         <h3>testdriven.io 2020</h3>
       </footer>
     </div>
+
+    {% block javascript %}
+    {% endblock %}
+
   </body>
 </html>

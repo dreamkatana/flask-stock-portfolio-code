@@ -50,12 +50,12 @@ footer {
 /* Header Styling
  ****************/
 header {
-  margin: auto;
+  margin: auto 0;
 }
 
 header h1 {
   font-size: 1.8em;
-  margin-left: 1em;
+  margin-left: 0.5em;
 }
 
 header h1 a {

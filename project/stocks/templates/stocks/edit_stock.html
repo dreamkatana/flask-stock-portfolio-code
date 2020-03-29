@@ -5,27 +5,22 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="form-heading">Add a Stock:</h2>
+<h2 class="form-heading">Edit a Stock:</h2>
 
 <form method="post">
   {{ form.csrf_token }}
 
-  {{ form.symbol.label }}
-  {{ form.symbol }}
-  {% for error in form.symbol.errors %}
-    <span class="validation_error">[{{ error }}]</span>
-  {% endfor %}
-  <br>
+  <h3>Stock: {{ stock.symbol }}</h3>
 
   {{ form.shares.label }}
-  {{ form.shares }}
+  {{ form.shares(value=stock.shares) }}
   {% for error in form.shares.errors %}
     <span class="validation_error">[{{ error }}]</span>
   {% endfor %}
   <br>
 
   {{ form.price.label }}
-  {{ form.price }}
+  {{ form.price(value=stock.purchase_price) }}
   {% for error in form.price.errors %}
     <span class="validation_error">[{{ error }}]</span>
   {% endfor %}
@@ -34,26 +29,26 @@
 
   <h3>Purchase Date:</h3>
   {{ form.purchase_date_month.label }}
-  {{ form.purchase_date_month }}
+  {{ form.purchase_date_month(value=stock.purchase_date.month) }}
   {% for error in form.purchase_date_month.errors %}
     <span class="validation_error">[{{ error }}]</span>
   {% endfor %}
   <br>
 
   {{ form.purchase_date_day.label }}
-  {{ form.purchase_date_day }}
+  {{ form.purchase_date_day(value=stock.purchase_date.day) }}
   {% for error in form.purchase_date_day.errors %}
     <span class="validation_error">[{{ error }}]</span>
   {% endfor %}
   <br>
 
   {{ form.purchase_date_year.label }}
-  {{ form.purchase_date_year }}
+  {{ form.purchase_date_year(value=stock.purchase_date.year) }}
   {% for error in form.purchase_date_year.errors %}
     <span class="validation_error">[{{ error }}]</span>
   {% endfor %}
   <br>
 
-  <button>Submit</button>
+  <button>Edit Stock</button>
 </form>
 {% endblock %}

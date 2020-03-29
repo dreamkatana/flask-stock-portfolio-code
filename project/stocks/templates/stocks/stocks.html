@@ -13,16 +13,37 @@
   <tr>
     <th>Stock Symbol</th>
     <th>Number of Shares</th>
-    <th>Share Price</th>
+    <th>Purchase Price</th>
+    <th>Purchase Date</th>
+    <th>Current Share Price</th>
+    <th>Stock Position Value</th>
+    <th>Actions</th>
   </tr>
 
   <!-- Table Elements (Rows) -->
   {% for stock in stocks %}
     <tr>
-      <td>{{ stock.symbol }}</td>
+      <td><a href="{{ url_for('stocks.stock_details', id=stock.id) }}">{{ stock.symbol }}</a></td>
       <td>{{ stock.shares }}</td>
-      <td>${{ stock.price }}</td>
+      <td>${{ stock.purchase_price }}</td>
+      <td>{{ stock.purchase_date.strftime("%m/%d/%Y") }}</td>
+      <td>${{ stock.current_price }}</td>
+      <td>${{ stock.position_value }}</td>
+      <td class="action-row">
+        <button class="delete-button"><a href="{{ url_for('stocks.delete_stock', id=stock.id) }}">Delete</a></button>
+        <button class="edit-button"><a href="{{ url_for('stocks.edit_stock', id=stock.id) }}">Edit</a></button>
+      </td>
     </tr>
   {% endfor %}
+
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td><b>TOTAL VALUE</b></td>
+    <td><b>${{ value }}</b></td>
+    <td></td>
+  </tr>
 </table>
 {% endblock %}
