@@ -116,3 +116,31 @@ def edit_stock(id):
         return render_template('stocks/edit_stock.html', form=form, stock=stock)
     else:
         return render_template('403.html'), 403
+
+
+@stocks_blueprint.route("/chartjs_demo1")
+def chartjs_demo1():
+    return render_template('stocks/chartjs_demo1.html')
+
+
+@stocks_blueprint.route("/chartjs_demo2")
+def chartjs_demo2():
+    legend = 'Monthly Data'
+    labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August']
+    values = [10.3, 9.2, 8.7, 7.1, 6.0, 4.4, 7.6, 8.9]
+    return render_template('stocks/chartjs_demo2.html', values=values, labels=labels, legend=legend)
+
+
+@stocks_blueprint.route("/chartjs_demo3")
+def chartjs_demo3():
+    legend = 'Daily Prices'
+    labels = [datetime(2020, 2, 10),   # Monday 2/10/2020
+              datetime(2020, 2, 11),   # Tuesday 2/11/2020
+              datetime(2020, 2, 12),   # Wednesday 2/12/2020
+              datetime(2020, 2, 13),   # Thursday 2/13/2020
+              datetime(2020, 2, 14),   # Friday 2/14/2020
+              datetime(2020, 2, 17),   # Monday 2/17/2020
+              datetime(2020, 2, 18),   # Tuesday 2/18/2020
+              datetime(2020, 2, 19)]   # Wednesday 2/19/2020
+    values = [10.3, 9.2, 8.7, 7.1, 6.0, 4.4, 7.6, 8.9]
+    return render_template('stocks/chartjs_demo3.html', values=values, labels=labels, legend=legend)
