@@ -1,7 +1,7 @@
 /* Add Stock Styling
  *******************/
 .add-stock-heading {
-  margin-bottom: 20px;
+  margin-bottom: 1.25em;
 }
 
 label {
@@ -13,7 +13,7 @@ input {
   font-size: 1.1em;
 }
 
-button {
+input[type='submit'] {
   background-color: blue;
   color: white;
   padding: 8px 16px;
@@ -24,12 +24,12 @@ button {
   margin: 6px;
 }
 
-button:hover {
+input[type='submit']:hover {
   color: black;
   cursor: pointer;
 }
 
-button:disabled {
+input[type='submit']:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
