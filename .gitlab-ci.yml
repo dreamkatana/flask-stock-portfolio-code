@@ -31,7 +31,7 @@ stages:
 flake8:
   stage: Static Analysis
   script:
-  - flake8 --max-line-length=120 bild/*.py
+  - flake8 --max-line-length=120 *.py project/*.py
 
 pytest:
   stage: Test
