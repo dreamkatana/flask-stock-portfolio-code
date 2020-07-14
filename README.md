@@ -6,10 +6,17 @@ This project is developed as part of the "Learn Flask by Building and Deplying a
 
 ## How to Run
 
-In the top-level directory:
+Start by setting the necessary configuration variables:
 
     $ export FLASK_APP=app.py
     $ export FLASK_ENV=development
+
+    $ export SECRET_KEY=<INSERT_SECRET_KEY>
+    $ export MAIL_USERNAME=<INSERT_EMAIL_ADDRESS>
+    $ export MAIL_PASSWORD=<INSERT_EMAIL_PASSWORD>
+
+Run the Flask Development Server:
+
     $ flask run
 
 ## Installation Instructions
@@ -46,37 +53,27 @@ Set the file that contains the Flask application and specify that the developmen
 (venv) $ export FLASK_ENV=development
 ```
 
-Check that the Flask application can start correctly:
-
-```sh
-(venv) $ flask shell
-```
-
-Run the script to upgrade the SQLite database to the latest migration version:
-
-```sh
-(venv) $ flask db upgrade
-```
-
 Run development server to serve the Flask application:
 
 ```sh
 (venv) $ flask run
 ```
 
+## Configuration
+
+The following environment variables are configurable:
+
+* SECRET_KEY - see description below
+* CONFIG_TYPE - `config.DevelopmentConfig`, `config.ProductionConfig`, or `config.TestConfig`
+
 ## Key Python Modules Used
 
 - Flask: micro-framework for web application development
-- Jinga2 - templating engine
-- SQLAlchemy - ORM (Object Relational Mapper)
-- Flask-Bcrypt - password hashing
-- Flask-Login - support for user management
-- Flask-WTF - simplifies forms
 
 This application is written using Python 3.8.
 
 ## Unit Testing
 
 ```sh
-(venv) $ pytest -v
+(venv) $ python -m pytest -v
 ```

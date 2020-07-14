@@ -1,36 +1,23 @@
 {% extends "base.html" %}
 
 {% block styling %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/form_style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_stock_style.css') }}">
 {% endblock %}
 
 {% block content %}
-<h2 class="form-heading">Add a Stock:</h2>
-
+<h2 class="add-stock-heading">Add a Stock:</h2>
 <form method="post">
-  {{ form.csrf_token }}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
-  {{ form.symbol.label }}
-  {{ form.symbol }}
-  {% for error in form.symbol.errors %}
-    <span class="validation_error">[{{ error }}]</span>
-  {% endfor %}
+  <label for="stockSymbol">Stock Symbol (<i>required</i>):</label>
+  <input type="text" id="stockSymbol" name="stock_symbol" required pattern="[A-Z]{1,5}" />
   <br>
-
-  {{ form.shares.label }}
-  {{ form.shares }}
-  {% for error in form.shares.errors %}
-    <span class="validation_error">[{{ error }}]</span>
-  {% endfor %}
+  <label for="numberOfShares">Number of Shares (<i>required</i>):</label>
+  <input type="text" id="numberOfShares" name="number_of_shares" required />
   <br>
-
-  {{ form.price.label }}
-  {{ form.price }}
-  {% for error in form.price.errors %}
-    <span class="validation_error">[{{ error }}]</span>
-  {% endfor %}
+  <label for="purchasePrice">Purchase Price (<i>required</i>) ($):</label>
+  <input type="text" id="purchasePrice" name="purchase_price" required />
   <br>
-
-  <button>Submit</button>
+  <input type="submit">
 </form>
 {% endblock %}
