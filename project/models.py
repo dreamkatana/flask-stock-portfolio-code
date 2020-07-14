@@ -1,8 +1,6 @@
 from project import database, bcrypt
 from flask import current_app
 from datetime import datetime
-from flask import current_app
-import requests
 
 
 class Stock(database.Model):

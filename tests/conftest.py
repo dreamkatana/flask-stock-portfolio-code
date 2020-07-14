@@ -5,13 +5,10 @@ from project.models import Stock, User
 from project import database
 from datetime import datetime
 
-@pytest.fixture(scope='function')
+
+@pytest.fixture(scope='module')
 def new_stock():
-<<<<<<< HEAD
-    stock = Stock('AAPL', 16, 406.78, datetime(2020, 3, 12), 0)
-=======
     stock = Stock('AAPL', '16', '406.78')
->>>>>>> part4_user_management
     return stock
 
 

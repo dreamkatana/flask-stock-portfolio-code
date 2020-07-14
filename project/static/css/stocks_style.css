@@ -18,27 +18,3 @@ th {
   color: white;
 }
 
-.action-row {
-  display: flex;
-}
-
-button {
-  padding: 4px;
-  border-radius: 4px;
-  font-size: 0.8em;
-  margin: 0 2px;
-}
-
-.delete-button:hover {
-  background-color: red;
-  cursor: pointer;
-}
-
-.edit-button:hover {
-  background-color: blue;
-  cursor: pointer;
-}
-
-button a {
-  text-decoration: none;
-}
