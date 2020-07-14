@@ -37,9 +37,3 @@ pytest:
   stage: Test
   script:
   - pytest
-
-  artifacts:
-    paths:
-      - public
-  only:
-    - master
