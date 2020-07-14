@@ -13,22 +13,24 @@
   {{ form.email.label }}
   {{ form.email }}
   {% for error in form.email.errors %}
-      <span style="color: red;">[{{ error }}]</span>
+    <span class="validation-error">[{{ error }}]</span>
   {% endfor %}
   <br>
 
   {{ form.password.label }}
   {{ form.password }}
   {% for error in form.password.errors %}
-      <span style="color: red;">[{{ error }}]</span>
+    <span class="validation-error">[{{ error }}]</span>
   {% endfor %}
   <br>
 
-  {{ form.remember_me() }} {{ form.remember_me.label }}
+  {{ form.remember_me.label }} {{ form.remember_me() }}
   <br>
 
-  <button>Login</button>
+  <p>{{ form.submit() }}</p>
 </form>
 
-<p><em>Forgot your password?  </em><a href="{{ url_for('users.password_reset_via_email') }}">Click Here to Reset!</a></p>
+<div class="forgot-password">
+  <em><a href="{{ url_for('users.password_reset_via_email') }}">Forgot your password?</a></em>
+</div>
 {% endblock %}

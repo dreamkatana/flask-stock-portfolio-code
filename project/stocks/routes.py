@@ -2,25 +2,57 @@
 #### imports ####
 #################
 from . import stocks_blueprint
-from flask import escape, render_template, request, session, redirect, url_for, flash, current_app
-from flask_login import login_required, current_user
+from flask import render_template, request, redirect, url_for, flash, current_app
 from project.models import Stock
 from project import database
-from .forms import AddStockForm, DeleteStock, EditStock
-from datetime import datetime
-import requests
+import click
 
 
-##########################
-#### helper functions ####
-##########################
+###########################
+#### request callbacks ####
+###########################
 
-def create_alpha_vantage_get_url_weekly(stock_symbol):
-    return 'https://www.alphavantage.co/query?function={}&symbol={}&apikey={}'.format(
-        'TIME_SERIES_WEEKLY_ADJUSTED',
-        stock_symbol,
-        current_app.config['ALPHA_VANTAGE_API_KEY']
-    )
+# @stocks_blueprint.before_request
+# def stocks_before_request():
+#     current_app.logger.info('Calling before_request() for the stocks blueprint...')
+#
+#
+# @stocks_blueprint.after_request
+# def stocks_after_request(response):
+#     current_app.logger.info('Calling after_request() for the stocks blueprint...')
+#     return response
+#
+#
+# @stocks_blueprint.teardown_request
+# def stocks_teardown_request(error=None):
+#     current_app.logger.info('Calling teardown_request() for the stocks blueprint...')
+
+
+######################
+#### cli commands ####
+######################
+
+@stocks_blueprint.cli.command('create_default_set')
+def create_default_set():
+    """Create three new stocks and add them to the database"""
+    stock1 = Stock('HD', '25', '247.29')
+    stock2 = Stock('TWTR', '230', '31.89')
+    stock3 = Stock('DIS', '65', '118.77')
+    database.session.add(stock1)
+    database.session.add(stock2)
+    database.session.add(stock3)
+    database.session.commit()
+
+
+@stocks_blueprint.cli.command('create')
+@click.argument('symbol')
+@click.argument('number_of_shares')
+@click.argument('purchase_price')
+def create(symbol, number_of_shares, purchase_price):
+    """Create a new stock and add it to the database"""
+    stock = Stock(symbol, number_of_shares, purchase_price)
+    database.session.add(stock)
+    database.session.commit()
 
 
 ################
@@ -33,42 +65,22 @@ def index():
     return render_template('stocks/index.html')
 
 
-@stocks_blueprint.route('/about')
-def about():
-    flash('Thanks for learning about this site!', 'info')
-    return render_template('stocks/about.html', company_name='TestDriven.io')
-
-
-@stocks_blueprint.route('/blog_posts/<int:post_id>')
-def display_blog_post(post_id):
-    return f'<h1>Blog Post #{post_id}...</h1>'
-
-
 @stocks_blueprint.route('/add_stock', methods=['GET', 'POST'])
 @login_required
 def add_stock():
-    form = AddStockForm()
-
     if request.method == 'POST':
-        if form.validate_on_submit():
-            purchase_date = datetime(form.purchase_date_year.data,
-                                     form.purchase_date_month.data,
-                                     form.purchase_date_day.data)
-            new_stock = Stock(form.symbol.data,
-                              form.shares.data,
-                              form.price.data,
-                              purchase_date,
-                              current_user.id)
-            database.session.add(new_stock)
-            database.session.commit()
+        # Save the form data to the database
+        new_stock = Stock(request.form['stock_symbol'],
+                          request.form['number_of_shares'],
+                          request.form['purchase_price'])
+        database.session.add(new_stock)
+        database.session.commit()
 
-            flash(f"Added new stock ({ form.symbol.data })!", 'success')
-            current_app.logger.info(f"Added new stock ({ form.symbol.data })!")
-            return redirect(url_for('stocks.list_stocks'))
-        else:
-            flash(f"Error in form data!")
-
-    return render_template('stocks/add_stock.html', form=form)
+        flash(f"Added new stock ({ request.form['stock_symbol'] })!", 'success')
+        current_app.logger.info(f"Added new stock ({ request.form['stock_symbol'] })!")
+        return redirect(url_for('stocks.list_stocks'))
+    else:
+        return render_template('stocks/add_stock.html')
 
 
 @stocks_blueprint.route('/stocks')

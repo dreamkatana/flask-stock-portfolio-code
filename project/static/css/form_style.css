@@ -13,7 +13,11 @@ input {
   font-size: 1.1em;
 }
 
-button {
+input > input {
+  margin-top: 0.5em;
+}
+
+button, input[type="submit"] {
   background-color: blue;
   color: white;
   padding: 8px 16px;
@@ -24,12 +28,32 @@ button {
   margin: 6px;
 }
 
-button:hover {
+button:hover, input[type="submit"]:hover {
   color: black;
   cursor: pointer;
 }
 
-button:disabled {
+button:disabled, input[type="submit"]:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+input[type="checkbox"] {
+  height: 1.0em;
+  width: 1.0em;
+}
+
+.validation-error {
+  color: red;
+}
+
+.forgot-password {
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+  font-size: 1.1rem;
+}
+
+.forgot-password a {
+  text-decoration: none;
+  color: white;
 }

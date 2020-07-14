@@ -1,82 +1,40 @@
 """
-This file (test_stocks.py) contains the functional tests for testing the Stocks blueprint.
+This file (test_stocks.py) contains the functional tests for testing the
+routes (routes.py) in the `stocks` blueprint.
 """
-import requests
 
 
-########################
-#### Helper Classes ####
-########################
-
-class MockSuccessResponse(object):
-    def __init__(self, url):
-        self.status_code = 200
-        self.url = url
-        self.headers = {'blaa': '1234'}
-
-    def json(self):
-        return {
-            'Meta Data': {
-                "2. Symbol": "MSFT",
-                "3. Last Refreshed": "2020-03-24"
-            },
-            'Time Series (Daily)': {
-                "2020-03-24": {
-                    "4. close": "148.3400",
-                },
-                "2020-03-23": {
-                    "4. close": "135.9800",
-                }
-            }
-        }
-
-
-class MockFailedResponse(object):
-    def __init__(self, url):
-        self.status_code = 404
-        self.url = url
-        self.headers = {'blaa': '1234'}
-
-    def json(self):
-        return {'error': 'bad'}
-
-
-##########################
-#### Functional Tests ####
-##########################
-
-def test_monkeypatch_get_success(monkeypatch):
+def test_get_add_stock_page(test_client):
     """
-    GIVEN a Flask application and a monkeypatched version of requests.get()
-    WHEN the HTTP response is set to successful
-    THEN check the HTTP response
+    GIVEN a Flask application configured for testing
+    WHEN the '/add_stock' page is requested (GET)
+    THEN check the response is valid
     """
-    def mock_get(url):
-        return MockSuccessResponse(url)
-
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
-    monkeypatch.setattr(requests, 'get', mock_get)
-    r = requests.get(url)
-    assert r.status_code == 200
-    assert r.url == url
-    assert 'MSFT' in r.json()['Meta Data']['2. Symbol']
-    assert '2020-03-24' in r.json()['Meta Data']['3. Last Refreshed']
-    assert '148.34' in r.json()['Time Series (Daily)']['2020-03-24']['4. close']
+    response = test_client.get('/add_stock')
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Add a Stock:' in response.data
+    assert b'Stock Symbol' in response.data
+    assert b'Number of Shares' in response.data
+    assert b'Purchase Price' in response.data
 
 
-def test_monkeypatch_get_failure(monkeypatch):
+def test_post_add_stock_page(test_client, init_database):
     """
-    GIVEN a Flask application and a monkeypatched version of requests.get()
-    WHEN the HTTP response is set to failed
-    THEN check the HTTP response
+    GIVEN a Flask application configured for testing
+    WHEN the '/add_stock' page is posted to (POST)
+    THEN check that the user is redirected to the '/list_stocks' page
     """
-    def mock_get(url):
-        return MockFailedResponse(url)
-
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
-    monkeypatch.setattr(requests, 'get', mock_get)
-    r = requests.get(url)
-    print(r.json())
-    assert r.status_code == 404
-    assert r.url == url
-    assert 'bad' in r.json()['error']
+    response = test_client.post('/add_stock',
+                           data={'stock_symbol': 'AAPL',
+                                 'number_of_shares': '23',
+                                 'purchase_price': '432.17'},
+                           follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Stocks:' in response.data
+    assert b'Stock Symbol' in response.data
+    assert b'Number of Shares' in response.data
+    assert b'Share Price' in response.data
+    assert b'AAPL' in response.data
+    assert b'23' in response.data
+    assert b'432.17' in response.data

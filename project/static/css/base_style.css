@@ -7,10 +7,13 @@
 }
 
 body {
-  background: #f1f3f5;
-  font-family: segoe ui,helvetica neue,sans-serif;
-  color: #345;
-  overflow-x: hidden;
+  background-color: #23424A;
+  color: white;
+  font-family: sans-serif;
+}
+
+img {
+  max-width: 100%;
 }
 
 
@@ -18,9 +21,6 @@ body {
  ******************/
 header {
   grid-area: header;
-}
-nav {
-  grid-area: nav;
 }
 .messages {
   grid-area: messages;
@@ -34,13 +34,11 @@ footer {
 
 .grid-container {
   display: grid;
-  grid-template-columns: 10% 40% 40% 10%;
-  grid-auto-rows: minmax(40px, auto);
+  grid-template-columns: 10% 1fr 1fr 10%;
+  grid-auto-rows: minmax(30px, auto);
   grid-gap: 10px;
-  max-width: 1080px;
-  margin: auto;
   grid-template-areas:
-    "header    header     nav       nav"
+    "header    header     header    header"
     "messages  messages   messages  messages"
     "...       content    content   ..."
     "footer    footer     footer    footer";
@@ -50,53 +48,61 @@ footer {
 /* Header Styling
  ****************/
 header {
-  margin: auto 0;
+  background-color: #136C72;
+  border: 1px solid #136C72;
+  padding: 0.75em 0;
 }
 
-header h1 {
-  font-size: 1.8em;
-  margin-left: 0.5em;
+.nav {
+  display: flex;
+  justify-content: space-between;
 }
 
-header h1 a {
-  text-decoration: none
-}
-
-
-/* Navigation Links Styling
-***************************/
-nav {
-  margin: auto;
-}
-
-nav ul {
+.nav-list {
+  display: flex;
+  justify-content: space-between;
   list-style: none;
+  padding: 0 1em;
 }
 
-nav li {
-  display: inline-block;
-  padding-left: 1em;
-  font-size: 1.5em;
+.nav-item {
+  text-decoration: none;
 }
 
-nav li a {
-  text-decoration: none
+.nav-item + .nav-item {
+  margin-left: 1.5em;
+}
+
+.nav-link {
+  color: white;
+  font-size: 1.5rem;
+  text-decoration: none;
+  text-transform: capitalize;
 }
 
 
 /* Message Styling
  *****************/
-
 .flash-message {
-  width: 100%;
-  margin-bottom: 15px;
-  background: purple;
+  background: #38CFD9;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5em 1em;
+  transition: opacity 1.0s;
 }
 
-.flash-message p {
-  padding: 15px;
+.flash-message p, span {
+  font-size: 1.1rem;
   color: white;
-  width: auto;
+}
+
+.flash-message span {
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.flash-message span:hover {
+  color: black;
 }
 
 .flash-message-error {
@@ -108,7 +114,7 @@ nav li a {
 }
 
 .flash-message-info {
-  background: blue
+  background: blue;
 }
 
 
@@ -121,24 +127,24 @@ nav li a {
 
 /* Error Page Styling
  ********************/
-.errorpage_title {
+.errorpage-title {
   text-align: center;
+  margin-bottom: 1em;
 }
 
-.errorpage_section {
-  margin-top: 1em;
+.errorpage-text {
   text-align: center;
+  font-size: 1.15rem;
+  margin-bottom: 1em;
 }
 
-
-/* Validation Errors Styling
- ***************************/
-.validation_error {
-  color: red;
-}
 
 /* Footer Styling
  ****************/
 footer {
   margin: auto;
+}
+
+footer h3 {
+  color: white;
 }

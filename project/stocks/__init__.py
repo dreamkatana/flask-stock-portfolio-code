@@ -1,7 +1,7 @@
 """
-The stocks Blueprint handles the processing of stock data for this application.
-Specifically, this Blueprint allows for users to add, edit, and delete stocks
-from their portfolios.
+The stocks blueprint handles the user management for this application.
+Specifically, this blueprint allows for users to add, edit, and delete
+stock data from their portfolio.
 """
 from flask import Blueprint
 
