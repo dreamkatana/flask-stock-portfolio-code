@@ -36,4 +36,4 @@ flake8:
 pytest:
   stage: Test
   script:
-  - pytest
+  - python -m pytest
