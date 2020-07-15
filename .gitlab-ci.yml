@@ -7,7 +7,7 @@ image: python:3.7
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  MAIL_USERNAME: "flaskstockportfolioapp@gmail"
+  MAIL_USERNAME: "flaskstockportfolioapp@gmail.com"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/reference/pip_install/#caching
