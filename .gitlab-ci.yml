@@ -37,6 +37,4 @@ flake8:
 pytest:
   stage: Test
   script:
-  - python --version
-  - python -c "import sys;print(sys.path)"
   - python -m pytest
