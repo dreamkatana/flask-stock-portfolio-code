@@ -3,9 +3,9 @@
 #################
 from . import stocks_blueprint
 from flask import render_template, request, redirect, url_for, flash, current_app
-from project.models import Stock, User
+from project.models import Stock
 from project import database
-import click
+# import click
 from flask_login import login_required, current_user
 from datetime import datetime
 
