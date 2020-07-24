@@ -8,7 +8,7 @@ from datetime import datetime
 
 @pytest.fixture(scope='module')
 def new_stock():
-    stock = Stock('AAPL', '16', '406.78')
+    stock = Stock('AAPL', '16', '406.78', 17, datetime(2020, 7, 18))
     return stock
 
 
@@ -19,11 +19,16 @@ def new_user():
 
 
 @pytest.fixture(scope='module')
-def register_default_user(init_database):
-    user = User('patrick@gmail.com', 'FlaskIsAwesome123')
-    database.session.add(user)
-    database.session.commit()
-    return user
+def register_default_user(test_client):
+    """Registers the default user using the '/users/register' route."""
+    test_client.post('/users/register',
+                     data={'email': 'patrick@gmail.com',
+                           'password': 'FlaskIsAwesome123'})
+
+    # user = User('patrick@gmail.com', 'FlaskIsAwesome123')
+    # database.session.add(user)
+    # database.session.commit()
+    # return user
 
 
 @pytest.fixture(scope='function')
@@ -31,10 +36,9 @@ def log_in_default_user(test_client, register_default_user):
     # Log in the user
     test_client.post('/users/login',
                      data={'email': 'patrick@gmail.com',
-                           'password': 'FlaskIsAwesome123'},
-                     follow_redirects=True)
+                           'password': 'FlaskIsAwesome123'})
 
-    yield register_default_user  # this is where the testing happens!
+    yield   # this is where the testing happens!
 
     # Log out the user
     test_client.get('/users/logout', follow_redirects=True)
@@ -59,7 +63,25 @@ def confirm_email_default_user(test_client, log_in_default_user):
     database.session.commit()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
+def add_stocks_for_default_user(test_client, log_in_default_user):
+    # Add three stocks for the default user
+    test_client.post('/add_stock', data={'stock_symbol': 'SAM',
+                                         'number_of_shares': '27',
+                                         'purchase_price': '301.23',
+                                         'purchase_date': '2020-07-01'})
+    test_client.post('/add_stock', data={'stock_symbol': 'COST',
+                                         'number_of_shares': '76',
+                                         'purchase_price': '14.67',
+                                         'purchase_date': '2019-05-26'})
+    test_client.post('/add_stock', data={'stock_symbol': 'TWTR',
+                                         'number_of_shares': '146',
+                                         'purchase_price': '34.56',
+                                         'purchase_date': '2020-02-03'})
+    return
+
+
+@pytest.fixture(scope='module')
 def test_client():
     flask_app = create_app()
     flask_app.config.from_object('config.TestingConfig')
@@ -67,11 +89,30 @@ def test_client():
 
     # Create a test client using the Flask application configured for testing
     with flask_app.test_client() as testing_client:
-        # Establish an application context before accessing the logger
+        # Establish an application context before accessing the logger and database
         with flask_app.app_context():
-            current_app.logger.info('In the test_client() fixture...')
+            flask_app.logger.info('Creating database tables in test_client fixture...')
+
+            # Create the database and the database table(s)
+            database.create_all()
 
         yield testing_client  # this is where the testing happens!
+
+        with flask_app.app_context():
+            database.drop_all()
+
+
+@pytest.fixture(scope='module')
+def test_client_with_app_context():
+    flask_app = create_app()
+    flask_app.config.from_object('config.TestingConfig')
+    flask_app.extensions['mail'].suppress = True
+
+    # Create a test client using the Flask application configured for testing
+    with flask_app.test_client() as testing_client:
+        # Establish an application context before accessing the logger and database
+        with flask_app.app_context():
+            yield testing_client  # this is where the testing happens!
 
 
 @pytest.fixture(scope='module')

@@ -13,6 +13,7 @@ __pycache__/
 instance/*_sensitive.cfg
 instance/*.db
 instance/*.log
+instance/*.log*
 
 # Coverage output
 .coverage
