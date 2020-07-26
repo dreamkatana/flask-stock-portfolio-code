@@ -2,7 +2,49 @@
 This file (test_stocks.py) contains the functional tests for testing the
 routes (routes.py) in the `stocks` blueprint.
 """
+import requests
 
+
+########################
+#### Helper Classes ####
+########################
+
+class MockSuccessResponse(object):
+    def __init__(self, url):
+        self.status_code = 200
+        self.url = url
+        self.headers = {'blaa': '1234'}
+
+    def json(self):
+        return {
+            'Meta Data': {
+                "2. Symbol": "MSFT",
+                "3. Last Refreshed": "2020-03-24"
+            },
+            'Time Series (Daily)': {
+                "2020-03-24": {
+                    "4. close": "148.3400",
+                },
+                "2020-03-23": {
+                    "4. close": "135.9800",
+                }
+            }
+        }
+
+
+class MockFailedResponse(object):
+    def __init__(self, url):
+        self.status_code = 404
+        self.url = url
+        self.headers = {'blaa': '1234'}
+
+    def json(self):
+        return {'error': 'bad'}
+
+
+###############
+#### Tests ####
+###############
 
 def test_get_add_stock_page(test_client, log_in_default_user):
     """
@@ -32,7 +74,7 @@ def test_get_add_stock_page_not_logged_in(test_client):
     assert b'Please log in to access this page.' in response.data
 
 
-def test_post_add_stock_page(test_client, log_in_default_user):
+def test_post_add_stock_page(test_client, log_in_default_user, mock_requests_get_success_daily):
     """
     GIVEN a Flask application
     WHEN the '/add_stock' page is posted to (POST) when the user is logged in
@@ -73,13 +115,14 @@ def test_post_add_stock_page_not_logged_in(test_client):
     assert b'Please log in to access this page.' in response.data
 
 
-def test_get_stock_list_logged_in(test_client, add_stocks_for_default_user):
+def test_get_stock_list_logged_in(test_client, add_stocks_for_default_user, mock_requests_get_success_daily):
     """
     GIVEN a Flask application
     WHEN the '/stocks' page is requested (GET) when the user is logged in
     THEN check the response is valid
     """
-    headers = [b'Stock Symbol', b'Number of Shares', b'Share Price', b'Purchase Date']
+    headers = [b'Stock Symbol', b'Number of Shares', b'Share Price', b'Purchase Date', b'Current Share Price',
+               b'Stock Position Value', b'TOTAL VALUE']
     data = [b'SAM', b'27', b'301.23', b'2020-07-01',
             b'COST', b'76', b'14.67', b'2019-05-26',
             b'TWTR', b'146', b'34.56', b'2020-02-03']
@@ -103,3 +146,40 @@ def test_get_stock_list_not_logged_in(test_client):
     assert response.status_code == 200
     assert b'List of Stocks:' not in response.data
     assert b'Please log in to access this page.' in response.data
+
+
+def test_monkeypatch_get_success(monkeypatch):
+    """
+    GIVEN a Flask application and a monkeypatched version of requests.get()
+    WHEN the HTTP response is set to successful
+    THEN check the HTTP response
+    """
+    def mock_get(url):
+        return MockSuccessResponse(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+    r = requests.get(url)
+    assert r.status_code == 200
+    assert r.url == url
+    assert 'MSFT' in r.json()['Meta Data']['2. Symbol']
+    assert '2020-03-24' in r.json()['Meta Data']['3. Last Refreshed']
+    assert '148.34' in r.json()['Time Series (Daily)']['2020-03-24']['4. close']
+
+
+def test_monkeypatch_get_failure(monkeypatch):
+    """
+    GIVEN a Flask application and a monkeypatched version of requests.get()
+    WHEN the HTTP response is set to failed
+    THEN check the HTTP response
+    """
+    def mock_get(url):
+        return MockFailedResponse(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+    r = requests.get(url)
+    print(r.json())
+    assert r.status_code == 404
+    assert r.url == url
+    assert 'bad' in r.json()['error']

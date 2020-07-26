@@ -4,9 +4,49 @@ from flask import current_app
 from project.models import Stock, User
 from project import database
 from datetime import datetime
+import requests
 
 
-@pytest.fixture(scope='module')
+########################
+#### Helper Classes ####
+########################
+
+class MockSuccessResponseDaily(object):
+    def __init__(self, url):
+        self.status_code = 200
+        self.url = url
+
+    def json(self):
+        return {
+            'Meta Data': {
+                "2. Symbol": "AAPL",
+                "3. Last Refreshed": "2020-03-24"
+            },
+            'Time Series (Daily)': {
+                "2020-03-24": {
+                    "4. close": "148.3400",
+                },
+                "2020-03-23": {
+                    "4. close": "135.9800",
+                }
+            }
+        }
+
+
+class MockFailedResponse(object):
+    def __init__(self, url):
+        self.status_code = 404
+        self.url = url
+
+    def json(self):
+        return {'error': 'bad'}
+
+
+##################
+#### Fixtures ####
+##################
+
+@pytest.fixture(scope='function')
 def new_stock():
     stock = Stock('AAPL', '16', '406.78', 17, datetime(2020, 7, 18))
     return stock
@@ -135,3 +175,22 @@ def afterwards_reset_default_user_password():
     user.set_password('FlaskIsAwesome123')
     database.session.add(user)
     database.session.commit()
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_success_daily(monkeypatch):
+    # Create a mock for the requests.get() call to prevent making the actual API call
+    def mock_get(url):
+        return MockSuccessResponseDaily(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_failure(monkeypatch):
+    def mock_get(url):
+        return MockFailedResponse(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
