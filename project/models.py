@@ -78,7 +78,8 @@ class Stock(database.Model):
                     self.position_value = self.current_price * self.number_of_shares
                     break
             else:
-                current_app.logger.info(f"Error! Received unexpected status code ({ r.status_code }) when retrieving stock data ({ self.stock_symbol })!")
+                current_app.logger.info(
+                    f"Error! Received unexpected status code ({ r.status_code }) when retrieving stock data ({ self.stock_symbol })!")
 
     def get_stock_position_value(self) -> float:
         return float(self.position_value / 100)
