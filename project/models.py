@@ -111,8 +111,8 @@ class Stock(database.Model):
             #   - Otherwise, use the purchase date
             start_date = self.purchase_date
             delta = datetime.now() - self.purchase_date
-            if delta.days < (3*30):
-                start_date = datetime.now() - timedelta(days=3*30)
+            if delta.days < (3 * 30):
+                start_date = datetime.now() - timedelta(days=3 * 30)
 
             for element in weekly_data['Weekly Adjusted Time Series']:
                 date = datetime.fromisoformat(element)
