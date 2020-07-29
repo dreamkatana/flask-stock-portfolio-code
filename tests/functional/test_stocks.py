@@ -189,15 +189,11 @@ def test_get_stock_detail_page(test_client, add_stocks_for_default_user, mock_re
     """
     GIVEN a Flask application
     WHEN the '/stocks/3' page is retrieved (GET) when the user is logged in and the response from Alpha Vantage was successful
-    THEN check that the response is valid
+    THEN check that the response is valid including a chart
     """
     response = test_client.get('/stocks/3', follow_redirects=True)
     assert response.status_code == 200
     assert b'Stock Details:' in response.data
-    assert b'Symbol: COST' in response.data
-    assert b'Number of Shares: 76' in response.data
-    assert b'Purchase Price: $14.67' in response.data
-    assert b'Purchase Date: May 26, 2019' in response.data
     assert b'canvas id="stockChart"' in response.data
 
 
@@ -210,10 +206,6 @@ def test_get_stock_detail_page_failed_response(test_client, add_stocks_for_defau
     response = test_client.get('/stocks/3', follow_redirects=True)
     assert response.status_code == 200
     assert b'Stock Details:' in response.data
-    assert b'Symbol: COST' in response.data
-    assert b'Number of Shares: 76' in response.data
-    assert b'Purchase Price: $14.67' in response.data
-    assert b'Purchase Date: May 26, 2019' in response.data
     assert b'canvas id="stockChart"' not in response.data
 
 

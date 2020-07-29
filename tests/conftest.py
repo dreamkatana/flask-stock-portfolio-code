@@ -3,7 +3,8 @@ import pytest
 from flask import current_app
 from project.models import Stock, User
 from project import database
-from datetime import datetime
+# from datetime import datetime
+import datetime
 import requests
 
 
@@ -50,6 +51,12 @@ class MockSuccessResponseWeekly(object):
                 },
                 "2020-07-17": {
                     "4. close": "362.7600",
+                },
+                "2020-06-11": {
+                    "4. close": "354.3400",
+                },
+                "2020-02-25": {
+                    "4. close": "432.9800",
                 }
             }
         }
@@ -70,7 +77,7 @@ class MockFailedResponse(object):
 
 @pytest.fixture(scope='function')
 def new_stock():
-    stock = Stock('AAPL', '16', '406.78', 17, datetime(2020, 7, 10))
+    stock = Stock('AAPL', '16', '406.78', 17, datetime.datetime(2020, 7, 10))
     return stock
 
 
@@ -106,7 +113,7 @@ def confirm_email_default_user(test_client, log_in_default_user):
     # Mark the user as having their email address confirmed
     user = User.query.filter_by(email='patrick@gmail.com').first()
     user.email_confirmed = True
-    user.email_confirmed_on = datetime(2020, 7, 8)
+    user.email_confirmed_on = datetime.datetime(2020, 7, 8)
     database.session.add(user)
     database.session.commit()
 
