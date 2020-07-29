@@ -33,6 +33,28 @@ class MockSuccessResponseDaily(object):
         }
 
 
+class MockSuccessResponseWeekly(object):
+    def __init__(self, url):
+        self.status_code = 200
+        self.url = url
+
+    def json(self):
+        return {
+            'Meta Data': {
+                "2. Symbol": "AAPL",
+                "3. Last Refreshed": "2020-07-28"
+            },
+            'Weekly Adjusted Time Series': {
+                "2020-07-24": {
+                    "4. close": "379.2400",
+                },
+                "2020-07-17": {
+                    "4. close": "362.7600",
+                }
+            }
+        }
+
+
 class MockFailedResponse(object):
     def __init__(self, url):
         self.status_code = 404
@@ -48,7 +70,7 @@ class MockFailedResponse(object):
 
 @pytest.fixture(scope='function')
 def new_stock():
-    stock = Stock('AAPL', '16', '406.78', 17, datetime(2020, 7, 18))
+    stock = Stock('AAPL', '16', '406.78', 17, datetime(2020, 7, 10))
     return stock
 
 
@@ -64,11 +86,6 @@ def register_default_user(test_client):
     test_client.post('/users/register',
                      data={'email': 'patrick@gmail.com',
                            'password': 'FlaskIsAwesome123'})
-
-    # user = User('patrick@gmail.com', 'FlaskIsAwesome123')
-    # database.session.add(user)
-    # database.session.commit()
-    # return user
 
 
 @pytest.fixture(scope='function')
@@ -194,3 +211,34 @@ def mock_requests_get_failure(monkeypatch):
 
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_success_weekly(monkeypatch):
+    # Create a mock for the requests.get() call to prevent making the actual API call
+    def mock_get(url):
+        return MockSuccessResponseWeekly(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+
+
+@pytest.fixture(scope='module')
+def register_second_user(test_client):
+    """Registers the second user using the '/users/register' route."""
+    test_client.post('/users/register',
+                     data={'email': 'patrick@yahoo.com',
+                           'password': 'FlaskIsTheBest987'})
+
+
+@pytest.fixture(scope='function')
+def log_in_second_user(test_client, register_second_user):
+    # Log in the user
+    test_client.post('/users/login',
+                     data={'email': 'patrick@yahoo.com',
+                           'password': 'FlaskIsTheBest987'})
+
+    yield   # this is where the testing happens!
+
+    # Log out the user
+    test_client.get('/users/logout', follow_redirects=True)

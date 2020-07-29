@@ -183,3 +183,58 @@ def test_monkeypatch_get_failure(monkeypatch):
     assert r.status_code == 404
     assert r.url == url
     assert 'bad' in r.json()['error']
+
+
+def test_get_stock_detail_page(test_client, add_stocks_for_default_user, mock_requests_get_success_weekly):
+    """
+    GIVEN a Flask application
+    WHEN the '/stocks/3' page is retrieved (GET) when the user is logged in and the response from Alpha Vantage was successful
+    THEN check that the response is valid
+    """
+    response = test_client.get('/stocks/3', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Stock Details:' in response.data
+    assert b'Symbol: COST' in response.data
+    assert b'Number of Shares: 76' in response.data
+    assert b'Purchase Price: $14.67' in response.data
+    assert b'Purchase Date: May 26, 2019' in response.data
+    assert b'canvas id="stockChart"' in response.data
+
+
+def test_get_stock_detail_page_failed_response(test_client, add_stocks_for_default_user, mock_requests_get_failure):
+    """
+    GIVEN a Flask application
+    WHEN the '/stocks/3' page is retrieved (GET) when the user is logged in, but the response from Alpha Vantage failed
+    THEN check that the response is valid but the chart is not displayed
+    """
+    response = test_client.get('/stocks/3', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Stock Details:' in response.data
+    assert b'Symbol: COST' in response.data
+    assert b'Number of Shares: 76' in response.data
+    assert b'Purchase Price: $14.67' in response.data
+    assert b'Purchase Date: May 26, 2019' in response.data
+    assert b'canvas id="stockChart"' not in response.data
+
+
+def test_get_stock_detail_page_incorrect_user(test_client, log_in_second_user):
+    """
+    GIVEN a Flask application
+    WHEN the '/stocks/3' page is retrieved (GET) by the incorrect user
+    THEN check that a 403 error is returned
+    """
+    response = test_client.get('/stocks/3')
+    assert response.status_code == 403
+    assert b'Stock Details:' not in response.data
+    assert b'canvas id="stockChart"' not in response.data
+
+
+def test_get_stock_detail_page_invalid_stock(test_client, log_in_default_user):
+    """
+    GIVEN a Flask application
+    WHEN the '/stocks/234' page is retrieved (GET)
+    THEN check that a 404 error is returned
+    """
+    response = test_client.get('/stocks/234')
+    assert response.status_code == 404
+    assert b'Stock Details:' not in response.data

@@ -84,6 +84,43 @@ class Stock(database.Model):
     def get_stock_position_value(self) -> float:
         return float(self.position_value / 100)
 
+    def create_alpha_vantage_get_url_weekly(self):
+        return 'https://www.alphavantage.co/query?function={}&symbol={}&apikey={}'.format(
+            'TIME_SERIES_WEEKLY_ADJUSTED',
+            self.stock_symbol,
+            current_app.config['ALPHA_VANTAGE_API_KEY']
+        )
+
+    def get_weekly_stock_data(self):
+        title = ''
+        labels = []
+        values = []
+        url = self.create_alpha_vantage_get_url_weekly()
+
+        try:
+            r = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            current_app.logger.info(f"Error! Network problem preventing retrieving the weekly stock data ({ self.stock_symbol })!")
+
+        if r.status_code == 200:
+            weekly_data = r.json()
+            title = f'Weekly Prices ({self.stock_symbol})'
+
+            for element in weekly_data['Weekly Adjusted Time Series']:
+                date = datetime.fromisoformat(element)
+                if date.date() > self.purchase_date.date():
+                    labels.append(date)
+                    values.append(weekly_data['Weekly Adjusted Time Series'][element]['4. close'])
+
+            # Reverse the elements as the data from Alpha Vantage is read in latest to oldest
+            labels.reverse()
+            values.reverse()
+        else:
+            current_app.logger.info(
+                f"Error! Received unexpected status code ({ r.status_code }) when retrieving weekly stock data ({ self.stock_symbol })!")
+
+        return title, labels, values
+
 
 class User(database.Model):
     """
