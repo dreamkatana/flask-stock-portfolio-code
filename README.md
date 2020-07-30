@@ -44,6 +44,7 @@ Set the file that contains the Flask application and specify that the developmen
 (venv)$ export SECRET_KEY=<INSERT_SECRET_KEY>
 (venv)$ export MAIL_USERNAME=<INSERT_EMAIL_ADDRESS>
 (venv)$ export MAIL_PASSWORD=<INSERT_EMAIL_PASSWORD>
+(venv)$ export ALPHA_VANTAGE_API_KEY=<INSERT_ALPHA_VANTAGE_API_KEY>
 ```
 
 Run development server to serve the Flask application:
