@@ -30,6 +30,9 @@ class Config(object):
     # Alpha Vantage API Key
     ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', default='')
 
+    # Logging
+    LOG_TO_STDOUT = os.getenv('LOG_TO_STDOUT', default=False)
+
 
 class ProductionConfig(Config):
     FLASK_ENV = 'production'
