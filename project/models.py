@@ -107,12 +107,11 @@ class Stock(database.Model):
             title = f'Weekly Prices ({self.stock_symbol})'
 
             # Determine the start date as either:
-            #   - If the start date is less than 3 months ago, then use the date three months ago
+            #   - If the start date is less than 12 weeks ago, then use the date from 12 weeks ago
             #   - Otherwise, use the purchase date
             start_date = self.purchase_date
-            delta = datetime.now() - self.purchase_date
-            if delta.days < (3 * 30):
-                start_date = datetime.now() - timedelta(days=3 * 30)
+            if (datetime.now() - self.purchase_date) < timedelta(weeks=12):
+                start_date = datetime.now() - timedelta(weeks=12)
 
             for element in weekly_data['Weekly Adjusted Time Series']:
                 date = datetime.fromisoformat(element)
