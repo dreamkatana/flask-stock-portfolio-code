@@ -45,6 +45,9 @@ class ProductionConfig(Config):
     MAIL_USERNAME = 'apikey'
     MAIL_PASSWORD = os.getenv('SENDGRID_API_KEY', default='')
 
+    # Logging
+    LOG_TO_STDOUT = os.getenv('LOG_TO_STDOUT', default=True)
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

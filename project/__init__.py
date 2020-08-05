@@ -24,7 +24,6 @@ bcrypt = Bcrypt()
 csrf_protection = CSRFProtect()
 login = LoginManager()
 login.login_view = "users.login"
-login.refresh_view = "users.reauthenticate"
 mail = Mail()
 
 
