@@ -84,7 +84,7 @@ def register_blueprints(app):
 
 def configure_logging(app):
     # Logging Configuration
-    if app.config['LOG_TO_STDOUT']:  # NEW!!!
+    if app.config['LOG_TO_STDOUT']:
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.INFO)
         app.logger.addHandler(stream_handler)
