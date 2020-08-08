@@ -71,6 +71,11 @@ class Stock(database.Model):
             if r.status_code == 200:
                 daily_data = r.json()
 
+                current_app.logger.info(f'Processing daily data for {self.stock_symbol}....')
+                current_app.logger.info(f'....keys in daily_data:')
+                for key in daily_data:
+                    current_app.logger.info(f'.......{key}')
+
                 for element in daily_data['Time Series (Daily)']:
                     current_price = float(daily_data['Time Series (Daily)'][element]['4. close'])
                     self.current_price = int(float(current_price) * 100)
