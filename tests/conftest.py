@@ -34,6 +34,18 @@ class MockSuccessResponseDaily(object):
         }
 
 
+class MockApiRateLimitExceededResponse(object):
+    def __init__(self, url):
+        self.status_code = 200
+        self.url = url
+
+    def json(self):
+        return {
+            'Note': 'Thank you for using Alpha Vantage! Our standard API call frequency is ' +
+                    '5 calls per minute and 500 calls per day.'
+        }
+
+
 class MockSuccessResponseWeekly(object):
     def __init__(self, url):
         self.status_code = 200
@@ -206,6 +218,15 @@ def mock_requests_get_success_daily(monkeypatch):
     # Create a mock for the requests.get() call to prevent making the actual API call
     def mock_get(url):
         return MockSuccessResponseDaily(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_api_rate_limit_exceeded(monkeypatch):
+    def mock_get(url):
+        return MockApiRateLimitExceededResponse(url)
 
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)

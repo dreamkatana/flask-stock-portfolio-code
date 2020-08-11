@@ -66,20 +66,31 @@ class Stock(database.Model):
             try:
                 r = requests.get(url)
             except requests.exceptions.ConnectionError:
-                current_app.logger.info(f"Error! Network problem preventing retrieving the stock data ({ self.stock_symbol })!")
+                current_app.logger.error(f'Error! Network problem preventing retrieving the stock data ({ self.stock_symbol })!')
 
-            if r.status_code == 200:
-                daily_data = r.json()
+            # Status code returned from Alpha Vantage needs to be 200 (OK) to process stock data
+            if r.status_code != 200:
+                current_app.logger.warning(f'Error! Received unexpected status code ({ r.status_code }) ' +
+                                           f'when retrieving stock data ({ self.stock_symbol })!')
+                return
 
-                for element in daily_data['Time Series (Daily)']:
-                    current_price = float(daily_data['Time Series (Daily)'][element]['4. close'])
-                    self.current_price = int(float(current_price) * 100)
-                    self.current_price_date = datetime.now()
-                    self.position_value = self.current_price * self.number_of_shares
-                    break
-            else:
-                current_app.logger.info(
-                    f"Error! Received unexpected status code ({ r.status_code }) when retrieving stock data ({ self.stock_symbol })!")
+            daily_data = r.json()
+
+            # The key of 'Time Series (Daily)' needs to be present in order to process the stock data
+            # Typically, this key will not be present if the API rate limit has been exceeded.
+            if 'Time Series (Daily)' not in daily_data:
+                current_app.logger.warning(f'Could not find Time Series (Daily) key when retrieving' +
+                                           f'the stock data ({ self.stock_symbol })!')
+                return
+
+            for element in daily_data['Time Series (Daily)']:
+                current_price = float(daily_data['Time Series (Daily)'][element]['4. close'])
+                self.current_price = int(float(current_price) * 100)
+                self.current_price_date = datetime.now()
+                self.position_value = self.current_price * self.number_of_shares
+                break
+            current_app.logger.debug(f'Retrieved current price {self.current_price / 100} ' +
+                                     f'for the stock data ({ self.stock_symbol })!')
 
     def get_stock_position_value(self) -> float:
         return float(self.position_value / 100)
