@@ -96,10 +96,9 @@ def configure_logging(app):
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
 
-        # Remove the default logger configured by Flask
-        app.logger.removeHandler(default_handler)
+    # Remove the default logger configured by Flask
+    app.logger.removeHandler(default_handler)
 
-    app.logger.setLevel(logging.DEBUG)
     app.logger.info('Starting the Flask Stock Portfolio App...')
 
 
