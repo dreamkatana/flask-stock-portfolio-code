@@ -45,7 +45,7 @@ def test_get_stock_data_success(test_client_with_app_context, mock_requests_get_
     """
     GIVEN a Flask application and a monkeypatched version of requests.get()
     WHEN the HTTP response is set to successful
-    THEN check the HTTP response
+    THEN check that the stock data is updated
     """
     new_stock.get_stock_data()
     assert new_stock.stock_symbol == 'AAPL'
@@ -57,11 +57,27 @@ def test_get_stock_data_success(test_client_with_app_context, mock_requests_get_
     assert new_stock.position_value == (14834*16)
 
 
+def test_get_stock_data_api_rate_limit_exceeded(test_client_with_app_context, mock_requests_get_api_rate_limit_exceeded, new_stock):
+    """
+    GIVEN a Flask application and a monkeypatched version of requests.get()
+    WHEN the HTTP response is set to successful but the API rate limit is exceeded
+    THEN check that the stock data is not updated
+    """
+    new_stock.get_stock_data()
+    assert new_stock.stock_symbol == 'AAPL'
+    assert new_stock.number_of_shares == 16
+    assert new_stock.purchase_price == 40678  # $406.78 -> integer
+    assert new_stock.purchase_date.date() == datetime(2020, 7, 10).date()
+    assert new_stock.current_price == 0
+    assert new_stock.current_price_date is None
+    assert new_stock.position_value == 0
+
+
 def test_get_stock_data_failure(test_client_with_app_context, mock_requests_get_failure, new_stock):
     """
     GIVEN a Flask application and a monkeypatched version of requests.get()
     WHEN the HTTP response is set to failed
-    THEN check the HTTP response
+    THEN check that the stock data is not updated
     """
     new_stock.get_stock_data()
     assert new_stock.stock_symbol == 'AAPL'
@@ -77,7 +93,7 @@ def test_get_stock_data_success_two_calls(test_client_with_app_context, mock_req
     """
     GIVEN a Flask application and a monkeypatched version of requests.get()
     WHEN the HTTP response is set to successful
-    THEN check the HTTP response
+    THEN check that the stock data is updated
     """
     assert new_stock.stock_symbol == 'AAPL'
     assert new_stock.current_price == 0
