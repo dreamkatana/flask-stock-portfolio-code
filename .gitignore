@@ -9,8 +9,8 @@ __pycache__/
 # PyCharm files
 .idea/
 
-# Instance Folder - used for configuration parameters
-instance/*_sensitive.cfg
+# Instance Folder - used for run-time files
+instance/*.cfg
 instance/*.db
 instance/*.log
 instance/*.log*
