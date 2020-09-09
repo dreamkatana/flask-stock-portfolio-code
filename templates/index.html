@@ -6,13 +6,14 @@
 
 {% block content %}
 <div class="container">
-  <div class="content-text">
-    <h2>Welcome to the Flask Stock Portfolio App!</h2>
-    <p>Track your personal stock portfolio</p>
-    <p>and view historical stock charts.</p>
-  </div>
-  <div class="content-image">
-    <img src="{{ url_for('static', filename='img/computer_code.jpg') }}" alt="computer on a desk">
-  </div>
+  <header class="content-text">
+    <h1>Welcome to the <strong>Flask Stock Portfolio App!</strong></h1>
+    <p>Track your personal stock portfolio and view historical stock charts.</p>
+  </header>
+  <figure class="content-image">
+    <img
+      src="{{ url_for('static', filename='img/computer_code.jpg') }}"
+      alt="Laptop computer on a desk">
+  </figure>
 </div>
 {% endblock %}
