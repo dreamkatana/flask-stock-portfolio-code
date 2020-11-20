@@ -2,7 +2,9 @@
 
 This Flask application manages a stock portfolio for each user, including the user management aspects of a web application.
 
-This project is developed as part of the "Developing Web Applications with Python and Flask" on [testdriven.io](https://testdriven.io/courses/learn-flask/).
+This project is developed as part of the "Developing Web Applications with Python and Flask" on [testdriven.io](https://testdriven.io/courses/learn-flask/):
+
+* [https://testdriven.io/courses/learn-flask/](https://testdriven.io/courses/learn-flask/)
 
 ## How to Run
 
@@ -55,8 +57,9 @@ Run development server to serve the Flask application:
 ## Key Python Modules Used
 
 - Flask: micro-framework for web application development
+- pytest: framework for testing Python projects
 
-This application is written using Python 3.8.5.
+This application is written using Python 3.9.0.
 
 ## Unit Testing
 
