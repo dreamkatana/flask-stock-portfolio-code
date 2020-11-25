@@ -1,7 +1,6 @@
 """
 This file (test_stocks.py) contains the functional tests for the app.py file.
 """
-import pytest
 from app import app
 
 
