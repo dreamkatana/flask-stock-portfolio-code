@@ -1,7 +1,6 @@
 """
 This file (test_stocks.py) contains the functional tests for the app.py file.
 """
-from app import app
 
 
 def test_get_add_stock_page(test_client):

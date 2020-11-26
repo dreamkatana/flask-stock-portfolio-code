@@ -1,7 +1,6 @@
 """
 This file (test_models.py) contains the unit tests for the models.py file.
 """
-from project.models import Stock
 
 
 def test_new_stock(new_stock):
