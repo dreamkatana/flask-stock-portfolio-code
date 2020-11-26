@@ -30,7 +30,7 @@ stages:
 flake8:
   stage: Static Analysis
   script:
-  - flake8 --max-line-length=150 --ignore=E266 --max-complexity 8 *.py
+  - flake8 --max-line-length=150 --ignore=E266,E402 --max-complexity 8 *.py
 
 pytest:
   stage: Test
