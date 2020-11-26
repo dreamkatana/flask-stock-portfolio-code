@@ -4,7 +4,7 @@ This file (test_stocks.py) contains the functional tests for the app.py file.
 from app import app
 
 
-def test_get_add_stock_page():
+def test_get_add_stock_page(test_client):
     """
     GIVEN a Flask application
     WHEN the '/add_stock' page is requested (GET)
@@ -20,7 +20,7 @@ def test_get_add_stock_page():
         assert b'Purchase Price ($) <em>(required)</em>' in response.data
 
 
-def test_post_add_stock_page():
+def test_post_add_stock_page(test_client):
     """
     GIVEN a Flask application
     WHEN the '/add_stock' page is posted to (POST)
