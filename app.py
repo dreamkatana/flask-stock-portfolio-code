@@ -2,14 +2,17 @@ from flask import Flask
 from logging.handlers import RotatingFileHandler
 import logging
 from flask.logging import default_handler
+import os
 
+# Create the Flask application
 app = Flask(__name__)
 
-# TEMPORARY - Set the secret key to a temporary value!
-app.secret_key = 'BAD_SECRET_KEY'
+# Configure the Flask application
+config_type = os.getenv('CONFIG_TYPE', default='config.DevelopmentConfig')
+app.config.from_object(config_type)
 
 # Logging Configuration
-file_handler = RotatingFileHandler('flask-stock-portfolio.log',
+file_handler = RotatingFileHandler('instance/flask-stock-portfolio.log',
                                    maxBytes=16384,
                                    backupCount=20)
 file_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(filename)s:%(lineno)d]')
