@@ -4,6 +4,7 @@ import logging
 from flask.logging import default_handler
 import os
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 
 #######################
@@ -14,6 +15,7 @@ from flask_sqlalchemy import SQLAlchemy
 # but without any arguments passed in. These instances are not
 # attached to the Flask application at this point.
 database = SQLAlchemy()
+db_migration = Migrate()
 
 
 ######################################
@@ -44,6 +46,7 @@ def initialize_extensions(app):
     # Since the application instance is now created, pass it to each Flask
     # extension instance to bind it to the Flask application instance (app)
     database.init_app(app)
+    db_migration.init_app(app, database)
 
 
 def register_blueprints(app):
