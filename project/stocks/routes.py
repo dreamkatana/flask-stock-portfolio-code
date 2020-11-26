@@ -3,6 +3,8 @@
 #################
 from . import stocks_blueprint
 from flask import current_app, render_template, request, session, flash, redirect, url_for
+from project.models import Stock
+from project import database
 
 
 ###########################
@@ -38,10 +40,13 @@ def index():
 @stocks_blueprint.route('/add_stock', methods=['GET', 'POST'])
 def add_stock():
     if request.method == 'POST':
-        # Save the form data to the session object
-        session['stock_symbol'] = request.form['stock_symbol']
-        session['number_of_shares'] = request.form['number_of_shares']
-        session['purchase_price'] = request.form['purchase_price']
+        # Save the form data to the database
+        new_stock = Stock(request.form['stock_symbol'],
+                          request.form['number_of_shares'],
+                          request.form['purchase_price'])
+        database.session.add(new_stock)
+        database.session.commit()
+
         flash(f"Added new stock ({ request.form['stock_symbol'] })!", 'success')
         current_app.logger.info(f"Added new stock ({ request.form['stock_symbol'] })!")
         return redirect(url_for('stocks.list_stocks'))
@@ -51,4 +56,5 @@ def add_stock():
 
 @stocks_blueprint.route('/stocks')
 def list_stocks():
-    return render_template('stocks/stocks.html')
+    stocks = Stock.query.order_by(Stock.id).all()
+    return render_template('stocks/stocks.html', stocks=stocks)

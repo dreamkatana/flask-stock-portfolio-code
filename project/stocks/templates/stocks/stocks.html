@@ -5,29 +5,25 @@
 {% endblock %}
 
 {% block content %}
-<div class="stocks-container">
-  <div class="stocks-list">
-    <h1>List of Stocks</h1>
+<div class="stock-container">
+  <h1>List of Stocks:</h1>
 
-    <table>
-      <!-- Table Header Row -->
-      <thead>
-        <tr>
-          <th>Stock Symbol</th>
-          <th>Number of Shares</th>
-          <th>Purchase Price</th>
-        </tr>
-      </thead>
+  <table class="stock-table">
+    <!-- Table Header Row -->
+    <tr>
+      <th>Stock Symbol</th>
+      <th>Number of Shares</th>
+      <th>Share Price</th>
+    </tr>
 
-      <!-- Table Element (Row) -->
-      <tbody>
-        <tr>
-          <td>{{ session['stock_symbol'] }}</td>
-          <td>{{ session['number_of_shares'] }}</td>
-          <td>${{ session['purchase_price'] }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <!-- Table Elements (Rows) -->
+    {% for stock in stocks %}
+      <tr>
+        <td>{{ stock.stock_symbol }}</td>
+        <td>{{ stock.number_of_shares }}</td>
+        <td>${{ stock.purchase_price / 100 }}</td>
+      </tr>
+    {% endfor %}
+  </table>
 </div>
 {% endblock %}
