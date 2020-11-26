@@ -5,7 +5,7 @@ This file (test_stocks.py) contains the functional tests for the app.py file.
 
 def test_get_add_stock_page(test_client):
     """
-    GIVEN a Flask application
+    GIVEN a Flask application configured for testing
     WHEN the '/add_stock' page is requested (GET)
     THEN check the response is valid
     """
@@ -20,7 +20,7 @@ def test_get_add_stock_page(test_client):
 
 def test_post_add_stock_page(test_client):
     """
-    GIVEN a Flask application
+    GIVEN a Flask application configured for testing
     WHEN the '/add_stock' page is posted to (POST)
     THEN check that the user is redirected to the '/list_stocks' page
     """
