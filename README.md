@@ -2,7 +2,7 @@
 
 This Flask application manages a stock portfolio for each user, including the user management aspects of a web application.
 
-This project is developed as part of the "Developing Web Applications with Python and Flask" on [testdriven.io](https://testdriven.io/courses/learn-flask/):
+This project is developed as part of the "Developing Web Applications with Python and Flask" course on [testdriven.io](https://testdriven.io/courses/learn-flask/):
 
 * [https://testdriven.io/courses/learn-flask/](https://testdriven.io/courses/learn-flask/)
 
@@ -10,9 +10,11 @@ This project is developed as part of the "Developing Web Applications with Pytho
 
 In the top-level directory:
 
-    $ export FLASK_APP=app.py
-    $ export FLASK_ENV=development
-    $ flask run
+```sh
+$ export FLASK_APP=app.py
+$ export FLASK_ENV=development
+$ flask run
+```
 
 ## Installation Instructions
 
@@ -54,6 +56,27 @@ Run development server to serve the Flask application:
 (venv) $ flask run
 ```
 
+## Configuration
+
+The following environment variables are recommended to be defined:
+
+* SECRET_KEY - see description below
+* CONFIG_TYPE - `config.DevelopmentConfig`, `config.ProductionConfig`, or `config.TestConfig`
+
+The 'SECRET_KEY' can be generated using the following commands (assumes Python 3.6 or later):
+
+```sh
+(venv) $ python
+
+>>> import secrets
+>>> print(secrets.token_bytes(32))
+>>> quit()
+
+(venv) $ export SECRET_KEY=<secret_key_generated_in_interpreter>
+```
+
+NOTE: If working on Windows, use `set` instead of `export`.
+
 ## Key Python Modules Used
 
 - Flask: micro-framework for web application development
@@ -63,6 +86,14 @@ This application is written using Python 3.9.0.
 
 ## Unit Testing
 
+To run all the tests:
+
 ```sh
 (venv) $ pytest -v
+```
+
+To check the code coverage of the tests:
+
+```sh
+(venv) $ pytest --cov-report term-missing --cov=project
 ```
