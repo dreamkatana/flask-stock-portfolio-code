@@ -14,6 +14,7 @@ class Config(object):
                                         default=f"sqlite:///{os.path.join(BASEDIR, 'instance', 'app.db')}")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+
 class ProductionConfig(Config):
     FLASK_ENV = 'production'
 
