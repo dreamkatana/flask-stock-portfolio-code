@@ -24,6 +24,10 @@ def create_app():
     return app
 
 
+########################
+### Helper Functions ###
+########################
+
 def register_blueprints(app):
     # Import the blueprints
     from project.stocks import stocks_blueprint

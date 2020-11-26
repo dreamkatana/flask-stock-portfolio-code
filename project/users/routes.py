@@ -5,6 +5,15 @@ from . import users_blueprint
 from flask import render_template, flash, abort
 
 
+########################
+#### error handlers ####
+########################
+
+@users_blueprint.errorhandler(403)
+def page_forbidden(e):
+    return render_template('users/403.html'), 403
+
+
 ################
 #### routes ####
 ################
