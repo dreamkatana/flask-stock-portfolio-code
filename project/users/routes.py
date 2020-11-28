@@ -2,7 +2,7 @@
 #### imports ####
 #################
 from . import users_blueprint
-from flask import render_template, flash, abort, request, current_app, redirect, url_for
+from flask import render_template, flash, abort, request, current_app, redirect, url_for, escape
 from .forms import RegistrationForm
 from project.models import User
 from project import database
@@ -53,3 +53,8 @@ def register():
             flash(f"Error in form data!")
 
     return render_template('users/register.html', form=form)
+
+
+@users_blueprint.route('/hello/<path:message>')
+def print_path(message):
+    return f'<h1>Path provided: {escape(message)}!</h1>'
