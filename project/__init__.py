@@ -5,6 +5,7 @@ from flask.logging import default_handler
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_bcrypt import Bcrypt
 
 
 #######################
@@ -16,6 +17,7 @@ from flask_migrate import Migrate
 # attached to the Flask application at this point.
 database = SQLAlchemy()
 db_migration = Migrate()
+bcrypt = Bcrypt()
 
 
 ######################################
@@ -47,6 +49,7 @@ def initialize_extensions(app):
     # extension instance to bind it to the Flask application instance (app)
     database.init_app(app)
     db_migration.init_app(app, database)
+    bcrypt.init_app(app)
 
 
 def register_blueprints(app):

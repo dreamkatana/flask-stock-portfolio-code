@@ -1,13 +1,24 @@
 import pytest
 from project import create_app, database
 from flask import current_app
-from project.models import Stock
+from project.models import Stock, User
 
 
 @pytest.fixture(scope='module')
 def new_stock():
     stock = Stock('AAPL', '16', '406.78')
     return stock
+
+
+@pytest.fixture(scope='module')
+def new_user():
+    flask_app = create_app()
+    flask_app.config.from_object('config.TestingConfig')
+
+    # Establish an application context before creating the User object
+    with flask_app.app_context():
+        user = User('patrick@email.com', 'FlaskIsAwesome123')
+        yield user   # this is where the testing happens!
 
 
 @pytest.fixture(scope='module')
