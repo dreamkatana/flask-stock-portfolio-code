@@ -14,6 +14,7 @@ class Config(object):
                                         default=f"sqlite:///{os.path.join(BASEDIR, 'instance', 'app.db')}")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     BCRYPT_LOG_ROUNDS = 15
+    WTF_CSRF_ENABLED = True
 
 
 class ProductionConfig(Config):
@@ -29,3 +30,4 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URI',
                                         default=f"sqlite:///{os.path.join(BASEDIR, 'instance', 'test.db')}")
     BCRYPT_LOG_ROUNDS = 4
+    WTF_CSRF_ENABLED = False
