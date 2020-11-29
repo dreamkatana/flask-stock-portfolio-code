@@ -8,6 +8,7 @@ from project.models import User
 from project import database
 from sqlalchemy.exc import IntegrityError
 from flask_login import login_user, current_user, login_required, logout_user
+from urllib.parse import urlparse
 
 
 ########################
@@ -79,7 +80,20 @@ def login():
                 login_user(user, remember=form.remember_me.data)
                 flash(f'Thanks for logging in, {current_user.email}!')
                 current_app.logger.info(f'Logged in user: {current_user.email}')
-                return redirect(url_for('stocks.index'))
+
+                # If the next URL is not specified, redirect to the user profile
+                if not request.args.get('next'):
+                    return redirect(url_for('users.user_profile'))
+
+                # Process the query to determine if the user should be redirected after logging in
+                next_url = request.args.get('next')
+                if urlparse(next_url).scheme != '' or urlparse(next_url).netloc != '':
+                    current_app.logger.info(f'Invalid next path in login request: {next_url}')
+                    logout_user()
+                    return abort(400)
+
+                current_app.logger.info(f'Redirecting after valid login to: {next_url}')
+                return redirect(next_url)
 
         flash('ERROR! Incorrect login credentials.')
     return render_template('users/login.html', form=form)
@@ -92,3 +106,9 @@ def logout():
     logout_user()
     flash('Goodbye!')
     return redirect(url_for('stocks.index'))
+
+
+@users_blueprint.route('/profile')
+@login_required
+def user_profile():
+    return render_template('users/profile.html')
