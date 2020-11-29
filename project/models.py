@@ -60,3 +60,22 @@ class User(database.Model):
 
     def __repr__(self):
         return f'<User: {self.email}>'
+
+    @property
+    def is_authenticated(self):
+        """Return True if the user has been successfully registered."""
+        return True
+
+    @property
+    def is_active(self):
+        """Always True, as all users are active."""
+        return True
+
+    @property
+    def is_anonymous(self):
+        """Always False, as anonymous users aren't supported."""
+        return False
+
+    def get_id(self):
+        """Return the user ID as a unicode string (`str`)."""
+        return str(self.id)

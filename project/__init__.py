@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_wtf.csrf import CSRFProtect
+from flask_login import LoginManager
 
 
 #######################
@@ -20,6 +21,8 @@ database = SQLAlchemy()
 db_migration = Migrate()
 bcrypt = Bcrypt()
 csrf_protection = CSRFProtect()
+login = LoginManager()
+login.login_view = "users.login"
 
 
 ######################################
@@ -53,6 +56,14 @@ def initialize_extensions(app):
     db_migration.init_app(app, database)
     bcrypt.init_app(app)
     csrf_protection.init_app(app)
+    login.init_app(app)
+
+    # Flask-Login configuration
+    from project.models import User
+
+    @login.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
 
 def register_blueprints(app):

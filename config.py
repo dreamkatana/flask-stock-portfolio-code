@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 
 # Determine the folder of the top-level directory of this project
@@ -15,6 +16,7 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     BCRYPT_LOG_ROUNDS = 15
     WTF_CSRF_ENABLED = True
+    REMEMBER_COOKIE_DURATION = timedelta(days=14)
 
 
 class ProductionConfig(Config):
