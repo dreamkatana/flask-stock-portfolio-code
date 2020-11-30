@@ -42,6 +42,5 @@ class TestingConfig(Config):
                                         default=f"sqlite:///{os.path.join(BASEDIR, 'instance', 'test.db')}")
     BCRYPT_LOG_ROUNDS = 4
     WTF_CSRF_ENABLED = False
-    MAIL_USERNAME = 'pkennedy@hey.com'
-    MAIL_PASSWORD = 'not_used_for_testing'
-    MAIL_DEFAULT_SENDER = 'pkennedy@hey.com'
+    MAIL_SUPPRESS_SEND = True
+
