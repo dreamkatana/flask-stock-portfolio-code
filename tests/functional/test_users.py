@@ -34,6 +34,7 @@ def test_valid_registration(test_client):
         assert b'Thanks for registering, patrick@email.com!' in response.data
         assert b'Flask Stock Portfolio App' in response.data
         print(current_app.config)
+        print(f"Flask-Mail suppress sending mail: {current_app.extensions['mail'].suppress}")
         assert len(outbox) == 1
         assert outbox[0].subject == 'Registration - Flask Stock Portfolio App'
         assert outbox[0].sender == 'flaskstockportfolioapp@gmail.com'
