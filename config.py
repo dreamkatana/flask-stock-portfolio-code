@@ -44,3 +44,4 @@ class TestingConfig(Config):
     WTF_CSRF_ENABLED = False
     MAIL_USERNAME = 'pkennedy@hey.com'
     MAIL_PASSWORD = 'not_used_for_testing'
+    MAIL_DEFAULT_SENDER = 'pkennedy@hey.com'
