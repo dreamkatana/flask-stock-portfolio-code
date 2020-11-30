@@ -2,6 +2,7 @@
 This file (test_users.py) contains the functional tests for the `users` blueprint.
 """
 from project import mail
+from flask import current_app
 
 
 def test_get_registration_page(test_client):
@@ -32,6 +33,7 @@ def test_valid_registration(test_client):
         assert response.status_code == 200
         assert b'Thanks for registering, patrick@email.com!' in response.data
         assert b'Flask Stock Portfolio App' in response.data
+        print(current_app.config)
         assert len(outbox) == 1
         assert outbox[0].subject == 'Registration - Flask Stock Portfolio App'
         assert outbox[0].sender == 'flaskstockportfolioapp@gmail.com'
