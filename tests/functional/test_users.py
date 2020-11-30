@@ -2,6 +2,8 @@
 This file (test_users.py) contains the functional tests for the `users` blueprint.
 """
 from project import mail
+from project.models import User
+from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 
 
@@ -36,9 +38,10 @@ def test_valid_registration(test_client):
         print(current_app.config)
         print(f"Flask-Mail suppress sending mail: {current_app.extensions['mail'].suppress}")
         assert len(outbox) == 1
-        assert outbox[0].subject == 'Registration - Flask Stock Portfolio App'
+        assert outbox[0].subject == 'Flask Stock Portfolio App - Confirm Your Email Address'
         assert outbox[0].sender == 'flaskstockportfolioapp@gmail.com'
         assert outbox[0].recipients[0] == 'patrick@email.com'
+        assert 'http://localhost/users/confirm/' in outbox[0].html
 
 
 def test_invalid_registration(test_client):
@@ -272,3 +275,53 @@ def test_login_with_next_invalid_path(test_client, register_default_user):
     assert response.status_code == 400
     assert b'User Profile' not in response.data
     assert b'Email: patrick@gmail.com' not in response.data
+
+
+def test_confirm_email_valid(test_client):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/users/confirm/<token>' page is requested (GET) with valid data
+    THEN check that the user's email address is marked as confirmed
+    """
+    # Create the unique token for confirming a user's email address
+    confirm_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    token = confirm_serializer.dumps('patrick@gmail.com', salt='email-confirmation-salt')
+
+    response = test_client.get('/users/confirm/'+token, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Thank you for confirming your email address!' in response.data
+    user = User.query.filter_by(email='patrick@gmail.com').first()
+    assert user.email_confirmed
+
+
+def test_confirm_email_already_confirmed(test_client):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/users/confirm/<token>' page is requested (GET) with valid data
+         but the user's email is already confirmed
+    THEN check that the user's email address is marked as confirmed
+    """
+    # Create the unique token for confirming a user's email address
+    confirm_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    token = confirm_serializer.dumps('patrick@gmail.com', salt='email-confirmation-salt')
+
+    # Confirm the user's email address
+    test_client.get('/users/confirm/'+token, follow_redirects=True)
+
+    # Process a valid confirmation link for a user that has their email address already confirmed
+    response = test_client.get('/users/confirm/'+token, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Account already confirmed.' in response.data
+    user = User.query.filter_by(email='patrick@gmail.com').first()
+    assert user.email_confirmed
+
+
+def test_confirm_email_invalid(test_client):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/users/confirm/<token>' page is is requested (GET) with invalid data
+    THEN check that the link was not accepted
+    """
+    response = test_client.get('/users/confirm/bad_confirmation_link', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'The confirmation link is invalid or has expired.' in response.data

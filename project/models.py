@@ -1,5 +1,6 @@
 from project import database, bcrypt
 from flask import current_app
+from datetime import datetime
 
 
 class Stock(database.Model):
@@ -41,6 +42,10 @@ class User(database.Model):
     The following attributes of a user are stored in this table:
         * email - email address of the user
         * hashed password - hashed password (using Flask-Bcrypt)
+        * registered_on - date & time that the user registered
+        * email_confirmation_sent_on - date & time that the confirmation email was sent
+        * email_confirmed - flag indicating if the user's email address has been confirmed
+        * email_confirmed_on - date & time that the user's email address was confirmed
 
     REMEMBER: Never store the plaintext password in a database!
     """
@@ -49,11 +54,24 @@ class User(database.Model):
     id = database.Column(database.Integer, primary_key=True)
     email = database.Column(database.String, unique=True)
     password_hashed = database.Column(database.String(60))
+    registered_on = database.Column(database.DateTime)
+    email_confirmation_sent_on = database.Column(database.DateTime)
+    email_confirmed = database.Column(database.Boolean, default=False)
+    email_confirmed_on = database.Column(database.DateTime)
 
     def __init__(self, email: str, password_plaintext: str):
+        """Create a new User object
+
+        This constructor assumes that an email is sent to the new user to confirm
+        their email address at the same time that the user is registered.
+        """
         self.email = email
         self.password_hashed = bcrypt.generate_password_hash(
             password_plaintext, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode('utf-8')
+        self.registered_on = datetime.now()
+        self.email_confirmation_sent_on = datetime.now()
+        self.email_confirmed = False
+        self.email_confirmed_on = None
 
     def is_password_correct(self, password_plaintext: str):
         return bcrypt.check_password_hash(self.password_hashed, password_plaintext)
