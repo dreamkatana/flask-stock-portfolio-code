@@ -58,7 +58,6 @@ def register():
                 # Send an email confirming the new registration
                 msg = Message(subject='Registration - Flask Stock Portfolio App',
                               body='Thanks for registering with the Flask Stock Portfolio App!',
-                              sender=current_app.config['MAIL_USERNAME'],
                               recipients=[form.email.data])
                 email_thread = Thread(target=send_email, args=[msg])
                 email_thread.start()
