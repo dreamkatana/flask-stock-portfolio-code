@@ -62,6 +62,9 @@ The following environment variables are recommended to be defined:
 
 * SECRET_KEY - see description below
 * CONFIG_TYPE - `config.DevelopmentConfig`, `config.ProductionConfig`, or `config.TestConfig`
+* DATABASE_URL - URL for the database (either SQLite or Postgres)
+* MAIL_USERNAME - username for the email account used for sending out emails from the app
+* MAIL_PASSWORD - password for email account
 
 The 'SECRET_KEY' can be generated using the following commands (assumes Python 3.6 or later):
 
