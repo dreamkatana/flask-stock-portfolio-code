@@ -43,4 +43,3 @@ class TestingConfig(Config):
     BCRYPT_LOG_ROUNDS = 4
     WTF_CSRF_ENABLED = False
     MAIL_SUPPRESS_SEND = True
-
