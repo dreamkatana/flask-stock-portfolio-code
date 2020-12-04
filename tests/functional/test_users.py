@@ -480,3 +480,76 @@ def test_user_profile_logged_in_email_confirmed(test_client, confirm_email_defau
     assert b'Account Actions' in response.data
     assert b'Change Password' in response.data
     assert b'Resend Email Confirmation' not in response.data
+
+
+def test_get_change_password_logged_in(test_client, log_in_default_user):
+    """
+    GIVEN a Flask application configured for testing with the user logged in
+    WHEN the '/users/change_password' page is retrieved (GET)
+    THEN check that the page is retrieved successfully
+    """
+    response = test_client.get('/users/change_password', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Change Password' in response.data
+    assert b'Current Password' in response.data
+    assert b'New Password' in response.data
+
+
+def test_get_change_password_not_logged_in(test_client):
+    """
+    GIVEN a Flask application configured for testing with the user NOT logged in
+    WHEN the '/users/change_password' page is retrieved (GET)
+    THEN check an error message is returned to the user
+    """
+    response = test_client.get('/users/change_password', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Please log in to access this page.' in response.data
+    assert b'Change Password' not in response.data
+
+
+def test_post_change_password_logged_in_valid_current_password(test_client, log_in_default_user, afterwards_reset_default_user_password):
+    """
+    GIVEN a Flask application configured for testing with the user logged in
+    WHEN the '/users/change_password' page is posted to (POST) with the correct current password
+    THEN check that the user's password is updated correctly
+    """
+    response = test_client.post('/users/change_password',
+                                data={'current_password': 'FlaskIsAwesome123',
+                                      'new_password': 'FlaskIsStillAwesome456'},
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Password has been updated!' in response.data
+    user = User.query.filter_by(email='patrick@gmail.com').first()
+    assert not user.is_password_correct('FlaskIsAwesome123')
+    assert user.is_password_correct('FlaskIsStillAwesome456')
+
+
+def test_post_change_password_logged_in_invalid_current_password(test_client, log_in_default_user):
+    """
+    GIVEN a Flask application configured for testing with the user logged in
+    WHEN the '/users/change_password' page is posted to (POST) with the incorrect current password
+    THEN check an error message is returned to the user
+    """
+    response = test_client.post('/users/change_password',
+                                data={'current_password': 'FlaskIsNotAwesome123',
+                                      'new_password': 'FlaskIsStillAwesome456'},
+                                follow_redirects=True)
+    assert response.status_code == 200
+    print(response.data)
+    assert b'Password has been updated!' not in response.data
+    assert b'ERROR! Incorrect user credentials!' in response.data
+
+
+def test_post_change_password_not_logged_in(test_client):
+    """
+    GIVEN a Flask application configured for testing with the user not logged in
+    WHEN the '/users/change_password' page is posted to (POST)
+    THEN check an error message is returned to the user
+    """
+    response = test_client.post('/users/change_password',
+                                data={'current_password': 'FlaskIsAwesome123',
+                                      'new_password': 'FlaskIsStillAwesome456'},
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Please log in to access this page.' in response.data
+    assert b'Password has been updated!' not in response.data
