@@ -33,10 +33,8 @@ def test_valid_registration(test_client):
                                           'password': 'FlaskIsAwesome123'},
                                     follow_redirects=True)
         assert response.status_code == 200
-        assert b'Thanks for registering, patrick@email.com!' in response.data
+        assert b'Thanks for registering, patrick@email.com! Please check your email to confirm your email address.' in response.data
         assert b'Flask Stock Portfolio App' in response.data
-        print(current_app.config)
-        print(f"Flask-Mail suppress sending mail: {current_app.extensions['mail'].suppress}")
         assert len(outbox) == 1
         assert outbox[0].subject == 'Flask Stock Portfolio App - Confirm Your Email Address'
         assert outbox[0].sender == 'flaskstockportfolioapp@gmail.com'
@@ -57,7 +55,7 @@ def test_invalid_registration(test_client):
     assert response.status_code == 200
     assert b'Thanks for registering, patrick2@email.com!' not in response.data
     assert b'Flask Stock Portfolio App' in response.data
-    assert b"[This field is required.]" in response.data
+    assert b'[This field is required.]' in response.data
 
 
 def test_duplicate_registration(test_client):
@@ -535,7 +533,6 @@ def test_post_change_password_logged_in_invalid_current_password(test_client, lo
                                       'new_password': 'FlaskIsStillAwesome456'},
                                 follow_redirects=True)
     assert response.status_code == 200
-    print(response.data)
     assert b'Password has been updated!' not in response.data
     assert b'ERROR! Incorrect user credentials!' in response.data
 

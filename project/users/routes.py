@@ -79,7 +79,7 @@ def register():
                 database.session.add(new_user)
                 database.session.commit()
                 flash(f'Thanks for registering, {new_user.email}! Please check your email to confirm your email address.', 'success')
-                current_app.logger.info(f'Registered new user: ({form.email.data})!')
+                current_app.logger.info(f'Registered new user: {form.email.data}!')
 
                 @copy_current_request_context
                 def send_email(message):

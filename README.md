@@ -84,6 +84,12 @@ NOTE: If working on Windows, use `set` instead of `export`.
 
 - Flask: micro-framework for web application development
 - pytest: framework for testing Python projects
+* SQLAlchemy - ORM (Object Relational Mapper)
+* Flask-Bcrypt - password hashing
+* Flask-Login - support for user management
+* Flask-Migrate - database migrations
+* Flask-WTF - forms
+* itsdangerous - helps with user management, especially tokens
 
 This application is written using Python 3.9.0.
 

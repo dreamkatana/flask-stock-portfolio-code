@@ -22,11 +22,11 @@ class EmailForm(FlaskForm):
 
 
 class PasswordForm(FlaskForm):
-    password = PasswordField('New Password: ', validators=[DataRequired()])
+    password = PasswordField('New Password', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
 class ChangePasswordForm(FlaskForm):
-    current_password = PasswordField('Current Password: ', validators=[DataRequired()])
-    new_password = PasswordField('New Password: ', validators=[DataRequired()])
+    current_password = PasswordField('Current Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[DataRequired()])
     submit = SubmitField('Submit')
