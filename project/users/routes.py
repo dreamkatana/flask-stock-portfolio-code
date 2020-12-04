@@ -3,7 +3,7 @@
 #################
 from . import users_blueprint
 from flask import render_template, flash, abort, request, current_app, redirect, url_for, escape, copy_current_request_context
-from .forms import RegistrationForm, LoginForm
+from .forms import RegistrationForm, LoginForm, EmailForm, PasswordForm
 from project.models import User
 from project import database, mail
 from sqlalchemy.exc import IntegrityError
@@ -38,6 +38,18 @@ def generate_confirmation_email(user_email):
 
     return Message(subject='Flask Stock Portfolio App - Confirm Your Email Address',
                    html=render_template('users/email_confirmation.html', confirm_url=confirm_url),
+                   recipients=[user_email])
+
+
+def generate_password_reset_email(user_email):
+    password_reset_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+    password_reset_url = url_for('users.process_password_reset_token',
+                                 token=password_reset_serializer.dumps(user_email, salt='password-reset-salt'),
+                                 _external=True)
+
+    return Message(subject='Flask Stock Portfolio App - Password Reset Requested',
+                   html=render_template('users/email_password_reset.html', password_reset_url=password_reset_url),
                    recipients=[user_email])
 
 
@@ -127,7 +139,7 @@ def login():
                 current_app.logger.info(f'Redirecting after valid login to: {next_url}')
                 return redirect(next_url)
 
-        flash('ERROR! Incorrect login credentials.')
+        flash('ERROR! Incorrect login credentials.', 'error')
     return render_template('users/login.html', form=form)
 
 
@@ -170,3 +182,60 @@ def confirm_email(token):
         current_app.logger.info(f'Email address confirmed for: {user.email}')
 
     return redirect(url_for('stocks.index'))
+
+
+@users_blueprint.route('/password_reset_via_email', methods=['GET', 'POST'])
+def password_reset_via_email():
+    form = EmailForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+
+        if user is None:
+            flash('Error! Invalid email address!', 'error')
+            return render_template('users/password_reset_via_email.html', form=form)
+
+        if user.email_confirmed:
+            @copy_current_request_context
+            def send_email(email_message):
+                with current_app.app_context():
+                    mail.send(email_message)
+
+            # Send an email confirming the new registration
+            message = generate_password_reset_email(form.email.data)
+            email_thread = Thread(target=send_email, args=[message])
+            email_thread.start()
+
+            flash('Please check your email for a password reset link.', 'success')
+        else:
+            flash('Your email address must be confirmed before attempting a password reset.', 'error')
+        return redirect(url_for('users.login'))
+
+    return render_template('users/password_reset_via_email.html', form=form)
+
+
+@users_blueprint.route('/password_reset_via_token/<token>', methods=['GET', 'POST'])
+def process_password_reset_token(token):
+    try:
+        password_reset_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        email = password_reset_serializer.loads(token, salt='password-reset-salt', max_age=3600)
+    except BadSignature as e:
+        flash('The password reset link is invalid or has expired.', 'error')
+        return redirect(url_for('users.login'))
+
+    form = PasswordForm()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=email).first()
+
+        if user is None:
+            flash('Invalid email address!', 'error')
+            return redirect(url_for('users.login'))
+
+        user.set_password(form.password.data)
+        database.session.add(user)
+        database.session.commit()
+        flash('Your password has been updated!', 'success')
+        return redirect(url_for('users.login'))
+
+    return render_template('users/reset_password_with_token.html', form=form)

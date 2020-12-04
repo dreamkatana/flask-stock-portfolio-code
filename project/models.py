@@ -66,8 +66,7 @@ class User(database.Model):
         their email address at the same time that the user is registered.
         """
         self.email = email
-        self.password_hashed = bcrypt.generate_password_hash(
-            password_plaintext, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode('utf-8')
+        self.password_hashed = self._generate_password_hash(password_plaintext)
         self.registered_on = datetime.now()
         self.email_confirmation_sent_on = datetime.now()
         self.email_confirmed = False
@@ -75,6 +74,16 @@ class User(database.Model):
 
     def is_password_correct(self, password_plaintext: str):
         return bcrypt.check_password_hash(self.password_hashed, password_plaintext)
+
+    def set_password(self, password_plaintext: str):
+        self.password_hashed = self._generate_password_hash(password_plaintext)
+
+    @staticmethod
+    def _generate_password_hash(password_plaintext):
+        return bcrypt.generate_password_hash(
+            password_plaintext,
+            current_app.config.get('BCRYPT_LOG_ROUNDS')
+        ).decode('utf-8')
 
     def __repr__(self):
         return f'<User: {self.email}>'
