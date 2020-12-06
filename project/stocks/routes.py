@@ -6,6 +6,8 @@ from flask import current_app, render_template, request, session, flash, redirec
 from project.models import Stock
 from project import database
 import click
+from flask_login import login_required, current_user
+from datetime import datetime
 
 
 ###########################
@@ -66,12 +68,15 @@ def index():
 
 
 @stocks_blueprint.route('/add_stock', methods=['GET', 'POST'])
+@login_required
 def add_stock():
     if request.method == 'POST':
         # Save the form data to the database
         new_stock = Stock(request.form['stock_symbol'],
                           request.form['number_of_shares'],
-                          request.form['purchase_price'])
+                          request.form['purchase_price'],
+                          current_user.id,  # NEW!
+                          datetime.fromisoformat(request.form['purchase_date']))  #NEW!
         database.session.add(new_stock)
         database.session.commit()
 
@@ -83,6 +88,7 @@ def add_stock():
 
 
 @stocks_blueprint.route('/stocks')
+@login_required
 def list_stocks():
-    stocks = Stock.query.order_by(Stock.id).all()
+    stocks = Stock.query.order_by(Stock.id).filter_by(user_id=current_user.id).all()
     return render_template('stocks/stocks.html', stocks=stocks)
