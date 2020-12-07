@@ -65,6 +65,9 @@ The following environment variables are recommended to be defined:
 * DATABASE_URL - URL for the database (either SQLite or Postgres)
 * MAIL_USERNAME - username for the email account used for sending out emails from the app
 * MAIL_PASSWORD - password for email account
+* ALPHA_VANTAGE_API_KEY - API key for accessing Alpha Vantage service
+
+### Secret Key
 
 The 'SECRET_KEY' can be generated using the following commands (assumes Python 3.6 or later):
 
@@ -79,6 +82,13 @@ The 'SECRET_KEY' can be generated using the following commands (assumes Python 3
 ```
 
 NOTE: If working on Windows, use `set` instead of `export`.
+
+### Alpha Vantage API Key
+
+The Alpha Vantage API key is used to access the Alpha Vantage service to retrieve stock data.
+
+In order to use the Alpha Vantage API, sign up for a free API key at:
+[Alpha Vantage API Key](https://www.alphavantage.co/support/#api-key)
 
 ## Key Python Modules Used
 
