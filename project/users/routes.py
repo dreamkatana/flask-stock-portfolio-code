@@ -96,7 +96,7 @@ def register():
                 database.session.rollback()
                 flash(f'ERROR! Email ({form.email.data}) already exists.', 'error')
         else:
-            flash(f"Error in form data!")
+            flash('Error in form data!')
 
     return render_template('users/register.html', form=form)
 
@@ -163,8 +163,8 @@ def confirm_email(token):
     try:
         confirm_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         email = confirm_serializer.loads(token, salt='email-confirmation-salt', max_age=3600)
-    except BadSignature as e:
-        flash(f'The confirmation link is invalid or has expired.', 'error')
+    except BadSignature:
+        flash('The confirmation link is invalid or has expired.', 'error')
         current_app.logger.info(f'Invalid or expired confirmation link received from IP address: {request.remote_addr}')
         return redirect(url_for('users.login'))
 
@@ -219,7 +219,7 @@ def process_password_reset_token(token):
     try:
         password_reset_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         email = password_reset_serializer.loads(token, salt='password-reset-salt', max_age=3600)
-    except BadSignature as e:
+    except BadSignature:
         flash('The password reset link is invalid or has expired.', 'error')
         return redirect(url_for('users.login'))
 

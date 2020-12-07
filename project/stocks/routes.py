@@ -2,7 +2,7 @@
 #### imports ####
 #################
 from . import stocks_blueprint
-from flask import current_app, render_template, request, session, flash, redirect, url_for, abort
+from flask import current_app, render_template, request, flash, redirect, url_for, abort
 from project.models import Stock
 from project import database
 import click
@@ -76,7 +76,7 @@ def add_stock():
                           request.form['number_of_shares'],
                           request.form['purchase_price'],
                           current_user.id,  # NEW!
-                          datetime.fromisoformat(request.form['purchase_date']))  #NEW!
+                          datetime.fromisoformat(request.form['purchase_date']))
         database.session.add(new_stock)
         database.session.commit()
 
