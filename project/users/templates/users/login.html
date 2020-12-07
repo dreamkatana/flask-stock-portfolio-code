@@ -36,11 +36,11 @@
     <div class="field">
       {{ form.submit() }}
     </div>
-  </form>
 
-  <div class="forgot-password">
-    <p><em><a href="{{ url_for('users.password_reset_via_email') }}">Forgot your password?</a></em></p>
-  </div>
+    <div class="forgot-password">
+      <p><em><a href="{{ url_for('users.password_reset_via_email') }}">Forgot your password?</a></em></p>
+    </div>
+  </form>
 </div>
 
 {% endblock %}
