@@ -25,7 +25,7 @@
     <tbody>
       {% for stock in stocks %}
         <tr>
-          <td>{{ stock.stock_symbol }}</td>
+          <td><a href="{{ url_for('stocks.stock_details', id=stock.id) }}">{{ stock.stock_symbol }}</a></td>
           <td>{{ stock.number_of_shares }}</td>
           <td>${{ stock.purchase_price / 100 }}</td>
           <td>{{ stock.purchase_date.strftime("%Y-%m-%d") }}</td>

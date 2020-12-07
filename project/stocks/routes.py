@@ -2,7 +2,7 @@
 #### imports ####
 #################
 from . import stocks_blueprint
-from flask import current_app, render_template, request, session, flash, redirect, url_for
+from flask import current_app, render_template, request, session, flash, redirect, url_for, abort
 from project.models import Stock
 from project import database
 import click
@@ -128,3 +128,15 @@ def chartjs_demo3():
               datetime(2020, 2, 19)]   # Wednesday 2/19/2020
     values = [10.3, 9.2, 8.7, 7.1, 6.0, 4.4, 7.6, 8.9]
     return render_template('stocks/chartjs_demo3.html', values=values, labels=labels, title=title)
+
+
+@stocks_blueprint.route('/stocks/<id>')
+@login_required
+def stock_details(id):
+    stock = Stock.query.filter_by(id=id).first_or_404()
+
+    if stock.user_id != current_user.id:
+        abort(403)
+
+    title, labels, values = stock.get_weekly_stock_data()
+    return render_template('stocks/stock_details.html', stock=stock, title=title, labels=labels, values=values)
