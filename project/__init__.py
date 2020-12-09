@@ -100,6 +100,7 @@ def configure_logging(app):
 
     app.logger.info('Starting the Flask Stock Portfolio App...')
 
+
 def register_app_callbacks(app):
     """Register the request callback functions.
 
