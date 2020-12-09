@@ -16,15 +16,6 @@ from itsdangerous.exc import BadSignature
 from datetime import datetime
 
 
-########################
-#### error handlers ####
-########################
-
-@users_blueprint.errorhandler(403)
-def page_forbidden(e):
-    return render_template('users/403.html'), 403
-
-
 ##########################
 #### helper functions ####
 ##########################

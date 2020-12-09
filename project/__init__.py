@@ -97,22 +97,28 @@ def configure_logging(app):
 
 
 def register_app_callbacks(app):
-    @app.before_request
-    def app_before_request():
-        app.logger.info('Calling before_request() for the Flask application...')
+    """Register the request callback functions.
 
-    @app.after_request
-    def app_after_request(response):
-        app.logger.info('Calling after_request() for the Flask application...')
-        return response
-
-    @app.teardown_request
-    def app_teardown_request(error=None):
-        app.logger.info('Calling teardown_request() for the Flask application...')
-
-    @app.teardown_appcontext
-    def app_teardown_appcontext(error=None):
-        app.logger.info('Calling teardown_appcontext() for the Flask application...')
+    These functions were provided to illustrate how request callbacks work,
+    but they are commented out to avoid unnecessary logging messages.
+    """
+    # @app.before_request
+    # def app_before_request():
+    #     app.logger.info('Calling before_request() for the Flask application...')
+    #
+    # @app.after_request
+    # def app_after_request(response):
+    #     app.logger.info('Calling after_request() for the Flask application...')
+    #     return response
+    #
+    # @app.teardown_request
+    # def app_teardown_request(error=None):
+    #     app.logger.info('Calling teardown_request() for the Flask application...')
+    #
+    # @app.teardown_appcontext
+    # def app_teardown_appcontext(error=None):
+    #     app.logger.info('Calling teardown_appcontext() for the Flask application...')
+    pass
 
 
 def register_error_pages(app):
@@ -123,3 +129,7 @@ def register_error_pages(app):
     @app.errorhandler(405)
     def method_not_allowed(e):
         return render_template('405.html'), 405
+
+    @app.errorhandler(403)
+    def page_forbidden(e):
+        return render_template('403.html'), 403

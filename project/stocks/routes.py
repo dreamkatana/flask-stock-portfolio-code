@@ -5,7 +5,7 @@ from . import stocks_blueprint
 from flask import current_app, render_template, request, flash, redirect, url_for, abort
 from project.models import Stock
 from project import database
-import click
+# import click
 from flask_login import login_required, current_user
 from datetime import datetime
 
@@ -14,47 +14,53 @@ from datetime import datetime
 #### request callbacks ####
 ###########################
 
-@stocks_blueprint.before_request
-def stocks_before_request():
-    current_app.logger.info('Calling before_request() for the stocks blueprint...')
-
-
-@stocks_blueprint.after_request
-def stocks_after_request(response):
-    current_app.logger.info('Calling after_request() for the stocks blueprint...')
-    return response
-
-
-@stocks_blueprint.teardown_request
-def stocks_teardown_request(error=None):
-    current_app.logger.info('Calling teardown_request() for the stocks blueprint...')
+# Request callback functions were provided as an example, but are now commented
+# out to avoid unnecessary logging.
+#
+# @stocks_blueprint.before_request
+# def stocks_before_request():
+#     current_app.logger.info('Calling before_request() for the stocks blueprint...')
+#
+#
+# @stocks_blueprint.after_request
+# def stocks_after_request(response):
+#     current_app.logger.info('Calling after_request() for the stocks blueprint...')
+#     return response
+#
+#
+# @stocks_blueprint.teardown_request
+# def stocks_teardown_request(error=None):
+#     current_app.logger.info('Calling teardown_request() for the stocks blueprint...')
 
 
 ######################
 #### cli commands ####
 ######################
 
-@stocks_blueprint.cli.command('create_default_set')
-def create_default_set():
-    """Create three new stocks and add them to the database"""
-    stock1 = Stock('HD', '25', '247.29')
-    stock2 = Stock('TWTR', '230', '31.89')
-    stock3 = Stock('DIS', '65', '118.77')
-    database.session.add(stock1)
-    database.session.add(stock2)
-    database.session.add(stock3)
-    database.session.commit()
-
-
-@stocks_blueprint.cli.command('create')
-@click.argument('symbol')
-@click.argument('number_of_shares')
-@click.argument('purchase_price')
-def create(symbol, number_of_shares, purchase_price):
-    """Create a new stock and add it to the database"""
-    stock = Stock(symbol, number_of_shares, purchase_price)
-    database.session.add(stock)
-    database.session.commit()
+# CLI commands were provided as an example of how to create CLI commands,
+# but they do not work after further updates to the `Stock` model.
+#
+# @stocks_blueprint.cli.command('create_default_set')
+# def create_default_set():
+#     """Create three new stocks and add them to the database"""
+#     stock1 = Stock('HD', '25', '247.29')
+#     stock2 = Stock('TWTR', '230', '31.89')
+#     stock3 = Stock('DIS', '65', '118.77')
+#     database.session.add(stock1)
+#     database.session.add(stock2)
+#     database.session.add(stock3)
+#     database.session.commit()
+#
+#
+# @stocks_blueprint.cli.command('create')
+# @click.argument('symbol')
+# @click.argument('number_of_shares')
+# @click.argument('purchase_price')
+# def create(symbol, number_of_shares, purchase_price):
+#     """Create a new stock and add it to the database"""
+#     stock = Stock(symbol, number_of_shares, purchase_price)
+#     database.session.add(stock)
+#     database.session.commit()
 
 
 ################
@@ -75,7 +81,7 @@ def add_stock():
         new_stock = Stock(request.form['stock_symbol'],
                           request.form['number_of_shares'],
                           request.form['purchase_price'],
-                          current_user.id,  # NEW!
+                          current_user.id,
                           datetime.fromisoformat(request.form['purchase_date']))
         database.session.add(new_stock)
         database.session.commit()

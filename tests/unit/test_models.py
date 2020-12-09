@@ -87,6 +87,7 @@ def test_get_stock_data_failure(new_stock, mock_requests_get_failure):
     assert new_stock.purchase_date.date() == datetime(2020, 7, 18).date()
     assert new_stock.current_price == 0
     assert new_stock.current_price_date is None
+    assert new_stock.position_value == 0
 
 
 def test_get_stock_data_success_two_calls(new_stock, mock_requests_get_success_daily):
