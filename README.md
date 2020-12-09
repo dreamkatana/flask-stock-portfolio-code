@@ -66,6 +66,7 @@ The following environment variables are recommended to be defined:
 * MAIL_USERNAME - username for the email account used for sending out emails from the app
 * MAIL_PASSWORD - password for email account
 * ALPHA_VANTAGE_API_KEY - API key for accessing Alpha Vantage service
+* SENDGRID_API_KEY - API key for sending email via Sendgrid (production only!)
 
 ### Secret Key
 
@@ -89,6 +90,11 @@ The Alpha Vantage API key is used to access the Alpha Vantage service to retriev
 
 In order to use the Alpha Vantage API, sign up for a free API key at:
 [Alpha Vantage API Key](https://www.alphavantage.co/support/#api-key)
+
+### SendGrid API Key
+
+When running in production on Heroku, the SendGrid API key needs to be configured. Review chapter 40
+(Deployment) on how to set up SendGrid and generate the API key.
 
 ## Key Python Modules Used
 
