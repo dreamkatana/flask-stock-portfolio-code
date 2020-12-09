@@ -18,7 +18,7 @@ class Config(object):
     WTF_CSRF_ENABLED = True
     REMEMBER_COOKIE_DURATION = timedelta(days=14)
 
-    # Flask-Mail Configuration
+    # Flask-Mail Configuration - GMail
     MAIL_SERVER = 'smtp.googlemail.com'
     MAIL_PORT = 465
     MAIL_USE_TLS = False
@@ -30,9 +30,23 @@ class Config(object):
     # Alpha Vantage API Key
     ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', default='demo')
 
+    # Logging
+    LOG_TO_STDOUT = os.getenv('LOG_TO_STDOUT', default=False)
+
 
 class ProductionConfig(Config):
     FLASK_ENV = 'production'
+
+    # Flask-Mail Configuration - SendGrid
+    MAIL_SERVER = 'smtp.sendgrid.net'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_USERNAME = 'apikey'
+    MAIL_PASSWORD = os.getenv('SENDGRID_API_KEY', default='')
+
+    # Logging
+    LOG_TO_STDOUT = os.getenv('LOG_TO_STDOUT', default=True)
 
 
 class DevelopmentConfig(Config):
