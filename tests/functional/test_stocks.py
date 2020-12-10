@@ -2,6 +2,7 @@
 This file (test_stocks.py) contains the functional tests for the `stocks` blueprint.
 """
 import requests
+import re
 
 
 ########################
@@ -244,7 +245,7 @@ def test_delete_stock_logged_in_own_stock(test_client, log_in_default_user,
     """
     response = test_client.get('/delete_stock/3', follow_redirects=True)
     assert response.status_code == 200
-    assert b'Stock was deleted:' in response.data
+    assert re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
     assert b'List of Stocks' in response.data
 
 
@@ -354,7 +355,7 @@ def test_post_edit_stock_valid(test_client, log_in_default_user,
                                       'purchase_date': '2020-01-10'},
                                 follow_redirects=True)
     assert response.status_code == 200
-    assert b'Stock was updated:' in response.data
+    assert re.search(r"Stock \(.*[A-Z]{4}.*was updated!", str(response.data))
     assert b'List of Stocks' in response.data
     assert b'COST' in response.data
     assert b'101' in response.data
