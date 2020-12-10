@@ -158,7 +158,7 @@ def delete_stock(id):
 
     database.session.delete(stock)
     database.session.commit()
-    flash(f'Stock ({stock.stock_symbol}) was deleted!', 'success')
+    flash(f'Stock was deleted: {stock.stock_symbol}!', 'success')
     current_app.logger.info(f'Stock ({stock.stock_symbol}) was deleted for user: {current_user.id}!')
     return redirect(url_for('stocks.list_stocks'))
 
@@ -179,7 +179,7 @@ def edit_stock(id):
         database.session.add(stock)
         database.session.commit()
 
-        flash(f'Stock ({ stock.stock_symbol }) was updated!', 'success')
+        flash(f'Stock was updated: { stock.stock_symbol }!', 'success')
         current_app.logger.info(f'Stock ({ stock.stock_symbol }) was updated by user: { current_user.id}')
         return redirect(url_for('stocks.list_stocks'))
 
