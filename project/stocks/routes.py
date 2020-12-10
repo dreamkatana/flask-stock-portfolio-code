@@ -146,3 +146,19 @@ def stock_details(id):
 
     title, labels, values = stock.get_weekly_stock_data()
     return render_template('stocks/stock_details.html', stock=stock, title=title, labels=labels, values=values)
+
+
+@stocks_blueprint.route('/delete_stock/<id>')
+@login_required
+def delete_stock(id):
+    stock = Stock.query.filter_by(id=id).first_or_404()
+
+    if not stock.user_id == current_user.id:
+        flash('Error! Incorrect permissions to delete this stock!', 'error')
+    else:
+        database.session.delete(stock)
+        database.session.commit()
+        flash(f'Stock ({stock.stock_symbol}) was deleted!', 'success')
+        current_app.logger.info(f'Stock ({stock.stock_symbol}) was deleted for user: {current_user.id}!')
+
+    return redirect(url_for('stocks.list_stocks'))

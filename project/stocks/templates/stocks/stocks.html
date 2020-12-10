@@ -18,6 +18,7 @@
         <th>Purchase Date</th>
         <th>Current Share Price</th>
         <th>Stock Position Value</th>
+        <th>Actions</th>
       </tr>
     </thead>
 
@@ -31,6 +32,7 @@
           <td>{{ stock.purchase_date.strftime("%Y-%m-%d") }}</td>
           <td>${{ stock.current_price / 100 }}</td>
           <td>${{ stock.position_value / 100 }}</td>
+          <td><a href="{{ url_for('stocks.delete_stock', id=stock.id) }}">Delete</a></td>
         </tr>
       {% endfor %}
     </tbody>
@@ -44,6 +46,7 @@
         <td></td>
         <td><b>TOTAL VALUE</b></td>
         <td><b>${{ value }}</b></td>
+        <td></td>
       </tr>
     </tfoot>
   </table>
