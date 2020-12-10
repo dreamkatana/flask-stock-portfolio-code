@@ -141,6 +141,16 @@ class Stock(database.Model):
 
         return title, labels, values
 
+    def update(self, number_of_shares='', purchase_price='', purchase_date=''):
+        if number_of_shares:
+            self.number_of_shares = int(number_of_shares)
+
+        if purchase_price:
+            self.purchase_price = int(float(purchase_price) * 100)
+
+        if purchase_date:
+            self.purchase_date = purchase_date
+
 
 class User(database.Model):
     """

@@ -32,7 +32,10 @@
           <td>{{ stock.purchase_date.strftime("%Y-%m-%d") }}</td>
           <td>${{ stock.current_price / 100 }}</td>
           <td>${{ stock.position_value / 100 }}</td>
-          <td><a href="{{ url_for('stocks.delete_stock', id=stock.id) }}">Delete</a></td>
+          <td class="stock-actions">
+            <a class="stocks-actions-link" href="{{ url_for('stocks.delete_stock', id=stock.id) }}">Delete</a>
+            <a class="stocks-actions-link" href="{{ url_for('stocks.edit_stock', id=stock.id) }}">Edit</a>
+          </td>
         </tr>
       {% endfor %}
     </tbody>

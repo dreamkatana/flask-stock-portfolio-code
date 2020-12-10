@@ -250,7 +250,8 @@ def test_delete_stock_logged_in_own_stock(test_client, log_in_default_user,
 
 
 def test_delete_stock_logged_in_not_owning_stock(test_client, log_in_second_user,
-                                                 add_stocks_for_default_user, mock_requests_get_failure):
+                                                 add_stocks_for_default_user,
+                                                 mock_requests_get_failure):
     """
     GIVEN a Flask application configured for testing, with the second user logged in
           and the default set of stocks in the database
@@ -258,15 +259,13 @@ def test_delete_stock_logged_in_not_owning_stock(test_client, log_in_second_user
     THEN check that an error message is displayed
     """
     response = test_client.get('/delete_stock/2', follow_redirects=True)
-    assert response.status_code == 200
-    assert b'Error! Incorrect permissions to delete this stock!' in response.data
-    assert b'List of Stocks' in response.data
+    assert response.status_code == 403
+    assert b'List of Stocks' not in response.data
 
 
 def test_delete_stock_not_logged_in(test_client):
     """
-    GIVEN a Flask application configured for testing, without a user logged in
-          and the default set of stocks in the database
+    GIVEN a Flask application configured for testing without a user logged in
     WHEN the '/delete_stock/1' page is retrieved (GET)
     THEN check that an error message is displayed
     """
@@ -284,5 +283,132 @@ def test_delete_stock_invalid_stock(test_client, log_in_default_user, add_stocks
     THEN check that an error message is displayed
     """
     response = test_client.get('/delete_stock/178', follow_redirects=True)
+    assert response.status_code == 404
+    assert b'List of Stocks' not in response.data
+
+
+def test_get_edit_stock_page_logged_in_own_stock(test_client, log_in_default_user,
+                                                 add_stocks_for_default_user):
+    """
+    GIVEN a Flask application configured for testing, with the default user logged in
+          and the default set of stocks in the database
+    WHEN the '/edit_stock/3' page is retrieved (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get('/edit_stock/1', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Edit Stock' in response.data
+    assert b'Number of Shares' in response.data
+    assert b'Purchase Price ($)' in response.data
+    assert b'Purchase Date' in response.data
+
+
+def test_get_edit_stock_page_logged_in_not_owning_stock(test_client, log_in_second_user,
+                                                        add_stocks_for_default_user):
+    """
+    GIVEN a Flask application configured for testing, with the second user logged in
+          and the default set of stocks in the database
+    WHEN the '/edit_stock/3' page is retrieved (GET)
+    THEN check that an error message is displayed
+    """
+    response = test_client.get('/edit_stock/1', follow_redirects=True)
+    assert response.status_code == 403
+    assert b'Edit Stock' not in response.data
+
+
+def test_get_edit_stock_page_not_logged_in(test_client):
+    """
+    GIVEN a Flask application configured for testing without a user logged in
+    WHEN the '/edit_stock/3' page is retrieved (GET)
+    THEN check that an error message is displayed
+    """
+    response = test_client.get('/edit_stock/1', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Edit Stock' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_get_edit_stock_page_invalid_stock(test_client, log_in_default_user):
+    """
+    GIVEN a Flask application configured for testing with the default user logged in
+    WHEN the '/edit_stock/379' page is retrieved (GET)
+    THEN check that an error message is displayed
+    """
+    response = test_client.get('/edit_stock/379', follow_redirects=True)
+    assert response.status_code == 404
+    assert b'Edit Stock' not in response.data
+
+
+def test_post_edit_stock_valid(test_client, log_in_default_user,
+                               add_stocks_for_default_user,
+                               mock_requests_get_failure):
+    """
+    GIVEN a Flask application configured for testing, with the default user logged in
+          and the default set of stocks in the database
+    WHEN the '/edit_stock/3' page is posted to (POST)
+    THEN check that a message is displayed to the user that the stock was updated
+    """
+    response = test_client.post('/edit_stock/1',
+                                data={'stock_symbol': 'COST',
+                                      'number_of_shares': '101',
+                                      'purchase_price': '102.34',
+                                      'purchase_date': '2020-01-10'},
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Stock (' in response.data
+    assert b') was updated!' in response.data
+    assert b'List of Stocks' in response.data
+    assert b'COST' in response.data
+    assert b'101' in response.data
+    assert b'102.34' in response.data
+    assert b'2020-01-10' in response.data
+
+
+def test_post_edit_stock_invalid_user(test_client, log_in_second_user, add_stocks_for_default_user):
+    """
+    GIVEN a Flask application configured for testing, with the second user logged in
+          and the default set of stocks in the database
+    WHEN the '/edit_stock/3' page is posted to (POST)
+    THEN check that an error message is displayed
+    """
+    response = test_client.post('/edit_stock/1',
+                                data={'stock_symbol': 'COST',
+                                      'number_of_shares': '101',
+                                      'purchase_price': '102.34',
+                                      'purchase_date': '2020-01-10'},
+                                follow_redirects=True)
+    assert response.status_code == 403
+    assert b'List of Stocks' not in response.data
+
+
+def test_post_edit_stock_page_not_logged_in(test_client):
+    """
+    GIVEN a Flask application configured for testing without a user logged in
+    WHEN the '/edit_stock/3' page is posted to (POST)
+    THEN check that an error message is displayed
+    """
+    response = test_client.post('/edit_stock/1',
+                                data={'stock_symbol': 'COST',
+                                      'number_of_shares': '101',
+                                      'purchase_price': '102.34',
+                                      'purchase_date': '2020-01-10'},
+                                follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Stocks' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_get_edit_stock_page_invalid_stock(test_client, log_in_default_user):
+    """
+    GIVEN a Flask application configured for testing with the default user logged in
+    WHEN the '/edit_stock/379' page is retrieved (GET)
+    THEN check that an error message is displayed
+    """
+    response = test_client.post('/edit_stock/379',
+                                data={'stock_symbol': 'COST',
+                                      'number_of_shares': '101',
+                                      'purchase_price': '102.34',
+                                      'purchase_date': '2020-01-10'},
+                                follow_redirects=True)
     assert response.status_code == 404
     assert b'List of Stocks' not in response.data
