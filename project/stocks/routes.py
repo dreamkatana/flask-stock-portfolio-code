@@ -148,7 +148,7 @@ def stock_details(id):
     return render_template('stocks/stock_details.html', stock=stock, title=title, labels=labels, values=values)
 
 
-@stocks_blueprint.route('/delete_stock/<id>')
+@stocks_blueprint.route('/stocks/<id>/delete')
 @login_required
 def delete_stock(id):
     stock = Stock.query.filter_by(id=id).first_or_404()
@@ -163,7 +163,7 @@ def delete_stock(id):
     return redirect(url_for('stocks.list_stocks'))
 
 
-@stocks_blueprint.route('/edit_stock/<id>', methods=['GET', 'POST'])
+@stocks_blueprint.route('/stocks/<id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_stock(id):
     stock = Stock.query.filter_by(id=id).first_or_404()
