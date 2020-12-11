@@ -28,6 +28,8 @@ def test_new_user(new_user):
     """
     assert new_user.email == 'patrick@email.com'
     assert new_user.password_hashed != 'FlaskIsAwesome123'
+    assert new_user.user_type == 'User'
+    assert not new_user.is_admin()
 
 
 def test_set_password(new_user):
@@ -140,3 +142,16 @@ def test_get_weekly_stock_data_failure(new_stock, mock_requests_get_failure):
     assert title == 'Stock chart is unavailable.'
     assert len(labels) == 0
     assert len(values) == 0
+
+
+def test_new_admin_user(new_admin_user):
+    """
+    GIVEN a User model
+    WHEN a new User object is created with admin privileges
+    THEN check the email is valid, the hashed password is valid, and the type is Admin
+    """
+    assert new_admin_user.email == 'patrick_admin@email.com'
+    assert new_admin_user.password_hashed != 'FlaskIsTheBest987'
+    assert new_admin_user.is_password_correct('FlaskIsTheBest987')
+    assert new_admin_user.user_type == 'Admin'
+    assert new_admin_user.is_admin()

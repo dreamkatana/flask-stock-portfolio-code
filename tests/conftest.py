@@ -253,3 +253,14 @@ def log_in_second_user(test_client, register_second_user):
 
     # Log out the user
     test_client.get('/users/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='module')
+def new_admin_user():
+    flask_app = create_app()
+    flask_app.config.from_object('config.TestingConfig')
+
+    # Establish an application context before creating the User object
+    with flask_app.app_context():
+        admin_user = User('patrick_admin@email.com', 'FlaskIsTheBest987', 'Admin')
+        yield admin_user   # this is where the testing happens!
