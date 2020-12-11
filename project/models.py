@@ -72,7 +72,7 @@ class Stock(database.Model):
             # Status code returned from Alpha Vantage needs to be 200 (OK) to process stock data
             if r.status_code != 200:
                 current_app.logger.warning(f'Error! Received unexpected status code ({r.status_code}) '
-                                           f'when retrieving stock data ({self.stock_symbol})!')
+                                           f'when retrieving daily stock data ({self.stock_symbol})!')
                 return
 
             daily_data = r.json()
@@ -80,8 +80,8 @@ class Stock(database.Model):
             # The key of 'Time Series (Daily)' needs to be present in order to process the stock data
             # Typically, this key will not be present if the API rate limit has been exceeded.
             if 'Time Series (Daily)' not in daily_data:
-                current_app.logger.warning(f'Could not find Time Series (Daily) key when retrieving '
-                                           f'the stock data ({self.stock_symbol})!')
+                current_app.logger.warning(f'Could not find the Time Series (Daily) key when retrieving '
+                                           f'the daily stock data ({self.stock_symbol})!')
                 return
 
             for element in daily_data['Time Series (Daily)']:
@@ -113,31 +113,41 @@ class Stock(database.Model):
             r = requests.get(url)
         except requests.exceptions.ConnectionError:
             current_app.logger.info(
-                f"Error! Network problem preventing retrieving the weekly stock data ({self.stock_symbol})!")
+                f'Error! Network problem preventing retrieving the weekly stock data ({self.stock_symbol})!')
 
-        if r.status_code == 200:
-            weekly_data = r.json()
-            title = f'Weekly Prices ({self.stock_symbol})'
+        # Status code returned from Alpha Vantage needs to be 200 (OK) to process stock data
+        if r.status_code != 200:
+            current_app.logger.warning(f'Error! Received unexpected status code ({r.status_code}) '
+                                       f'when retrieving weekly stock data ({self.stock_symbol})!')
+            return '', '', ''
 
-            # Determine the start date as either:
-            #   - If the start date is less than 12 weeks ago, then use the date from 12 weeks ago
-            #   - Otherwise, use the purchase date
-            start_date = self.purchase_date
-            if (datetime.now() - self.purchase_date) < timedelta(weeks=12):
-                start_date = datetime.now() - timedelta(weeks=12)
+        weekly_data = r.json()
 
-            for element in weekly_data['Weekly Adjusted Time Series']:
-                date = datetime.fromisoformat(element)
-                if date.date() > start_date.date():
-                    labels.append(date)
-                    values.append(weekly_data['Weekly Adjusted Time Series'][element]['4. close'])
+        # The key of 'Weekly Adjusted Time Series' needs to be present in order to process the stock data
+        # Typically, this key will not be present if the API rate limit has been exceeded.
+        if 'Weekly Adjusted Time Series' not in weekly_data:
+            current_app.logger.warning(f'Could not find the Weekly Adjusted Time Series key when retrieving '
+                                       f'the weekly stock data ({self.stock_symbol})!')
+            return '', '', ''
 
-            # Reverse the elements as the data from Alpha Vantage is read in latest to oldest
-            labels.reverse()
-            values.reverse()
-        else:
-            current_app.logger.info(
-                f"Error! Received unexpected status code ({r.status_code}) when retrieving weekly stock data ({self.stock_symbol})!")
+        title = f'Weekly Prices ({self.stock_symbol})'
+
+        # Determine the start date as either:
+        #   - If the start date is less than 12 weeks ago, then use the date from 12 weeks ago
+        #   - Otherwise, use the purchase date
+        start_date = self.purchase_date
+        if (datetime.now() - self.purchase_date) < timedelta(weeks=12):
+            start_date = datetime.now() - timedelta(weeks=12)
+
+        for element in weekly_data['Weekly Adjusted Time Series']:
+            date = datetime.fromisoformat(element)
+            if date.date() > start_date.date():
+                labels.append(date)
+                values.append(weekly_data['Weekly Adjusted Time Series'][element]['4. close'])
+
+        # Reverse the elements as the data from Alpha Vantage is read in latest to oldest
+        labels.reverse()
+        values.reverse()
 
         return title, labels, values
 
