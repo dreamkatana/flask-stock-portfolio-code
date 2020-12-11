@@ -264,3 +264,22 @@ def new_admin_user():
     with flask_app.app_context():
         admin_user = User('patrick_admin@email.com', 'FlaskIsTheBest987', 'Admin')
         yield admin_user   # this is where the testing happens!
+
+
+@pytest.fixture(scope='function')
+def cli_test_runner():
+    flask_app = create_app()
+    flask_app.config.from_object('config.TestingConfig')
+    flask_app.extensions['mail'].suppress = True
+
+    # Create a test client using the Flask application configured for testing
+    with flask_app.test_client() as testing_client:
+        # Establish an application context before accessing the logger and database
+        with flask_app.app_context():
+            # Create the database and the database table(s)
+            database.create_all()
+
+        yield flask_app.test_cli_runner()  # this is where the CLI testing happens!
+
+        with flask_app.app_context():
+            database.drop_all()
