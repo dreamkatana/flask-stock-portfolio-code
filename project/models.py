@@ -104,7 +104,7 @@ class Stock(database.Model):
         )
 
     def get_weekly_stock_data(self):
-        title = ''
+        title = 'Stock chart is unavailable.'
         labels = []
         values = []
         url = self.create_alpha_vantage_get_url_weekly()
@@ -119,7 +119,7 @@ class Stock(database.Model):
         if r.status_code != 200:
             current_app.logger.warning(f'Error! Received unexpected status code ({r.status_code}) '
                                        f'when retrieving weekly stock data ({self.stock_symbol})!')
-            return '', '', ''
+            return title, '', ''
 
         weekly_data = r.json()
 
@@ -128,7 +128,7 @@ class Stock(database.Model):
         if 'Weekly Adjusted Time Series' not in weekly_data:
             current_app.logger.warning(f'Could not find the Weekly Adjusted Time Series key when retrieving '
                                        f'the weekly stock data ({self.stock_symbol})!')
-            return '', '', ''
+            return title, '', ''
 
         title = f'Weekly Prices ({self.stock_symbol})'
 
