@@ -1,6 +1,7 @@
 """
 This file (test_admin.py) contains the functional tests for the `admin` blueprint.
 """
+import re
 
 
 def test_cli_create_admin_user(cli_test_runner):
@@ -80,3 +81,52 @@ def test_admin_navigation_links(test_client_admin, log_in_admin_user):
     assert b'Profile' in response.data
     assert b'Admin' in response.data
     assert b'Logout' in response.data
+
+
+def test_admin_delete_user_valid(test_client_admin, log_in_admin_user):
+    """
+    GIVEN a Flask application configured for testing with the admin user logged in
+          and the default set of users in the database
+    WHEN the '/admin/users/2/delete' page is requested (GET)
+    THEN check the response is valid and a success message is displayed
+    """
+    response = test_client_admin.get('/admin/users/3/delete', follow_redirects=True)
+    assert response.status_code == 200
+    assert re.search(r"User \(.*\) was deleted!", str(response.data))
+    assert b'List of Users' in response.data
+
+
+def test_admin_delete_admin_user(test_client_admin, log_in_admin_user):
+    """
+    GIVEN a Flask application configured for testing with the admin user logged in
+          and the default set of users in the database
+    WHEN the '/admin/users/1/delete' page is requested (GET)
+    THEN check that an error message is displayed about not being able to delete admin users
+    """
+    response = test_client_admin.get('/admin/users/1/delete', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Error! Admin users cannot be deleted!'
+    assert b'List of Users' in response.data
+
+
+def test_admin_delete_user_non_admin_user(test_client_admin, log_in_user1):
+    """
+    GIVEN a Flask application configured for testing with a non-admin user logged in
+    WHEN the '/admin/users/2/delete' page is requested (GET)
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.get('/admin/users/4/delete', follow_redirects=True)
+    assert response.status_code == 403
+    assert b'List of Users' not in response.data
+
+
+def test_admin_delete_user_not_logged_in(test_client_admin):
+    """
+    GIVEN a Flask application configured for testing without a user logged in
+    WHEN the '/admin/users/2/delete' page is requested (GET)
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.get('/admin/users/4/delete', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Users' not in response.data
+    assert b'Please log in to access this page.' in response.data

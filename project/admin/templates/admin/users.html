@@ -41,7 +41,7 @@
             <td>Disabled Account</td>
           {% endif %}
           <td class="stock-actions">
-            <a class="stocks-actions-link" href="#">Delete</a>
+            <a class="stocks-actions-link" href="{{ url_for('admin.admin_delete_user', id=user.id) }}">Delete</a>
             <a class="stocks-actions-link" href="#">Edit</a>
           </td>
         </tr>

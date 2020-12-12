@@ -2,7 +2,7 @@ import click
 from . import admin_blueprint
 from project import database
 from project.models import User
-from flask import render_template, current_app, abort
+from flask import render_template, current_app, abort, flash, redirect, url_for
 from flask_login import login_required, current_user
 
 
@@ -41,3 +41,18 @@ def admin_before_request():
 def admin_list_users():
     users = User.query.order_by(User.id).all()
     return render_template('admin/users.html', users=users)
+
+
+@admin_blueprint.route('/users/<id>/delete')
+def admin_delete_user(id):
+    user = User.query.filter_by(id=id).first_or_404()
+
+    if user.user_type == 'Admin':
+        flash(f'Error! Admin users cannot be deleted!', 'error')
+    else:
+        database.session.delete(user)
+        database.session.commit()
+        flash(f'User ({user.email}) was deleted!', 'success')
+        current_app.logger.info(f'User ({user.email}) was deleted by admin user: {current_user.id}!')
+
+    return redirect(url_for('admin.admin_list_users'))
