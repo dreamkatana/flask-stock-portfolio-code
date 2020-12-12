@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stocks_style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="stock-container">
+  <h1>List of Users:</h1>
+
+  <table class="stock-table">
+    <!-- Table Header Row -->
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Registration Date</th>
+        <th>Email Confirmation Date</th>
+        <th>User Type</th>
+        <th>Account Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <!-- Table Elements (Rows) -->
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.registered_on.strftime("%Y-%m-%d") }}</td>
+          {%  if user.email_confirmed %}
+            <td>{{ user.registered_on.strftime("%Y-%m-%d") }}</td>
+          {% else %}
+            <td>-</td>
+          {% endif %}
+          <td>{{ user.user_type }}</td>
+          {%  if user.is_active %}
+            <td>Active</td>
+          {% else %}
+            <td>Disabled Account</td>
+          {% endif %}
+          <td class="stock-actions">
+            <a class="stocks-actions-link" href="#">Delete</a>
+            <a class="stocks-actions-link" href="#">Edit</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+</div>
+{% endblock %}

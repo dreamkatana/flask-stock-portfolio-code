@@ -13,3 +13,70 @@ def test_cli_create_admin_user(cli_test_runner):
                                           'patrick_admin2@email.com',
                                           'FlaskIsMyFavorite567'])
     assert 'Created new admin user (patrick_admin2@email.com)!' in result.output
+
+
+def test_admin_view_users_valid(test_client_admin, log_in_admin_user):
+    """
+    GIVEN a Flask application configured for testing with the admin user logged in
+          and the default set of users in the database
+    WHEN the '/admin/users' page is requested (GET)
+    THEN check the response is valid and all expected users are listed
+    """
+    expected_users = [b'patrick_admin@gmail.com',  # Admin
+                      b'user1@gmail.com',
+                      b'user2@gmail.com',
+                      b'user3@gmail.com']
+
+    response = test_client_admin.get('/admin/users', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Users' in response.data
+    for expected_user in expected_users:
+        assert expected_user in response.data
+    assert b'ID' in response.data
+    assert b'Email' in response.data
+    assert b'Registration Date' in response.data
+    assert b'Email Confirmation Date' in response.data
+    assert b'User Type' in response.data
+    assert b'Account Status' in response.data
+    assert b'Actions' in response.data
+
+
+def test_admin_view_users_non_admin_user(test_client_admin, log_in_user1):
+    """
+    GIVEN a Flask application configured for testing with a non-admin user logged in
+    WHEN the '/admin/users' page is requested (GET)
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.get('/admin/users', follow_redirects=True)
+    assert response.status_code == 403
+    assert b'List of Users' not in response.data
+
+
+def test_admin_view_users_not_logged_in(test_client_admin):
+    """
+    GIVEN a Flask application configured for testing without a user logged in
+    WHEN the '/admin/users' page is requested (GET)
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.get('/admin/users', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Users' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_admin_navigation_links(test_client_admin, log_in_admin_user):
+    """
+    GIVEN a Flask application configured for testing with the admin user logged in
+          and the default set of users in the database
+    WHEN the '/' page is requested (GET)
+    THEN check the response is valid and the 'Admin' link is in the navigation bar
+    """
+    response = test_client_admin.get('/', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Welcome to the' in response.data
+    assert b'Flask Stock Portfolio App!' in response.data
+    assert b'List Stocks' in response.data
+    assert b'Add Stock' in response.data
+    assert b'Profile' in response.data
+    assert b'Admin' in response.data
+    assert b'Logout' in response.data

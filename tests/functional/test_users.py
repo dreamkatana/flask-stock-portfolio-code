@@ -228,6 +228,7 @@ def test_navigation_bar_logged_in(test_client, log_in_default_user):
     assert b'Logout' in response.data
     assert b'Register' not in response.data
     assert b'Login' not in response.data
+    assert b'Admin' not in response.data
 
 
 def test_navigation_bar_not_logged_in(test_client):
@@ -247,6 +248,7 @@ def test_navigation_bar_not_logged_in(test_client):
     assert b'Add Stock' not in response.data
     assert b'Profile' not in response.data
     assert b'Logout' not in response.data
+    assert b'Admin' not in response.data
 
 
 def test_login_with_next_valid_path(test_client, register_default_user):

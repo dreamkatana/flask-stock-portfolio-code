@@ -283,3 +283,66 @@ def cli_test_runner():
 
         with flask_app.app_context():
             database.drop_all()
+
+
+@pytest.fixture(scope='module')
+def test_client_admin():
+    flask_app = create_app()
+    flask_app.config.from_object('config.TestingConfig')
+    flask_app.extensions['mail'].suppress = True
+
+    # Create a test client using the Flask application configured for testing
+    with flask_app.test_client() as testing_client:
+        # Establish an application context before accessing the logger and database
+        with flask_app.app_context():
+            flask_app.logger.info('Creating database tables with an admin user in test_client_admin fixture...')
+
+            # Create the database and the database table(s)
+            database.create_all()
+
+            # Create the admin user
+            admin_user = User('patrick_admin@gmail.com', 'FlaskIsSuperGreat456', user_type='Admin')
+            database.session.add(admin_user)
+            database.session.commit()
+
+            # Create the default set of users
+            user1 = User('user1@gmail.com', 'FlaskIsGreat1')
+            user2 = User('user2@gmail.com', 'FlaskIsGreat2')
+            user3 = User('user3@gmail.com', 'FlaskIsGreat3')
+            database.session.add(user1)
+            database.session.add(user2)
+            database.session.add(user3)
+            database.session.commit()
+
+        yield testing_client  # this is where the testing happens!
+
+        with flask_app.app_context():
+            database.drop_all()
+
+
+@pytest.fixture(scope='function')
+def log_in_admin_user(test_client_admin):
+    # Log in the admin user
+    test_client_admin.post('/users/login',
+                     data={'email': 'patrick_admin@gmail.com',
+                           'password': 'FlaskIsSuperGreat456'},
+                     follow_redirects=True)
+
+    yield   # this is where the testing happens!
+
+    # Log out the default user
+    test_client_admin.get('/users/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='function')
+def log_in_user1(test_client_admin):
+    # Log in the default user
+    test_client_admin.post('/users/login',
+                           data={'email': 'user1@gmail.com',
+                                 'password': 'FlaskIsGreat1'},
+                           follow_redirects=True)
+
+    yield   # this is where the testing happens!
+
+    # Log out the default user
+    test_client_admin.get('/users/logout', follow_redirects=True)
