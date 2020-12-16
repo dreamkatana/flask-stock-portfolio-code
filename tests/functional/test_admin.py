@@ -27,6 +27,10 @@ def test_admin_view_users_valid(test_client_admin, log_in_admin_user):
                       b'user1@gmail.com',
                       b'user2@gmail.com',
                       b'user3@gmail.com']
+    expected_actions = [b'Delete',
+                        b'Confirm Email',
+                        b'Change Email',
+                        b'Change Password']
 
     response = test_client_admin.get('/admin/users', follow_redirects=True)
     assert response.status_code == 200
@@ -38,8 +42,9 @@ def test_admin_view_users_valid(test_client_admin, log_in_admin_user):
     assert b'Registration Date' in response.data
     assert b'Email Confirmation Date' in response.data
     assert b'User Type' in response.data
-    assert b'Account Status' in response.data
     assert b'Actions' in response.data
+    for expected_action in expected_actions:
+        assert expected_action in response.data
 
 
 def test_admin_view_users_non_admin_user(test_client_admin, log_in_user1):

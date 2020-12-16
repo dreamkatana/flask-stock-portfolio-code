@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="stock-container">
-  <h1>List of Users:</h1>
+  <h1>List of Users</h1>
 
   <table class="stock-table">
     <!-- Table Header Row -->
@@ -17,7 +17,6 @@
         <th>Registration Date</th>
         <th>Email Confirmation Date</th>
         <th>User Type</th>
-        <th>Account Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -35,14 +34,16 @@
             <td>-</td>
           {% endif %}
           <td>{{ user.user_type }}</td>
-          {%  if user.is_active %}
-            <td>Active</td>
-          {% else %}
-            <td>Disabled Account</td>
-          {% endif %}
-          <td class="stock-actions">
-            <a class="stocks-actions-link" href="{{ url_for('admin.admin_delete_user', id=user.id) }}">Delete</a>
-            <a class="stocks-actions-link" href="#">Edit</a>
+          <td class="users-actions">
+            <a class="users-actions-link" href="{{ url_for('admin.admin_delete_user', id=user.id) }}">Delete User</a>
+            {% if user.email_confirmed %}
+              <a class="users-actions-link" href="#">Unconfirm Email</a>
+            {% else %}
+              <a class="users-actions-link" href="#">Confirm Email</a>
+            {% endif %}
+            <br>
+            <a class="users-actions-link" href="#">Change Email</a>
+            <a class="users-actions-link" href="#">Change Password</a>
           </td>
         </tr>
       {% endfor %}
