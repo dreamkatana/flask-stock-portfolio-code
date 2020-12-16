@@ -31,3 +31,12 @@ table a {
   text-decoration: underline;
   font-weight: 700;
 }
+
+.stock-actions {
+  display: flex;
+  justify-content: space-around;
+}
+
+.stocks-actions-link + .stocks-actions-link {
+  margin-left: 0.5rem;
+}

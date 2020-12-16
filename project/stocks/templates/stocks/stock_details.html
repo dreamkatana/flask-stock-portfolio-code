@@ -13,8 +13,11 @@
 <h3>Purchase Price: ${{ stock.purchase_price / 100 }}</h3>
 <h3>Purchase Date: {{ stock.purchase_date.strftime("%B %d, %Y") }}</h3>
 
-{% if title %}
+{% if title != 'Stock chart is unavailable.' %}
   <canvas id="stockChart" width="500" height="400"></canvas>
+{% else %}
+  <br>
+  <h3>{{ title }}</h3>
 {% endif %}
 {% endblock %}
 

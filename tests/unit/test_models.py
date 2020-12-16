@@ -137,6 +137,6 @@ def test_get_weekly_stock_data_failure(new_stock, mock_requests_get_failure):
     THEN check the HTTP response
     """
     title, labels, values = new_stock.get_weekly_stock_data()
-    assert title == ''
+    assert title == 'Stock chart is unavailable.'
     assert len(labels) == 0
     assert len(values) == 0

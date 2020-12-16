@@ -146,3 +146,41 @@ def stock_details(id):
 
     title, labels, values = stock.get_weekly_stock_data()
     return render_template('stocks/stock_details.html', stock=stock, title=title, labels=labels, values=values)
+
+
+@stocks_blueprint.route('/stocks/<id>/delete')
+@login_required
+def delete_stock(id):
+    stock = Stock.query.filter_by(id=id).first_or_404()
+
+    if stock.user_id != current_user.id:
+        abort(403)
+
+    database.session.delete(stock)
+    database.session.commit()
+    flash(f'Stock ({stock.stock_symbol}) was deleted!', 'success')
+    current_app.logger.info(f'Stock ({stock.stock_symbol}) was deleted for user: {current_user.id}!')
+    return redirect(url_for('stocks.list_stocks'))
+
+
+@stocks_blueprint.route('/stocks/<id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_stock(id):
+    stock = Stock.query.filter_by(id=id).first_or_404()
+
+    if stock.user_id != current_user.id:
+        abort(403)
+
+    if request.method == 'POST':
+        # Edit the stock data in the database
+        stock.update(request.form['number_of_shares'],
+                     request.form['purchase_price'],
+                     datetime.fromisoformat(request.form['purchase_date']))
+        database.session.add(stock)
+        database.session.commit()
+
+        flash(f'Stock ({ stock.stock_symbol }) was updated!', 'success')
+        current_app.logger.info(f'Stock ({ stock.stock_symbol }) was updated by user: { current_user.id}')
+        return redirect(url_for('stocks.list_stocks'))
+
+    return render_template('stocks/edit_stock.html', stock=stock)
