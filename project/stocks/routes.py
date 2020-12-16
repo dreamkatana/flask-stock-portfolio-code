@@ -2,7 +2,7 @@
 #### imports ####
 #################
 from . import stocks_blueprint
-from flask import render_template, request, redirect, url_for, flash, current_app, abort
+from flask import current_app, render_template, request, flash, redirect, url_for, abort
 from project.models import Stock
 from project import database
 # import click
@@ -14,6 +14,9 @@ from datetime import datetime
 #### request callbacks ####
 ###########################
 
+# Request callback functions were provided as an example, but are now commented
+# out to avoid unnecessary logging.
+#
 # @stocks_blueprint.before_request
 # def stocks_before_request():
 #     current_app.logger.info('Calling before_request() for the stocks blueprint...')
@@ -34,7 +37,9 @@ from datetime import datetime
 #### cli commands ####
 ######################
 
-# This function was created to show how to create a CLI function.
+# CLI commands were provided as an example of how to create CLI commands,
+# but they do not work after further updates to the `Stock` model.
+#
 # @stocks_blueprint.cli.command('create_default_set')
 # def create_default_set():
 #     """Create three new stocks and add them to the database"""
@@ -45,9 +50,8 @@ from datetime import datetime
 #     database.session.add(stock2)
 #     database.session.add(stock3)
 #     database.session.commit()
-
-
-# This function was created to show how to create a CLI function.
+#
+#
 # @stocks_blueprint.cli.command('create')
 # @click.argument('symbol')
 # @click.argument('number_of_shares')
@@ -85,8 +89,8 @@ def add_stock():
         flash(f"Added new stock ({ request.form['stock_symbol'] })!", 'success')
         current_app.logger.info(f"Added new stock ({ request.form['stock_symbol'] })!")
         return redirect(url_for('stocks.list_stocks'))
-    else:
-        return render_template('stocks/add_stock.html')
+
+    return render_template('stocks/add_stock.html')
 
 
 @stocks_blueprint.route('/stocks')

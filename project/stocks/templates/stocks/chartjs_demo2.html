@@ -17,7 +17,7 @@
 var ctx = document.getElementById('stockChart').getContext('2d');
 
 // Set the default font color for each chart
-Chart.defaults.global.defaultFontColor = 'white';
+Chart.defaults.global.defaultFontColor = 'black';
 
 // Create a new line chart
 var myChart = new Chart(ctx, {
@@ -53,15 +53,7 @@ var myChart = new Chart(ctx, {
         ticks: {
           beginAtZero: true
         },
-        gridLines:{
-          color: "white",
-        }
       }],
-      xAxes: [{
-          gridLines:{
-            color: "white",
-          }
-      }]
     }
   }
 });

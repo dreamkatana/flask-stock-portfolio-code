@@ -1,13 +1,14 @@
-# This file is a template, and might need editing before it works on your project.
-# Official language image. Look for the different tagged releases at:
+# Tagged releases of Python docker images can be found at:
 # https://hub.docker.com/r/library/python/tags/
-image: python:3.7
+image: python:3.9
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   MAIL_USERNAME: "flaskstockportfolioapp@gmail.com"
+  MAIL_PASSWORD: "not_used_during_testing"
+  MAIL_DEFAULT_SENDER: "flaskstockportfolioapp@gmail.com"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/reference/pip_install/#caching
@@ -32,9 +33,15 @@ stages:
 flake8:
   stage: Static Analysis
   script:
-  - flake8 --max-line-length=150 --ignore=E266 *.py project/*.py project/stocks/routes.py project/users/routes.py
+  - flake8 --max-line-length=150 --ignore=E266 *.py project/*.py project/stocks/routes.py project/users/routes.py project/users/forms.py
 
 pytest:
   stage: Test
   script:
   - python -m pytest
+
+coverage:
+  stage: Test
+  allow_failure: true
+  script:
+  - pytest --cov-report term-missing --cov=project

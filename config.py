@@ -28,7 +28,7 @@ class Config(object):
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME', default='')
 
     # Alpha Vantage API Key
-    ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', default='')
+    ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', default='demo')
 
     # Logging
     LOG_TO_STDOUT = os.getenv('LOG_TO_STDOUT', default=False)

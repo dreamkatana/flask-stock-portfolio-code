@@ -16,9 +16,9 @@ from itsdangerous.exc import BadSignature
 from datetime import datetime
 
 
-########################
-### helper functions ###
-########################
+##########################
+#### helper functions ####
+##########################
 
 def generate_confirmation_email(user_email):
     confirm_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
@@ -130,7 +130,7 @@ def login():
                 current_app.logger.info(f'Redirecting after valid login to: {next_url}')
                 return redirect(next_url)
 
-        flash('ERROR! Incorrect login credentials.')
+        flash('ERROR! Incorrect login credentials.', 'error')
     return render_template('users/login.html', form=form)
 
 
@@ -138,9 +138,7 @@ def login():
 @login_required
 def logout():
     current_app.logger.info(f'Logged out user: {current_user.email}')
-    current_app.logger.info(f'Current user: {current_user.is_authenticated}')
     logout_user()
-    current_app.logger.info(f'Current user: {current_user.is_authenticated}')
     flash('Goodbye!')
     return redirect(url_for('stocks.index'))
 
@@ -248,8 +246,8 @@ def change_password():
             current_app.logger.info(f'Password updated for user: {current_user.email}')
             return redirect(url_for('users.user_profile'))
         else:
-            flash('ERROR! Incorrect user credentials!')
-
+            flash('ERROR! Incorrect user credentials!', 'error')
+            current_app.logger.info(f'Incorrect password change for user: {current_user.email}')
     return render_template('users/change_password.html', form=form)
 
 

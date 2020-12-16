@@ -1,35 +1,77 @@
 /* Form Styling
  **************/
-.form-heading {
-  margin-bottom: 20px;
+
+form {
+  padding: 60px;
+  background: white;
+}
+
+.form-wrap {
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: .7em .5em;
+  border: 1px solid #999;
+  border-radius: 2px;
+  font-family: var(--font);
 }
 
 label {
-  font-size: 1.35em;
-  margin-right: 0.5em;
+  display: block;
+  margin: 0 .5em .35em 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #292929;
+
+}
+
+label em {
+  display: inline-block;
+  font-size: .9em;
+  font-weight: normal;
+  vertical-align: middle;
 }
 
 input {
   font-size: 1.1em;
 }
 
-input > input {
-  margin-top: 0.5em;
+.field + .field {
+  margin-top: 1.5rem;
 }
 
-button, input[type="submit"] {
+.checkbox {
+  display: flex;
+}
+
+.checkbox label {
+  order: 1;
+  margin-left: 1ch;
+}
+
+.checkbox input {
+  order: 0;
+}
+
+button,
+input[type="submit"] {
   background-color: blue;
   color: white;
-  padding: 8px 16px;
+
+  max-width: 20ch;
+  padding: 12px 24px;
   text-align: center;
-  font-size: 1em;
-  border-radius: 8px;
+  font-size: 1.2em;
+  border-radius: 3px;
   border: none;
-  margin: 6px;
 }
 
 button:hover, input[type="submit"]:hover {
-  color: black;
+  background-color: darkblue;
   cursor: pointer;
 }
 
@@ -48,12 +90,7 @@ input[type="checkbox"] {
 }
 
 .forgot-password {
-  margin-top: 1.0em;
-  margin-bottom: 0.5em;
-  font-size: 1.1rem;
-}
-
-.forgot-password a {
-  text-decoration: none;
-  color: white;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
 }

@@ -6,13 +6,12 @@
 {% endblock %}
 
 {% block content %}
-<h2>Stock Details:</h2>
-<br>
+<h1>Stock Details</h1>
+
 <h3>Symbol: {{ stock.stock_symbol }}</h3>
 <h3>Number of Shares: {{ stock.number_of_shares }}</h3>
 <h3>Purchase Price: ${{ stock.purchase_price / 100 }}</h3>
 <h3>Purchase Date: {{ stock.purchase_date.strftime("%B %d, %Y") }}</h3>
-<br>
 
 {% if title %}
   <canvas id="stockChart" width="500" height="400"></canvas>
@@ -25,7 +24,7 @@
 var ctx = document.getElementById('stockChart').getContext('2d');
 
 // Set the default font color for each chart
-Chart.defaults.global.defaultFontColor = 'white';
+Chart.defaults.global.defaultFontColor = 'black';
 
 // Create a new line chart
 var myChart = new Chart(ctx, {
@@ -61,15 +60,7 @@ var myChart = new Chart(ctx, {
         ticks: {
           beginAtZero: true
         },
-        gridLines:{
-          color: "white",
-        }
       }],
-      xAxes: [{
-        gridLines:{
-          color: "white",
-        }
-      }]
     }
   }
 });

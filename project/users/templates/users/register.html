@@ -5,25 +5,31 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="form-heading">User Registration:</h2>
+<div class="form-wrap">
+  <h1>User Registration</h1>
 
-<form method="post">
-  {{ form.csrf_token }}
+  <form method="post">
+    {{ form.csrf_token }}
 
-  {{ form.email.label }}
-  {{ form.email }}
-  {% for error in form.email.errors %}
-    <span class="validation-error">[{{ error }}]</span>
-  {% endfor %}
-  <br>
+    <div class="field">
+      {{ form.email.label }}
+      {{ form.email }}
+      {% for error in form.email.errors %}
+        <p class="validation-error">[{{ error }}]</p>
+      {% endfor %}
+    </div>
 
-  {{ form.password.label }}
-  {{ form.password }}
-  {% for error in form.password.errors %}
-    <span class="validation-error">[{{ error }}]</span>
-  {% endfor %}
-  <br>
+    <div class="field">
+      {{ form.password.label }}
+      {{ form.password }}
+      {% for error in form.password.errors %}
+        <p class="validation-error">[{{ error }}]</p>
+      {% endfor %}
+    </div>
 
-  <button>Submit</button>
-</form>
+    <div class="field">
+      <button type="submit">Register</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

@@ -15,12 +15,16 @@ instance/*.db
 instance/*.log
 instance/*.log*
 
+# Log Files
+instance/logs/
+*.log
+
 # Coverage output
 .coverage
+htmlcov/
 
 # Virtual Environment
 /venv/
 
 # pytest files
 .pytest_cache/
-

@@ -6,7 +6,7 @@ import requests
 
 class Stock(database.Model):
     """
-    Class that represents a purchased stock in a portfolio
+    Class that represents a purchased stock in a portfolio.
 
     The following attributes of a stock are stored in this table:
         stock symbol (type: string)
@@ -66,12 +66,13 @@ class Stock(database.Model):
             try:
                 r = requests.get(url)
             except requests.exceptions.ConnectionError:
-                current_app.logger.error(f'Error! Network problem preventing retrieving the stock data ({ self.stock_symbol })!')
+                current_app.logger.error(
+                    f'Error! Network problem preventing retrieving the stock data ({self.stock_symbol})!')
 
             # Status code returned from Alpha Vantage needs to be 200 (OK) to process stock data
             if r.status_code != 200:
-                current_app.logger.warning(f'Error! Received unexpected status code ({ r.status_code }) '
-                                           f'when retrieving stock data ({ self.stock_symbol })!')
+                current_app.logger.warning(f'Error! Received unexpected status code ({r.status_code}) '
+                                           f'when retrieving stock data ({self.stock_symbol})!')
                 return
 
             daily_data = r.json()
@@ -80,7 +81,7 @@ class Stock(database.Model):
             # Typically, this key will not be present if the API rate limit has been exceeded.
             if 'Time Series (Daily)' not in daily_data:
                 current_app.logger.warning(f'Could not find Time Series (Daily) key when retrieving '
-                                           f'the stock data ({ self.stock_symbol })!')
+                                           f'the stock data ({self.stock_symbol})!')
                 return
 
             for element in daily_data['Time Series (Daily)']:
@@ -90,7 +91,7 @@ class Stock(database.Model):
                 self.position_value = self.current_price * self.number_of_shares
                 break
             current_app.logger.debug(f'Retrieved current price {self.current_price / 100} '
-                                     f'for the stock data ({ self.stock_symbol })!')
+                                     f'for the stock data ({self.stock_symbol})!')
 
     def get_stock_position_value(self) -> float:
         return float(self.position_value / 100)
@@ -111,7 +112,8 @@ class Stock(database.Model):
         try:
             r = requests.get(url)
         except requests.exceptions.ConnectionError:
-            current_app.logger.info(f"Error! Network problem preventing retrieving the weekly stock data ({ self.stock_symbol })!")
+            current_app.logger.info(
+                f"Error! Network problem preventing retrieving the weekly stock data ({self.stock_symbol})!")
 
         if r.status_code == 200:
             weekly_data = r.json()
@@ -135,7 +137,7 @@ class Stock(database.Model):
             values.reverse()
         else:
             current_app.logger.info(
-                f"Error! Received unexpected status code ({ r.status_code }) when retrieving weekly stock data ({ self.stock_symbol })!")
+                f"Error! Received unexpected status code ({r.status_code}) when retrieving weekly stock data ({self.stock_symbol})!")
 
         return title, labels, values
 
@@ -172,8 +174,7 @@ class User(database.Model):
         their email address at the same time that the user is registered.
         """
         self.email = email
-        self.password_hashed = bcrypt.generate_password_hash(
-            password_plaintext, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode('utf-8')
+        self.password_hashed = self._generate_password_hash(password_plaintext)
         self.registered_on = datetime.now()
         self.email_confirmation_sent_on = datetime.now()
         self.email_confirmed = False
@@ -182,9 +183,15 @@ class User(database.Model):
     def is_password_correct(self, password_plaintext: str):
         return bcrypt.check_password_hash(self.password_hashed, password_plaintext)
 
-    def set_password(self, password_plaintext):
-        self.password_hashed = bcrypt.generate_password_hash(
-            password_plaintext, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode('utf-8')
+    def set_password(self, password_plaintext: str):
+        self.password_hashed = self._generate_password_hash(password_plaintext)
+
+    @staticmethod
+    def _generate_password_hash(password_plaintext):
+        return bcrypt.generate_password_hash(
+            password_plaintext,
+            current_app.config.get('BCRYPT_LOG_ROUNDS')
+        ).decode('utf-8')
 
     def __repr__(self):
         return f'<User: {self.email}>'

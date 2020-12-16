@@ -1,10 +1,8 @@
-from project import create_app
 import pytest
+from project import create_app, database
 from flask import current_app
 from project.models import Stock, User
-from project import database
-# from datetime import datetime
-import datetime
+from datetime import datetime
 import requests
 
 
@@ -31,18 +29,6 @@ class MockSuccessResponseDaily(object):
                     "4. close": "135.9800",
                 }
             }
-        }
-
-
-class MockApiRateLimitExceededResponse(object):
-    def __init__(self, url):
-        self.status_code = 200
-        self.url = url
-
-    def json(self):
-        return {
-            'Note': 'Thank you for using Alpha Vantage! Our standard API call frequency is ' +
-                    '5 calls per minute and 500 calls per day.'
         }
 
 
@@ -74,6 +60,18 @@ class MockSuccessResponseWeekly(object):
         }
 
 
+class MockApiRateLimitExceededResponse(object):
+    def __init__(self, url):
+        self.status_code = 200
+        self.url = url
+
+    def json(self):
+        return {
+            'Note': 'Thank you for using Alpha Vantage! Our standard API call frequency is ' +
+                    '5 calls per minute and 500 calls per day.'
+        }
+
+
 class MockFailedResponse(object):
     def __init__(self, url):
         self.status_code = 404
@@ -89,72 +87,19 @@ class MockFailedResponse(object):
 
 @pytest.fixture(scope='function')
 def new_stock():
-    stock = Stock('AAPL', '16', '406.78', 17, datetime.datetime(2020, 7, 10))
+    stock = Stock('AAPL', '16', '406.78', 17, datetime(2020, 7, 18))
     return stock
 
 
 @pytest.fixture(scope='module')
 def new_user():
-    user = User('patrick@email.com', 'FlaskIsAwesome123')
-    return user
+    flask_app = create_app()
+    flask_app.config.from_object('config.TestingConfig')
 
-
-@pytest.fixture(scope='module')
-def register_default_user(test_client):
-    """Registers the default user using the '/users/register' route."""
-    test_client.post('/users/register',
-                     data={'email': 'patrick@gmail.com',
-                           'password': 'FlaskIsAwesome123'})
-
-
-@pytest.fixture(scope='function')
-def log_in_default_user(test_client, register_default_user):
-    # Log in the user
-    test_client.post('/users/login',
-                     data={'email': 'patrick@gmail.com',
-                           'password': 'FlaskIsAwesome123'})
-
-    yield   # this is where the testing happens!
-
-    # Log out the user
-    test_client.get('/users/logout', follow_redirects=True)
-
-
-@pytest.fixture(scope='function')
-def confirm_email_default_user(test_client, log_in_default_user):
-    # Mark the user as having their email address confirmed
-    user = User.query.filter_by(email='patrick@gmail.com').first()
-    user.email_confirmed = True
-    user.email_confirmed_on = datetime.datetime(2020, 7, 8)
-    database.session.add(user)
-    database.session.commit()
-
-    yield user  # this is where the testing happens!
-
-    # Mark the user as not having their email address confirmed (clean up)
-    user = User.query.filter_by(email='patrick@gmail.com').first()
-    user.email_confirmed = False
-    user.email_confirmed_on = None
-    database.session.add(user)
-    database.session.commit()
-
-
-@pytest.fixture(scope='function')
-def add_stocks_for_default_user(test_client, log_in_default_user):
-    # Add three stocks for the default user
-    test_client.post('/add_stock', data={'stock_symbol': 'SAM',
-                                         'number_of_shares': '27',
-                                         'purchase_price': '301.23',
-                                         'purchase_date': '2020-07-01'})
-    test_client.post('/add_stock', data={'stock_symbol': 'COST',
-                                         'number_of_shares': '76',
-                                         'purchase_price': '14.67',
-                                         'purchase_date': '2019-05-26'})
-    test_client.post('/add_stock', data={'stock_symbol': 'TWTR',
-                                         'number_of_shares': '146',
-                                         'purchase_price': '34.56',
-                                         'purchase_date': '2020-02-03'})
-    return
+    # Establish an application context before creating the User object
+    with flask_app.app_context():
+        user = User('patrick@email.com', 'FlaskIsAwesome123')
+        yield user   # this is where the testing happens!
 
 
 @pytest.fixture(scope='module')
@@ -179,26 +124,46 @@ def test_client():
 
 
 @pytest.fixture(scope='module')
-def test_client_with_app_context():
-    flask_app = create_app()
-    flask_app.config.from_object('config.TestingConfig')
-    flask_app.extensions['mail'].suppress = True
-
-    # Create a test client using the Flask application configured for testing
-    with flask_app.test_client() as testing_client:
-        # Establish an application context before accessing the logger and database
-        with flask_app.app_context():
-            yield testing_client  # this is where the testing happens!
+def register_default_user(test_client):
+    # Register the default user
+    test_client.post('/users/register',
+                     data={'email': 'patrick@gmail.com',
+                           'password': 'FlaskIsAwesome123'},
+                     follow_redirects=True)
+    return
 
 
-@pytest.fixture(scope='module')
-def init_database():
-    # Create the database and the database table(s)
-    database.create_all()
+@pytest.fixture(scope='function')
+def log_in_default_user(test_client, register_default_user):
+    # Log in the default user
+    test_client.post('/users/login',
+                     data={'email': 'patrick@gmail.com',
+                           'password': 'FlaskIsAwesome123'},
+                     follow_redirects=True)
 
-    yield database  # this is where the testing happens!
+    yield   # this is where the testing happens!
 
-    database.drop_all()
+    # Log out the default user
+    test_client.get('/users/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='function')
+def confirm_email_default_user(test_client, log_in_default_user):
+    # Mark the user as having their email address confirmed
+    user = User.query.filter_by(email='patrick@gmail.com').first()
+    user.email_confirmed = True
+    user.email_confirmed_on = datetime(2020, 7, 8)
+    database.session.add(user)
+    database.session.commit()
+
+    yield user  # this is where the testing happens!
+
+    # Mark the user as not having their email address confirmed (clean up)
+    user = User.query.filter_by(email='patrick@gmail.com').first()
+    user.email_confirmed = False
+    user.email_confirmed_on = None
+    database.session.add(user)
+    database.session.commit()
 
 
 @pytest.fixture(scope='function')
@@ -214,12 +179,40 @@ def afterwards_reset_default_user_password():
 
 
 @pytest.fixture(scope='function')
+def add_stocks_for_default_user(test_client, log_in_default_user):
+    # Add three stocks for the default user
+    test_client.post('/add_stock', data={'stock_symbol': 'SAM',
+                                         'number_of_shares': '27',
+                                         'purchase_price': '301.23',
+                                         'purchase_date': '2020-07-01'})
+    test_client.post('/add_stock', data={'stock_symbol': 'COST',
+                                         'number_of_shares': '76',
+                                         'purchase_price': '14.67',
+                                         'purchase_date': '2019-05-26'})
+    test_client.post('/add_stock', data={'stock_symbol': 'TWTR',
+                                         'number_of_shares': '146',
+                                         'purchase_price': '34.56',
+                                         'purchase_date': '2020-02-03'})
+    return
+
+
+@pytest.fixture(scope='function')
 def mock_requests_get_success_daily(monkeypatch):
     # Create a mock for the requests.get() call to prevent making the actual API call
     def mock_get(url):
         return MockSuccessResponseDaily(url)
 
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_success_weekly(monkeypatch):
+    # Create a mock for the requests.get() call to prevent making the actual API call
+    def mock_get(url):
+        return MockSuccessResponseWeekly(url)
+
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
@@ -238,16 +231,6 @@ def mock_requests_get_failure(monkeypatch):
         return MockFailedResponse(url)
 
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
-    monkeypatch.setattr(requests, 'get', mock_get)
-
-
-@pytest.fixture(scope='function')
-def mock_requests_get_success_weekly(monkeypatch):
-    # Create a mock for the requests.get() call to prevent making the actual API call
-    def mock_get(url):
-        return MockSuccessResponseWeekly(url)
-
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
