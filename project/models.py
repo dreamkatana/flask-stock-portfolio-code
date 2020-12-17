@@ -244,3 +244,6 @@ class User(database.Model):
         self.email_confirmed = True
         self.email_confirmed_on = datetime.now()
 
+    def unconfirm_email_address(self):
+        self.email_confirmed = False
+        self.email_confirmed_on = None

@@ -59,6 +59,20 @@ def test_confirm_email_address(new_user):
     assert new_user.email_confirmed_on.date() == datetime.now().date()
 
 
+def test_unconfirm_email_address(new_user):
+    """
+    GIVEN a User model with their email address confirmed
+    WHEN the user's email address is un-confirmed
+    THEN check that the email address is un-confirmed
+    """
+    new_user.confirm_email_address()
+    assert new_user.email_confirmed
+    assert new_user.email_confirmed_on.date() == datetime.now().date()
+    new_user.unconfirm_email_address()
+    assert not new_user.email_confirmed
+    assert new_user.email_confirmed_on is None
+
+
 def test_get_stock_data_success(new_stock, mock_requests_get_success_daily):
     """
     GIVEN a Flask application configured for testing and a monkeypatched version of requests.get()
