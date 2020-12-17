@@ -186,7 +186,7 @@ class User(database.Model):
     email_confirmed = database.Column(database.Boolean, default=False)
     email_confirmed_on = database.Column(database.DateTime)
     stocks = database.relationship('Stock', backref='user', lazy='dynamic')
-    user_type = database.Column(database.String())
+    user_type = database.Column(database.String(10), default='User')
 
     def __init__(self, email: str, password_plaintext: str, user_type='User'):
         """Create a new User object
@@ -239,3 +239,8 @@ class User(database.Model):
 
     def is_admin(self):
         return self.user_type == 'Admin'
+
+    def confirm_email_address(self):
+        self.email_confirmed = True
+        self.email_confirmed_on = datetime.now()
+

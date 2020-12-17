@@ -30,6 +30,8 @@ def test_new_user(new_user):
     assert new_user.password_hashed != 'FlaskIsAwesome123'
     assert new_user.user_type == 'User'
     assert not new_user.is_admin()
+    assert not new_user.email_confirmed
+    assert new_user.email_confirmed_on is None
 
 
 def test_set_password(new_user):
@@ -42,6 +44,19 @@ def test_set_password(new_user):
     assert new_user.email == 'patrick@email.com'
     assert new_user.password_hashed != 'FlaskIsStillAwesome456'
     assert new_user.is_password_correct('FlaskIsStillAwesome456')
+
+
+def test_confirm_email_address(new_user):
+    """
+    GIVEN a User model
+    WHEN the user's email address is confirmed
+    THEN check that the email address is confirmed
+    """
+    assert not new_user.email_confirmed
+    assert new_user.email_confirmed_on is None
+    new_user.confirm_email_address()
+    assert new_user.email_confirmed
+    assert new_user.email_confirmed_on.date() == datetime.now().date()
 
 
 def test_get_stock_data_success(new_stock, mock_requests_get_success_daily):

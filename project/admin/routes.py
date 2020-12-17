@@ -56,3 +56,14 @@ def admin_delete_user(id):
         current_app.logger.info(f'User ({user.email}) was deleted by admin user: {current_user.id}!')
 
     return redirect(url_for('admin.admin_list_users'))
+
+
+@admin_blueprint.route('/users/<id>/confirm_email')
+def admin_confirm_email_address(id):
+    user = User.query.filter_by(id=id).first_or_404()
+    user.confirm_email_address()
+    database.session.add(user)
+    database.session.commit()
+    flash(f"User's email address ({user.email}) was confirmed!", 'success')
+    current_app.logger.info(f"User's email address ({user.email}) was confirmed by admin user: {current_user.id}!")
+    return redirect(url_for('admin.admin_list_users'))
