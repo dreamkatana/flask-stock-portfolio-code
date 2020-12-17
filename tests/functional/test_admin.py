@@ -172,3 +172,40 @@ def test_admin_confirm_email_user_not_logged_in(test_client_admin):
     assert response.status_code == 200
     assert b'List of Users' not in response.data
     assert b'Please log in to access this page.' in response.data
+
+
+def test_admin_unconfirm_email_valid(test_client_admin, log_in_admin_user):
+    """
+    GIVEN a Flask application configured for testing with the admin user logged in
+          and the default set of users in the database
+    WHEN the '/admin/users/4/unconfirm_email' page is requested (GET)
+    THEN check the response is valid and a success message is displayed
+    """
+    response = test_client_admin.get('/admin/users/4/unconfirm_email', follow_redirects=True)
+    print(response.data)
+    assert response.status_code == 200
+    assert re.search(r"User.*email address \(.*\) was un-confirmed!", str(response.data))
+    assert b'List of Users' in response.data
+
+
+def test_admin_unconfirm_email_invalid(test_client_admin, log_in_user1):
+    """
+    GIVEN a Flask application configured for testing with a non-admin user logged in
+    WHEN the '/admin/users/5/unconfirm_email' page is requested (GET)
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.get('/admin/users/5/unconfirm_email', follow_redirects=True)
+    assert response.status_code == 403
+    assert b'List of Users' not in response.data
+
+
+def test_admin_unconfirm_email_user_not_logged_in(test_client_admin):
+    """
+    GIVEN a Flask application configured for testing without a user logged in
+    WHEN the '/admin/users/5/unconfirm_email' page is requested (GET)
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.get('/admin/users/5/unconfirm_email', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Users' not in response.data
+    assert b'Please log in to access this page.' in response.data
