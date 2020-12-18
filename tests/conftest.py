@@ -309,9 +309,11 @@ def test_client_admin():
             user1 = User('user1@gmail.com', 'FlaskIsGreat1')
             user2 = User('user2@gmail.com', 'FlaskIsGreat2')
             user3 = User('user3@gmail.com', 'FlaskIsGreat3')
+            user4 = User('user4@gmail.com', 'FlaskIsGreat4')
             database.session.add(user1)
             database.session.add(user2)
             database.session.add(user3)
+            database.session.add(user4)
             database.session.commit()
 
         yield testing_client  # this is where the testing happens!

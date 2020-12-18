@@ -282,7 +282,6 @@ def test_admin_post_change_password_valid(test_client_admin, log_in_admin_user):
                                       data={'password': 'FlaskIsGreat101'},
                                       follow_redirects=True)
     assert response.status_code == 200
-    print(response.data)
     assert re.search(r"User.* password \(.*\) was updated!", str(response.data))
     assert b'List of Users' in response.data
 
@@ -323,6 +322,99 @@ def test_admin_post_change_password_invalid_user_id(test_client_admin, log_in_ad
     """
     response = test_client_admin.post('/admin/users/6729/change_password',
                                       data={'password': 'FlaskIsGreat101'},
+                                      follow_redirects=True)
+    assert response.status_code == 404
+    assert b'List of Users' not in response.data
+
+
+def test_admin_get_change_email_page_valid(test_client_admin, log_in_admin_user):
+    """
+    GIVEN a Flask application configured for testing with the admin user logged in
+          and the default set of users in the database
+    WHEN the '/admin/users/5/change_email' page is requested (GET)
+    THEN check the response is valid
+    """
+    response = test_client_admin.get('/admin/users/1/change_email', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Change Email' in response.data
+    assert b'New Email' in response.data
+    assert b'Submit' in response.data
+
+
+def test_admin_get_change_email_page_non_admin_user(test_client_admin, log_in_user1):
+    """
+    GIVEN a Flask application configured for testing with a non-admin user logged in
+    WHEN the '/admin/users/5/change_email' page is requested (GET)
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.get('/admin/users/1/change_email', follow_redirects=True)
+    assert response.status_code == 403
+    assert b'Change Email' not in response.data
+
+
+def test_admin_get_change_email_page_user_not_logged_in(test_client_admin):
+    """
+    GIVEN a Flask application configured for testing without a user logged in
+    WHEN the '/admin/users/5/change_email' page is requested (GET)
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.get('/admin/users/1/change_email', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Users' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_admin_post_change_email_valid(test_client_admin, log_in_admin_user):
+    """
+    GIVEN a Flask application configured for testing with the admin user logged in
+          and the default set of users in the database
+    WHEN the '/admin/users/5/change_email' page is posted to (POST})
+    THEN check the response is valid
+    """
+    response = test_client_admin.post('/admin/users/5/change_email',
+                                      data={'email': 'user104@gmail.com'},
+                                      follow_redirects=True)
+    assert response.status_code == 200
+    assert re.search(r"User.* email \(.*\) was updated!", str(response.data))
+    assert b'List of Users' in response.data
+
+
+def test_admin_post_change_email_non_admin_user(test_client_admin, log_in_user1):
+    """
+    GIVEN a Flask application configured for testing with a non-admin user logged in
+    WHEN the '/admin/users/5/change_email' page is posted to (POST})
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.post('/admin/users/5/change_email',
+                                      data={'email': 'user104@gmail.com'},
+                                      follow_redirects=True)
+    assert response.status_code == 403
+    assert b'Change Password' not in response.data
+
+
+def test_admin_post_change_email_user_not_logged_in(test_client_admin):
+    """
+    GIVEN a Flask application configured for testing without a user logged in
+    WHEN the '/admin/users/5/change_email' page is posted to (POST})
+    THEN check that a 403 error is returned
+    """
+    response = test_client_admin.post('/admin/users/5/change_email',
+                                      data={'email': 'user104@gmail.com'},
+                                      follow_redirects=True)
+    assert response.status_code == 200
+    assert b'List of Users' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_admin_post_change_email_invalid_user_id(test_client_admin, log_in_admin_user):
+    """
+    GIVEN a Flask application configured for testing with the admin user logged in
+          and the default set of users in the database
+    WHEN the '/admin/users/7612/change_email' page is posted to (POST})
+    THEN check that a 404 error is returned
+    """
+    response = test_client_admin.post('/admin/users/7612/change_email',
+                                      data={'email': 'user104@gmail.com'},
                                       follow_redirects=True)
     assert response.status_code == 404
     assert b'List of Users' not in response.data
