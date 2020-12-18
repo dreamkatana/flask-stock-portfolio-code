@@ -30,7 +30,8 @@ def create(email, password):
 @login_required
 def admin_before_request():
     if current_user.user_type != 'Admin':
-        current_app.logger.info(f'User {current_user.id} attempted to access an ADMIN page ({request.url}, {request.method})!')
+        current_app.logger.info(
+            f'User {current_user.id} attempted to access an ADMIN page ({request.url}, {request.method})!')
         abort(403)
 
 
@@ -53,8 +54,9 @@ def admin_delete_user(id):
     else:
         database.session.delete(user)
         database.session.commit()
-        flash(f'User ({user.email}) was deleted!', 'success')
-        current_app.logger.info(f'User ({user.email}) was deleted by admin user: {current_user.id}!')
+        flash(f'User ({user.id}: {user.email}) was deleted!', 'success')
+        current_app.logger.info(
+            f'User ({user.id}: {user.email}) was deleted by admin user: {current_user.id}!')
 
     return redirect(url_for('admin.admin_list_users'))
 
@@ -65,8 +67,9 @@ def admin_confirm_email_address(id):
     user.confirm_email_address()
     database.session.add(user)
     database.session.commit()
-    flash(f"User's email address ({user.email}) was confirmed!", 'success')
-    current_app.logger.info(f"User's email address ({user.email}) was confirmed by admin user: {current_user.id}!")
+    flash(f"User's email address ({user.id}: {user.email}) was confirmed!", 'success')
+    current_app.logger.info(
+        f"User's email address ({user.id}: {user.email}) was confirmed by admin user: {current_user.id}!")
     return redirect(url_for('admin.admin_list_users'))
 
 
@@ -76,8 +79,9 @@ def admin_unconfirm_email_address(id):
     user.unconfirm_email_address()
     database.session.add(user)
     database.session.commit()
-    flash(f"User's email address ({user.email}) was un-confirmed!", 'success')
-    current_app.logger.info(f"User's email address ({user.email}) was un-confirmed by admin user: {current_user.id}!")
+    flash(f"User's email address ({user.id}: {user.email}) was un-confirmed!", 'success')
+    current_app.logger.info(
+        f"User's email address ({user.id}: {user.email}) was un-confirmed by admin user: {current_user.id}!")
     return redirect(url_for('admin.admin_list_users'))
 
 
