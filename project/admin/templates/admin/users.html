@@ -37,13 +37,13 @@
           <td class="users-actions">
             <a class="users-actions-link" href="{{ url_for('admin.admin_delete_user', id=user.id) }}">Delete User</a>
             {% if user.email_confirmed %}
-              <a class="users-actions-link" href="#">Unconfirm Email</a>
+              <a class="users-actions-link" href="{{ url_for('admin.admin_unconfirm_email_address', id=user.id) }}">Unconfirm Email</a>
             {% else %}
-              <a class="users-actions-link" href="#">Confirm Email</a>
+              <a class="users-actions-link" href="{{ url_for('admin.admin_confirm_email_address', id=user.id) }}">Confirm Email</a>
             {% endif %}
             <br>
-            <a class="users-actions-link" href="#">Change Email</a>
-            <a class="users-actions-link" href="#">Change Password</a>
+            <a class="users-actions-link" href="{{ url_for('admin.admin_change_email', id=user.id) }}">Change Email</a>
+            <a class="users-actions-link" href="{{ url_for('admin.admin_change_password', id=user.id) }}">Change Password</a>
           </td>
         </tr>
       {% endfor %}
