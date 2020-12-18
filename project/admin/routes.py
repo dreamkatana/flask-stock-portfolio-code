@@ -4,6 +4,7 @@ from project import database
 from project.models import User
 from flask import render_template, current_app, abort, flash, redirect, url_for
 from flask_login import login_required, current_user
+from .forms import PasswordForm
 
 
 ######################
@@ -78,3 +79,20 @@ def admin_unconfirm_email_address(id):
     flash(f"User's email address ({user.email}) was un-confirmed!", 'success')
     current_app.logger.info(f"User's email address ({user.email}) was un-confirmed by admin user: {current_user.id}!")
     return redirect(url_for('admin.admin_list_users'))
+
+
+@admin_blueprint.route('/users/<id>/change_password', methods=['GET', 'POST'])
+def admin_change_password(id):
+    user = User.query.filter_by(id=id).first_or_404()
+    form = PasswordForm()
+
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        database.session.add(current_user)
+        database.session.commit()
+        flash(f"User's password ({user.email}) was updated!", 'success')
+        current_app.logger.info(
+            f"User's password ({user.email}) was updated by admin user: {current_user.id}!")
+        return redirect(url_for('admin.admin_list_users'))
+
+    return render_template('admin/change_password.html', form=form)
