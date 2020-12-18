@@ -2,7 +2,7 @@ import click
 from . import admin_blueprint
 from project import database
 from project.models import User
-from flask import render_template, current_app, abort, flash, redirect, url_for
+from flask import render_template, current_app, abort, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from .forms import PasswordForm, EmailForm
 
@@ -30,7 +30,7 @@ def create(email, password):
 @login_required
 def admin_before_request():
     if current_user.user_type != 'Admin':
-        current_app.logger.info(f'User {current_user.id} attempted to access ADMIN pages!')
+        current_app.logger.info(f'User {current_user.id} attempted to access an ADMIN page ({request.url}, {request.method})!')
         abort(403)
 
 
