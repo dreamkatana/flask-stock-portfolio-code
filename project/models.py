@@ -186,8 +186,9 @@ class User(database.Model):
     email_confirmed = database.Column(database.Boolean, default=False)
     email_confirmed_on = database.Column(database.DateTime)
     stocks = database.relationship('Stock', backref='user', lazy='dynamic')
+    user_type = database.Column(database.String(10), default='User')
 
-    def __init__(self, email: str, password_plaintext: str):
+    def __init__(self, email: str, password_plaintext: str, user_type='User'):
         """Create a new User object
 
         This constructor assumes that an email is sent to the new user to confirm
@@ -199,6 +200,7 @@ class User(database.Model):
         self.email_confirmation_sent_on = datetime.now()
         self.email_confirmed = False
         self.email_confirmed_on = None
+        self.user_type = user_type
 
     def is_password_correct(self, password_plaintext: str):
         return bcrypt.check_password_hash(self.password_hashed, password_plaintext)
@@ -234,3 +236,14 @@ class User(database.Model):
     def get_id(self):
         """Return the user ID as a unicode string (`str`)."""
         return str(self.id)
+
+    def is_admin(self):
+        return self.user_type == 'Admin'
+
+    def confirm_email_address(self):
+        self.email_confirmed = True
+        self.email_confirmed_on = datetime.now()
+
+    def unconfirm_email_address(self):
+        self.email_confirmed = False
+        self.email_confirmed_on = None
