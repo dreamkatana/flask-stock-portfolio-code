@@ -247,3 +247,66 @@ class User(database.Model):
     def unconfirm_email_address(self):
         self.email_confirmed = False
         self.email_confirmed_on = None
+
+
+class WatchStock(database.Model):
+    """
+    Class that represents a stock in a watch list.
+
+    The following attributes of a stock are stored in this table:
+        stock symbol (type: string)
+        company name (type: string)
+        current share price (type: integer)
+        date when current price was retrieved from the Alpha Vantage API (type: datetime)
+        52-week low (type: integer)
+        52-week high (type: integer)
+        market cap (type: string)
+        dividend per share (type: integer)
+        p/e ratio (type: integer)
+        peg ratio (type: integer)
+        profit margin (type: integer)
+        beta (type: integer)
+        date when stock data was retrieved from the Alpha Vantage API (type: datetime)
+
+    Note: Due to a limitation in the data types supported by SQLite, the
+          attributes displayed as floating point values are stored as integers:
+              $24.10 -> 2410
+              $100.00 -> 10000
+              $87.65 -> 8765
+              12.84% -> 1284
+    """
+
+    __tablename__ = 'watchstocks'
+
+    id = database.Column(database.Integer, primary_key=True)
+    stock_symbol = database.Column(database.String, nullable=False)
+    company_name = database.Column(database.String)
+    current_share_price = database.Column(database.Integer)
+    current_share_price_date = database.Column(database.DateTime)
+    fiftytwo_week_low = database.Column(database.Integer)
+    fiftytwo_week_high = database.Column(database.Integer)
+    market_cap = database.Column(database.String)
+    dividend_per_share = database.Column(database.Integer)
+    pe_ratio = database.Column(database.Integer)
+    peg_ratio = database.Column(database.Integer)
+    profit_margin = database.Column(database.Integer)
+    beta = database.Column(database.Integer)
+    stock_data_date = database.Column(database.DateTime)
+
+    def __init__(self, stock_symbol: str):
+        self.stock_symbol = stock_symbol
+        self.company_name = None
+        self.current_share_price = 0
+        self.current_share_price_date = None
+        self.fiftytwo_week_low = 0
+        self.fiftytwo_week_high = 0
+        self.market_cap = None
+        self.dividend_per_share = 0
+        self.pe_ratio = 0
+        self.peg_ratio = 0
+        self.profit_margin = 0
+        self.beta = 0
+        self.stock_data_date = None
+
+    def __repr__(self):
+        return f'{self.stock_symbol}'
