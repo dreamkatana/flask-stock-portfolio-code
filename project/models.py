@@ -4,6 +4,57 @@ from datetime import datetime, timedelta
 import requests
 
 
+##########################
+#### Helper Functions ####
+##########################
+
+def create_alpha_vantage_url_daily_compact(symbol: str) -> str:
+    return 'https://www.alphavantage.co/query?function={}&symbol={}&outputsize={}&apikey={}'.format(
+        'TIME_SERIES_DAILY_ADJUSTED',
+        symbol,
+        'compact',
+        current_app.config['ALPHA_VANTAGE_API_KEY']
+    )
+
+
+def get_current_stock_price(symbol: str) -> float:
+    current_price = 0.0
+    url = create_alpha_vantage_url_daily_compact(symbol)
+
+    # Attempt the GET call to Alpha Vantage and check that a ConnectionError does
+    # not occur, which happens when the GET call fails due to a network issue
+    try:
+        r = requests.get(url)
+    except requests.exceptions.ConnectionError:
+        current_app.logger.error(
+            f'Error! Network problem preventing retrieving the stock data ({symbol})!')
+
+    # Status code returned from Alpha Vantage needs to be 200 (OK) to process stock data
+    if r.status_code != 200:
+        current_app.logger.warning(f'Error! Received unexpected status code ({r.status_code}) '
+                                   f'when retrieving daily stock data ({symbol})!')
+        return current_price
+
+    daily_data = r.json()
+
+    # The key of 'Time Series (Daily)' needs to be present in order to process the stock data
+    # Typically, this key will not be present if the API rate limit has been exceeded.
+    if 'Time Series (Daily)' not in daily_data:
+        current_app.logger.warning(f'Could not find the Time Series (Daily) key when retrieving '
+                                   f'the daily stock data ({symbol})!')
+        return current_price
+
+    for element in daily_data['Time Series (Daily)']:
+        current_price = float(daily_data['Time Series (Daily)'][element]['4. close'])
+        break
+
+    return current_price
+
+
+################
+#### Models ####
+################
+
 class Stock(database.Model):
     """
     Class that represents a purchased stock in a portfolio.
@@ -51,47 +102,15 @@ class Stock(database.Model):
     def __repr__(self):
         return f'{self.stock_symbol} - {self.number_of_shares} shares purchased at ${self.purchase_price / 100}'
 
-    def create_alpha_vantage_get_url_daily_compact(self):
-        return 'https://www.alphavantage.co/query?function={}&symbol={}&outputsize={}&apikey={}'.format(
-            'TIME_SERIES_DAILY_ADJUSTED',
-            self.stock_symbol,
-            'compact',
-            current_app.config['ALPHA_VANTAGE_API_KEY']
-        )
-
     def get_stock_data(self):
         if self.current_price_date is None or self.current_price_date.date() != datetime.now().date():
-            url = self.create_alpha_vantage_get_url_daily_compact()
-
-            try:
-                r = requests.get(url)
-            except requests.exceptions.ConnectionError:
-                current_app.logger.error(
-                    f'Error! Network problem preventing retrieving the stock data ({self.stock_symbol})!')
-
-            # Status code returned from Alpha Vantage needs to be 200 (OK) to process stock data
-            if r.status_code != 200:
-                current_app.logger.warning(f'Error! Received unexpected status code ({r.status_code}) '
-                                           f'when retrieving daily stock data ({self.stock_symbol})!')
-                return
-
-            daily_data = r.json()
-
-            # The key of 'Time Series (Daily)' needs to be present in order to process the stock data
-            # Typically, this key will not be present if the API rate limit has been exceeded.
-            if 'Time Series (Daily)' not in daily_data:
-                current_app.logger.warning(f'Could not find the Time Series (Daily) key when retrieving '
-                                           f'the daily stock data ({self.stock_symbol})!')
-                return
-
-            for element in daily_data['Time Series (Daily)']:
-                current_price = float(daily_data['Time Series (Daily)'][element]['4. close'])
-                self.current_price = int(float(current_price) * 100)
+            current_price = get_current_stock_price(self.stock_symbol)
+            if current_price > 0.0:
+                self.current_price = int(current_price * 100)
                 self.current_price_date = datetime.now()
                 self.position_value = self.current_price * self.number_of_shares
-                break
-            current_app.logger.debug(f'Retrieved current price {self.current_price / 100} '
-                                     f'for the stock data ({self.stock_symbol})!')
+                current_app.logger.debug(f'Retrieved current price {self.current_price / 100} '
+                                         f'for the stock data ({self.stock_symbol})!')
 
     def get_stock_position_value(self) -> float:
         return float(self.position_value / 100)

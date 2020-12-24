@@ -1,7 +1,7 @@
 import pytest
 from project import create_app, database
 from flask import current_app
-from project.models import Stock, User
+from project.models import Stock, User, WatchStock
 from datetime import datetime
 import requests
 
@@ -348,3 +348,9 @@ def log_in_user1(test_client_admin):
 
     # Log out the default user
     test_client_admin.get('/users/logout', follow_redirects=True)
+
+
+@pytest.fixture(scope='function')
+def new_watch_stock():
+    watch_stock = WatchStock('COST')
+    return watch_stock
