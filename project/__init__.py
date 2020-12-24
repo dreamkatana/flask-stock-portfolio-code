@@ -74,12 +74,14 @@ def register_blueprints(app):
     from project.stocks import stocks_blueprint
     from project.users import users_blueprint
     from project.admin import admin_blueprint
+    from project.watchlist import watchlist_blueprint
 
     # Since the application instance is now created, register each Blueprint
     # with the Flask application instance (app)
     app.register_blueprint(stocks_blueprint)
     app.register_blueprint(users_blueprint, url_prefix='/users')
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
+    app.register_blueprint(watchlist_blueprint)
 
 
 def configure_logging(app):

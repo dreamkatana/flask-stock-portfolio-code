@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stocks_style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="stock-container">
+  <h1>Watchlist</h1>
+</div>
+{% endblock %}
