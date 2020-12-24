@@ -325,7 +325,60 @@ class WatchStock(database.Model):
         self.peg_ratio = 0
         self.profit_margin = 0
         self.beta = 0
-        self.stock_data_date = None
+        self.stock_analysis_data_date = None
 
     def __repr__(self):
         return f'{self.stock_symbol}'
+
+    def get_current_share_price(self):
+        if self.current_share_price_date is None or self.current_share_price_date.date() != datetime.now().date():
+            current_price = get_current_stock_price(self.stock_symbol)
+            if current_price > 0.0:
+                self.current_share_price = int(current_price * 100)
+                self.current_share_price_date = datetime.now()
+                current_app.logger.debug(f'Retrieved current price {self.current_share_price / 100} '
+                                         f'for the stock data ({self.stock_symbol})!')
+
+    def create_alpha_vantage_url_overview(self):
+        return 'https://www.alphavantage.co/query?function={}&symbol={}&apikey={}'.format(
+            'OVERVIEW',
+            self.stock_symbol,
+            current_app.config['ALPHA_VANTAGE_API_KEY']
+        )
+
+    def get_stock_analysis_data(self):
+        url = self.create_alpha_vantage_url_overview()
+
+        # Attempt the GET call to Alpha Vantage and check that a ConnectionError does
+        # not occur, which happens when the GET call fails due to a network issue
+        try:
+            r = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            current_app.logger.error(
+                f'Error! Network problem preventing retrieving the stock analysis data ({self.stock_symbol})!')
+
+        # Status code returned from Alpha Vantage needs to be 200 (OK) to process stock data
+        if r.status_code != 200:
+            current_app.logger.warning(f'Error! Received unexpected status code ({r.status_code}) '
+                                       f'when retrieving stock analysis data ({self.stock_symbol})!')
+            return
+
+        data = r.json()
+
+        # The key of 'AssetType' needs to be present in order to confirm that valid data is available.
+        # Typically, this key will not be present if the API rate limit has been exceeded.
+        if 'AssetType' not in data:
+            current_app.logger.warning(f'Could not find valid data when retrieving '
+                                       f'the stock analysis data ({self.stock_symbol})!')
+            return
+
+        self.company_name = data['Name']
+        self.fiftytwo_week_low = int(float(data['52WeekLow']) * 100)
+        self.fiftytwo_week_high = int(float(data['52WeekHigh']) * 100)
+        self.market_cap = data['MarketCapitalization']
+        self.dividend_per_share = int(float(data['DividendPerShare']) * 100)
+        self.pe_ratio = int(float(data['PERatio']) * 100)
+        self.peg_ratio = int(float(data['PEGRatio']) * 100)
+        self.profit_margin = int(float(data['ProfitMargin']) * 100)
+        self.beta = int(float(data['Beta']) * 100)
+        self.stock_analysis_data_date = datetime.now()

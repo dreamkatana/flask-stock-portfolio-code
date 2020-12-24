@@ -205,31 +205,106 @@ def test_new_watchstock(new_watch_stock):
     assert new_watch_stock.peg_ratio == 0
     assert new_watch_stock.profit_margin == 0
     assert new_watch_stock.beta == 0
-    assert new_watch_stock.stock_data_date is None
+    assert new_watch_stock.stock_analysis_data_date is None
 
 
-def test_get_current_stock_price_success(mock_requests_get_success_daily):
+def test_get_watchstock_current_share_price_success(new_watch_stock, mock_requests_get_success_daily):
     """
     GIVEN a monkeypatched (successful response) version of requests.get()
-    WHEN the current stock price is retrieved
+    WHEN the current share price is retrieved
     THEN check that the stock price returned is valid
     """
-    assert get_current_stock_price('AAPL') == 148.34
+    new_watch_stock.get_current_share_price()
+    assert new_watch_stock.company_name is None
+    assert new_watch_stock.current_share_price == 14834
+    assert new_watch_stock.current_share_price_date.date() == datetime.now().date()
 
 
-def test_get_current_stock_price_api_rate_limit_exceeded(mock_requests_get_api_rate_limit_exceeded):
+def test_get_watchstock_current_share_price_api_rate_limit_exceeded(new_watch_stock, mock_requests_get_api_rate_limit_exceeded):
     """
     GIVEN a monkeypatched (API rate limit exceeded) version of requests.get()
-    WHEN the current stock price is retrieved
+    WHEN the current share price is retrieved
     THEN check that the stock price returned is zero
     """
-    assert get_current_stock_price('AAPL') == 0.0
+    new_watch_stock.get_current_share_price()
+    assert new_watch_stock.company_name is None
+    assert new_watch_stock.current_share_price == 0
+    assert new_watch_stock.current_share_price_date is None
 
 
-def test_get_current_stock_price_failure(mock_requests_get_failure):
+def test_get_watchstock_current_share_price_failure(new_watch_stock, mock_requests_get_failure):
     """
     GIVEN a monkeypatched (failure) version of requests.get()
-    WHEN the current stock price is retrieved
+    WHEN the current share price is retrieved
     THEN check that the stock price returned is zero
     """
-    assert get_current_stock_price('AAPL') == 0.0
+    new_watch_stock.get_current_share_price()
+    assert new_watch_stock.company_name is None
+    assert new_watch_stock.current_share_price == 0
+    assert new_watch_stock.current_share_price_date is None
+
+
+def test_get_watchstock_data_success(new_watch_stock, mock_requests_get_success_overview):
+    """
+    GIVEN a monkeypatched (successful response) version of requests.get()
+    WHEN the analysis data for the WatchStock object is retrieved
+    THEN check that the analysis data returned is valid
+    """
+    new_watch_stock.get_stock_analysis_data()
+    assert new_watch_stock.stock_symbol == 'COST'
+    assert new_watch_stock.company_name == 'Costco Wholesale Corporation'
+    assert new_watch_stock.current_share_price == 0
+    assert new_watch_stock.current_share_price_date is None
+    assert new_watch_stock.fiftytwo_week_low == 26268
+    assert new_watch_stock.fiftytwo_week_high == 38807
+    assert new_watch_stock.market_cap == '160300990464'
+    assert new_watch_stock.dividend_per_share == 280
+    assert new_watch_stock.pe_ratio == 3715
+    assert new_watch_stock.peg_ratio == 393
+    assert new_watch_stock.profit_margin == 2
+    assert new_watch_stock.beta == 67
+    assert new_watch_stock.stock_analysis_data_date.date() == datetime.now().date()
+
+
+def test_get_watchstock_data_api_rate_limit_exceeded(new_watch_stock, mock_requests_get_api_rate_limit_exceeded):
+    """
+    GIVEN a monkeypatched (API rate limit exceeded) version of requests.get()
+    WHEN the analysis data for the WatchStock object is retrieved
+    THEN check that the analysis data is not returned
+    """
+    new_watch_stock.get_stock_analysis_data()
+    assert new_watch_stock.stock_symbol == 'COST'
+    assert new_watch_stock.company_name is None
+    assert new_watch_stock.current_share_price == 0
+    assert new_watch_stock.current_share_price_date is None
+    assert new_watch_stock.fiftytwo_week_low == 0
+    assert new_watch_stock.fiftytwo_week_high == 0
+    assert new_watch_stock.market_cap is None
+    assert new_watch_stock.dividend_per_share == 0
+    assert new_watch_stock.pe_ratio == 0
+    assert new_watch_stock.peg_ratio == 0
+    assert new_watch_stock.profit_margin == 0
+    assert new_watch_stock.beta == 0
+    assert new_watch_stock.stock_analysis_data_date is None
+
+
+def test_get_watchstock_data_failure(new_watch_stock, mock_requests_get_failure):
+    """
+    GIVEN a monkeypatched (failure) version of requests.get()
+    WHEN the analysis data for the WatchStock object is retrieved
+    THEN check that the analysis data is not returned
+    """
+    new_watch_stock.get_stock_analysis_data()
+    assert new_watch_stock.stock_symbol == 'COST'
+    assert new_watch_stock.company_name is None
+    assert new_watch_stock.current_share_price == 0
+    assert new_watch_stock.current_share_price_date is None
+    assert new_watch_stock.fiftytwo_week_low == 0
+    assert new_watch_stock.fiftytwo_week_high == 0
+    assert new_watch_stock.market_cap is None
+    assert new_watch_stock.dividend_per_share == 0
+    assert new_watch_stock.pe_ratio == 0
+    assert new_watch_stock.peg_ratio == 0
+    assert new_watch_stock.profit_margin == 0
+    assert new_watch_stock.beta == 0
+    assert new_watch_stock.stock_analysis_data_date is None

@@ -60,6 +60,33 @@ class MockSuccessResponseWeekly(object):
         }
 
 
+class MockSuccessResponseOverview(object):
+    def __init__(self, url):
+        self.status_code = 200
+        self.url = url
+
+    def json(self):
+        return {
+            'Symbol': 'COST',
+            'AssetType': 'Common Stock',
+            'Name': 'Costco Wholesale Corporation',
+            'Currency': 'USD',
+            'MarketCapitalization': '160300990464',
+            'PERatio': '37.155',
+            'PEGRatio': '3.9329',
+            'BookValue': '33.547',
+            'DividendPerShare': '2.8',
+            'DividendYield': '0.0077',
+            'EPS': '9.74',
+            'ProfitMargin': '0.025',
+            'QuarterlyEarningsGrowthYOY': '0.379',
+            'QuarterlyRevenueGrowthYOY': '0.167',
+            'Beta': '0.674',
+            '52WeekHigh': '388.07',
+            '52WeekLow': '262.6822'
+        }
+
+
 class MockApiRateLimitExceededResponse(object):
     def __init__(self, url):
         self.status_code = 200
@@ -202,7 +229,7 @@ def mock_requests_get_success_daily(monkeypatch):
     def mock_get(url):
         return MockSuccessResponseDaily(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=AAPL&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
@@ -212,7 +239,17 @@ def mock_requests_get_success_weekly(monkeypatch):
     def mock_get(url):
         return MockSuccessResponseWeekly(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=AAPL&apikey=demo'
+    monkeypatch.setattr(requests, 'get', mock_get)
+
+
+@pytest.fixture(scope='function')
+def mock_requests_get_success_overview(monkeypatch):
+    # Create a mock for the requests.get() call to prevent making the actual API call
+    def mock_get(url):
+        return MockSuccessResponseOverview(url)
+
+    url = 'https://www.alphavantage.co/query?function=OVERVIEW&symbol=COST&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
