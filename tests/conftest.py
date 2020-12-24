@@ -389,5 +389,5 @@ def log_in_user1(test_client_admin):
 
 @pytest.fixture(scope='function')
 def new_watch_stock():
-    watch_stock = WatchStock('COST')
+    watch_stock = WatchStock('COST', 23)
     return watch_stock

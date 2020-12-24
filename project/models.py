@@ -206,6 +206,7 @@ class User(database.Model):
     email_confirmed_on = database.Column(database.DateTime)
     stocks = database.relationship('Stock', backref='user', lazy='dynamic')
     user_type = database.Column(database.String(10), default='User')
+    watchstocks = database.relationship('WatchStock', backref='user', lazy='dynamic')
 
     def __init__(self, email: str, password_plaintext: str, user_type='User'):
         """Create a new User object
@@ -286,6 +287,7 @@ class WatchStock(database.Model):
         profit margin (type: integer)
         beta (type: integer)
         date when stock data was retrieved from the Alpha Vantage API (type: datetime)
+        primary key of User that owns the watchstock (type: integer)
 
     Note: Due to a limitation in the data types supported by SQLite, the
           attributes displayed as floating point values are stored as integers:
@@ -311,8 +313,9 @@ class WatchStock(database.Model):
     profit_margin = database.Column(database.Integer)
     beta = database.Column(database.Integer)
     stock_data_date = database.Column(database.DateTime)
+    user_id = database.Column(database.Integer, database.ForeignKey('users.id'))
 
-    def __init__(self, stock_symbol: str):
+    def __init__(self, stock_symbol: str, user_id: str):
         self.stock_symbol = stock_symbol
         self.company_name = None
         self.current_share_price = 0
@@ -326,6 +329,7 @@ class WatchStock(database.Model):
         self.profit_margin = 0
         self.beta = 0
         self.stock_analysis_data_date = None
+        self.user_id = user_id
 
     def __repr__(self):
         return f'{self.stock_symbol}'

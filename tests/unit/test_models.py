@@ -206,6 +206,7 @@ def test_new_watchstock(new_watch_stock):
     assert new_watch_stock.profit_margin == 0
     assert new_watch_stock.beta == 0
     assert new_watch_stock.stock_analysis_data_date is None
+    assert new_watch_stock.user_id == 23
 
 
 def test_get_watchstock_current_share_price_success(new_watch_stock, mock_requests_get_success_daily):
