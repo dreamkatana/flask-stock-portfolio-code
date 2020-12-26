@@ -42,14 +42,6 @@ def admin_before_request():
 @admin_blueprint.route('/users')
 def admin_list_users():
     users = User.query.order_by(User.id).all()
-
-    # Temporary solution for fixing the user_type value in the users table
-    for user in users:
-        if user.user_type != 'Admin':
-            user.user_type = 'User'
-            database.session.add(user)
-    database.session.commit()
-
     return render_template('admin/users.html', users=users)
 
 

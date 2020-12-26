@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stocks_style.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="stock-container">
+  <h1>Watchlist</h1>
+
+  <table class="stock-table">
+    <!-- Table Header Row -->
+    <thead>
+      <tr>
+        <th>Stock Symbol</th>
+        <th>Company Name</th>
+        <th>52-Week Low</th>
+        <th>Share Price</th>
+        <th>52-Week High</th>
+        <th>Market Cap</th>
+        <th>Dividend Per Share</th>
+        <th>P/E Ratio</th>
+        <th>PEG Ratio</th>
+        <th>Profit Margin</th>
+        <th>Beta</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <!-- Table Elements (Rows) -->
+    <tbody>
+      {% for watchstock in watchstocks %}
+        <tr>
+          <td>{{ watchstock.stock_symbol }}</td>
+          <td>{{ watchstock.company_name }}</td>
+          <td>${{ watchstock.get_fiftytwo_week_low() }}</td>
+          <td>${{ watchstock.get_current_share_price() }}</td>
+          <td>${{ watchstock.get_fiftytwo_week_high() }}</td>
+          <td>${{ watchstock.get_market_cap() }}</td>
+          <td>${{ watchstock.get_dividend_per_share() }}</td>
+          <td>{{ watchstock.get_pe_ratio() }}</td>
+          <td>{{ watchstock.get_peg_ratio() }}</td>
+          <td>{{ watchstock.get_profit_margin() }}%</td>
+          <td>{{ watchstock.get_beta() }}</td>
+          <td>
+            <a class="stocks-actions-link" href="#">Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
