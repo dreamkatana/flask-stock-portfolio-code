@@ -328,20 +328,20 @@ class WatchStock(database.Model):
         self.peg_ratio = 0
         self.profit_margin = 0
         self.beta = 0
-        self.stock_analysis_data_date = None
+        self.stock_data_date = None
         self.user_id = user_id
 
     def __repr__(self):
         return f'{self.stock_symbol}'
 
-    def get_current_share_price(self):
+    def retrieve_current_share_price(self):
         if self.current_share_price_date is None or self.current_share_price_date.date() != datetime.now().date():
             current_price = get_current_stock_price(self.stock_symbol)
             if current_price > 0.0:
                 self.current_share_price = int(current_price * 100)
                 self.current_share_price_date = datetime.now()
-                current_app.logger.debug(f'Retrieved current price {self.current_share_price / 100} '
-                                         f'for the stock data ({self.stock_symbol})!')
+                current_app.logger.info(f'Retrieved current price {self.current_share_price / 100} '
+                                        f'for {self.stock_symbol}!')
 
     def create_alpha_vantage_url_overview(self):
         return 'https://www.alphavantage.co/query?function={}&symbol={}&apikey={}'.format(
@@ -350,12 +350,18 @@ class WatchStock(database.Model):
             current_app.config['ALPHA_VANTAGE_API_KEY']
         )
 
-    def get_stock_analysis_data(self):
-        url = self.create_alpha_vantage_url_overview()
+    def retrieve_stock_analysis_data(self):
+        # If the stock analysis data has already been retrieved for the current day, then the
+        # data is still valid and there is no need to retrieve it again
+        if self.stock_data_date is not None and self.stock_data_date.date() == datetime.now().date():
+            current_app.logger.info(f'Valid stock analysis data for {self.stock_symbol} '
+                                    f'already exists ({self.stock_data_date}).')
+            return
 
         # Attempt the GET call to Alpha Vantage and check that a ConnectionError does
         # not occur, which happens when the GET call fails due to a network issue
         try:
+            url = self.create_alpha_vantage_url_overview()
             r = requests.get(url)
         except requests.exceptions.ConnectionError:
             current_app.logger.error(
@@ -383,6 +389,40 @@ class WatchStock(database.Model):
         self.dividend_per_share = int(float(data['DividendPerShare']) * 100)
         self.pe_ratio = int(float(data['PERatio']) * 100)
         self.peg_ratio = int(float(data['PEGRatio']) * 100)
-        self.profit_margin = int(float(data['ProfitMargin']) * 100)
+        self.profit_margin = int(float(data['ProfitMargin']) * 10000)
         self.beta = int(float(data['Beta']) * 100)
-        self.stock_analysis_data_date = datetime.now()
+        self.stock_data_date = datetime.now()
+        current_app.logger.info(f'Retrieved valid stock analysis data for {self.stock_symbol} '
+                                f'at time {self.stock_data_date}.')
+
+    def get_current_share_price(self):
+        return self.current_share_price / 100
+
+    def get_fiftytwo_week_low(self):
+        return self.fiftytwo_week_low / 100
+
+    def get_fiftytwo_week_high(self):
+        return self.fiftytwo_week_high / 100
+
+    def get_market_cap(self):
+        if self.market_cap is None:
+            return '-'
+
+        market_cap_integer = int(self.market_cap)
+        market_cap_integer_billions = market_cap_integer / 1_000_000_000
+        return str(round(market_cap_integer_billions, 1)) + 'B'
+
+    def get_dividend_per_share(self):
+        return self.dividend_per_share / 100
+
+    def get_pe_ratio(self):
+        return self.pe_ratio / 100
+
+    def get_peg_ratio(self):
+        return self.peg_ratio / 100
+
+    def get_profit_margin(self):
+        return self.profit_margin / 100
+
+    def get_beta(self):
+        return self.beta / 100

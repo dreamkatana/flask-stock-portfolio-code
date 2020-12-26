@@ -78,7 +78,7 @@ class MockSuccessResponseOverview(object):
             'DividendPerShare': '2.8',
             'DividendYield': '0.0077',
             'EPS': '9.74',
-            'ProfitMargin': '0.025',
+            'ProfitMargin': '0.2503',
             'QuarterlyEarningsGrowthYOY': '0.379',
             'QuarterlyRevenueGrowthYOY': '0.167',
             'Beta': '0.674',
@@ -391,3 +391,15 @@ def log_in_user1(test_client_admin):
 def new_watch_stock():
     watch_stock = WatchStock('COST', 23)
     return watch_stock
+
+
+@pytest.fixture(scope='function')
+def add_watch_stocks_for_default_user(test_client, log_in_default_user):
+    # Add three watch stocks for the default user
+    test_client.post('/watchlist/add_watch_stock',
+                     data={'stock_symbol': 'COST'})
+    test_client.post('/watchlist/add_watch_stock',
+                     data={'stock_symbol': 'SAM'})
+    test_client.post('/watchlist/add_watch_stock',
+                     data={'stock_symbol': 'GE'})
+    return
