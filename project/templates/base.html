@@ -21,8 +21,8 @@
         <a class="nav-link logo" href="{{ url_for('stocks.index') }}">Flask Stock Portfolio App</a>
         <ul class="nav-list">
           {% if current_user.is_authenticated %}
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('stocks.list_stocks') }}">List Stocks</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('stocks.add_stock') }}">Add Stock</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('stocks.list_stocks') }}">Portfolio</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('watchlist.watchlist') }}">Watchlist</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('users.user_profile') }}">Profile</a></li>
             {% if current_user.user_type == 'Admin' %}
               <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.admin_list_users') }}">Admin</a></li>

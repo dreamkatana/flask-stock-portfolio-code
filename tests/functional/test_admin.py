@@ -148,8 +148,8 @@ def test_admin_navigation_links(test_client_admin, log_in_admin_user):
     assert response.status_code == 200
     assert b'Welcome to the' in response.data
     assert b'Flask Stock Portfolio App!' in response.data
-    assert b'List Stocks' in response.data
-    assert b'Add Stock' in response.data
+    assert b'Portfolio' in response.data
+    assert b'Watchlist' in response.data
     assert b'Profile' in response.data
     assert b'Admin' in response.data
     assert b'Logout' in response.data

@@ -2,7 +2,7 @@
  **************/
 
 form {
-  padding: 60px;
+  padding: 30px;
   background: white;
 }
 
@@ -68,6 +68,7 @@ input[type="submit"] {
   font-size: 1.2em;
   border-radius: 3px;
   border: none;
+  margin-bottom: 0.5em;
 }
 
 button:hover, input[type="submit"]:hover {

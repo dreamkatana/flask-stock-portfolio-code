@@ -215,15 +215,15 @@ def test_navigation_bar_logged_in(test_client, log_in_default_user):
     """
     GIVEN a Flask application configured for testing
     WHEN the '/' page is requested (GET) when the user is logged in
-    THEN check that the 'List Stocks', 'Add Stock', 'Profile' and 'Logout' links are present
+    THEN check that the 'Portfolio', 'Watchlist', 'Profile' and 'Logout' links are present
     """
     response = test_client.get('/')
     assert response.status_code == 200
     assert b'Flask Stock Portfolio App' in response.data
     assert b'Welcome to the' in response.data
     assert b'Flask Stock Portfolio App!' in response.data
-    assert b'List Stocks' in response.data
-    assert b'Add Stock' in response.data
+    assert b'Portfolio' in response.data
+    assert b'Watchlist' in response.data
     assert b'Profile' in response.data
     assert b'Logout' in response.data
     assert b'Register' not in response.data
@@ -244,8 +244,7 @@ def test_navigation_bar_not_logged_in(test_client):
     assert b'Flask Stock Portfolio App!' in response.data
     assert b'Register' in response.data
     assert b'Login' in response.data
-    assert b'List Stocks' not in response.data
-    assert b'Add Stock' not in response.data
+    assert b'Watchlist' not in response.data
     assert b'Profile' not in response.data
     assert b'Logout' not in response.data
     assert b'Admin' not in response.data
