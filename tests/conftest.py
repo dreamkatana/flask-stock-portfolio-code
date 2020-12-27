@@ -399,7 +399,7 @@ def add_watch_stocks_for_default_user(test_client, log_in_default_user):
     test_client.post('/watchlist/add_watch_stock',
                      data={'stock_symbol': 'COST'})
     test_client.post('/watchlist/add_watch_stock',
-                     data={'stock_symbol': 'SAM'})
+                     data={'stock_symbol': 'MSFT'})
     test_client.post('/watchlist/add_watch_stock',
-                     data={'stock_symbol': 'GE'})
+                     data={'stock_symbol': 'QCOM'})
     return

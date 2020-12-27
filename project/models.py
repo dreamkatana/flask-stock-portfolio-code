@@ -386,7 +386,10 @@ class WatchStock(database.Model):
         self.fiftytwo_week_low = int(float(data['52WeekLow']) * 100)
         self.fiftytwo_week_high = int(float(data['52WeekHigh']) * 100)
         self.market_cap = data['MarketCapitalization']
-        self.dividend_per_share = int(float(data['DividendPerShare']) * 100)
+        if data['DividendPerShare'] != 'None':
+            self.dividend_per_share = int(float(data['DividendPerShare']) * 100)
+        else:
+            self.dividend_per_share = 0
         self.pe_ratio = int(float(data['PERatio']) * 100)
         self.peg_ratio = int(float(data['PEGRatio']) * 100)
         self.profit_margin = int(float(data['ProfitMargin']) * 10000)

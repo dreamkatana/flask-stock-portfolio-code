@@ -1,6 +1,7 @@
 """
 This file (test_watchlist.py) contains the functional tests for the `watchlist` blueprint.
 """
+import re
 
 
 def test_get_add_watch_stock_page(test_client, log_in_default_user):
@@ -84,8 +85,8 @@ def test_get_watchlist_page(test_client, add_watch_stocks_for_default_user, mock
     headers = [b'Stock Symbol', b'52-Week Low', b'Share Price', b'52-Week High', b'Market Cap',
                b'Dividend Per Share', b'P/E Ratio', b'PEG Ratio', b'Profit Margin', b'Beta']
     data = [b'COST', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'0.67',
-            b'SAM', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'0.67',
-            b'GE', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'0.67']
+            b'MSFT', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'0.67',
+            b'QCOM', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'0.67']
 
     response = test_client.get('/watchlist', follow_redirects=True)
     assert response.status_code == 200
@@ -108,3 +109,55 @@ def test_get_watchlist_page_not_logged_in(test_client):
     assert b'Flask Stock Portfolio App' in response.data
     assert b'Watchlist' not in response.data
     assert b'Please log in to access this page.' in response.data
+
+
+def test_delete_watchlist_stock_valid(test_client, log_in_default_user,
+                                      add_watch_stocks_for_default_user, mock_requests_get_success_overview):
+    """
+    GIVEN a Flask application configured for testing, with the default user logged in
+          and the default set of watchstocks in the database
+    WHEN the '/watchlist/3/delete' page is retrieved (GET)
+    THEN check that the response is valid and a success message is displayed
+    """
+    response = test_client.get('/watchlist/3/delete', follow_redirects=True)
+    assert response.status_code == 200
+    assert re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
+    assert b'Watchlist' in response.data
+
+
+def test_delete_watchlist_stock_not_owning_stock(test_client, log_in_second_user,
+                                                 add_watch_stocks_for_default_user,
+                                                 mock_requests_get_success_overview):
+    """
+    GIVEN a Flask application configured for testing, with the default user logged in
+          and the default set of watchstocks in the database
+    WHEN the '/watchlist/2/delete' page is retrieved (GET)
+    THEN check that an error message is displayed
+    """
+    response = test_client.get('/watchlist/2/delete', follow_redirects=True)
+    assert response.status_code == 403
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
+
+
+def test_delete_watchlist_stock_not_logged_in(test_client):
+    """
+    GIVEN a Flask application configured for testing without a user logged in
+    WHEN the '/watchlist/1/delete' page is retrieved (GET)
+    THEN check that an error message is displayed
+    """
+    response = test_client.get('/watchlist/1/delete', follow_redirects=True)
+    assert response.status_code == 200
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_delete_stock_invalid_stock(test_client, log_in_default_user):
+    """
+    GIVEN a Flask application configured for testing, with the default user logged in
+          and the default set of stocks in the database
+    WHEN the '/watchlist/7329/delete' page is retrieved (GET)
+    THEN check that an error message is displayed
+    """
+    response = test_client.get('/watchlist/7329/delete', follow_redirects=True)
+    assert response.status_code == 404
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))

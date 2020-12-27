@@ -75,7 +75,7 @@ def test_post_add_stock_page(test_client, log_in_default_user, mock_requests_get
                                       'purchase_date': '2020-07-24'},
                                 follow_redirects=True)
     assert response.status_code == 200
-    assert b'List of Stocks' in response.data
+    assert b'Portfolio' in response.data
     assert b'Stock Symbol' in response.data
     assert b'Number of Shares' in response.data
     assert b'Purchase Price' in response.data
@@ -110,7 +110,6 @@ def test_post_add_stock_page_not_logged_in(test_client):
                                       'purchase_date': '2020-07-24'},
                                 follow_redirects=True)
     assert response.status_code == 200
-    assert b'List of Stocks' not in response.data
     assert b'Added new stock (AAPL)!' not in response.data
     assert b'Please log in to access this page.' in response.data
 
@@ -130,7 +129,7 @@ def test_get_stock_list_logged_in(test_client, add_stocks_for_default_user, mock
 
     response = test_client.get('/stocks', follow_redirects=True)
     assert response.status_code == 200
-    assert b'List of Stocks' in response.data
+    assert b'Portfolio' in response.data
     for header in headers:
         assert header in response.data
     for element in data:
@@ -145,7 +144,6 @@ def test_get_stock_list_not_logged_in(test_client):
     """
     response = test_client.get('/stocks', follow_redirects=True)
     assert response.status_code == 200
-    assert b'List of Stocks' not in response.data
     assert b'Please log in to access this page.' in response.data
 
 
@@ -246,7 +244,7 @@ def test_delete_stock_logged_in_own_stock(test_client, log_in_default_user,
     response = test_client.get('/stocks/3/delete', follow_redirects=True)
     assert response.status_code == 200
     assert re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
-    assert b'List of Stocks' in response.data
+    assert b'Portfolio' in response.data
 
 
 def test_delete_stock_logged_in_not_owning_stock(test_client, log_in_second_user,
@@ -260,7 +258,7 @@ def test_delete_stock_logged_in_not_owning_stock(test_client, log_in_second_user
     """
     response = test_client.get('/stocks/2/delete', follow_redirects=True)
     assert response.status_code == 403
-    assert b'List of Stocks' not in response.data
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
 
 
 def test_delete_stock_not_logged_in(test_client):
@@ -271,7 +269,7 @@ def test_delete_stock_not_logged_in(test_client):
     """
     response = test_client.get('/stocks/1/delete', follow_redirects=True)
     assert response.status_code == 200
-    assert b'List of Stocks' not in response.data
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
     assert b'Please log in to access this page.' in response.data
 
 
@@ -284,7 +282,7 @@ def test_delete_stock_invalid_stock(test_client, log_in_default_user, add_stocks
     """
     response = test_client.get('/stocks/178/delete', follow_redirects=True)
     assert response.status_code == 404
-    assert b'List of Stocks' not in response.data
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
 
 
 def test_get_edit_stock_page_logged_in_own_stock(test_client, log_in_default_user,
@@ -356,7 +354,7 @@ def test_post_edit_stock_valid(test_client, log_in_default_user,
                                 follow_redirects=True)
     assert response.status_code == 200
     assert re.search(r"Stock \(.*[A-Z]{4}.*was updated!", str(response.data))
-    assert b'List of Stocks' in response.data
+    assert b'Portfolio' in response.data
     assert b'COST' in response.data
     assert b'101' in response.data
     assert b'102.34' in response.data
@@ -377,7 +375,7 @@ def test_post_edit_stock_invalid_user(test_client, log_in_second_user, add_stock
                                       'purchase_date': '2020-01-10'},
                                 follow_redirects=True)
     assert response.status_code == 403
-    assert b'List of Stocks' not in response.data
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was updated!", str(response.data))
 
 
 def test_post_edit_stock_page_not_logged_in(test_client):
@@ -393,7 +391,7 @@ def test_post_edit_stock_page_not_logged_in(test_client):
                                       'purchase_date': '2020-01-10'},
                                 follow_redirects=True)
     assert response.status_code == 200
-    assert b'List of Stocks' not in response.data
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was updated!", str(response.data))
     assert b'Please log in to access this page.' in response.data
 
 
@@ -410,4 +408,4 @@ def test_get_edit_stock_page_invalid_stock(test_client, log_in_default_user):
                                       'purchase_date': '2020-01-10'},
                                 follow_redirects=True)
     assert response.status_code == 404
-    assert b'List of Stocks' not in response.data
+    assert not re.search(r"Stock \(.*[A-Z]{4}.*was updated!", str(response.data))
