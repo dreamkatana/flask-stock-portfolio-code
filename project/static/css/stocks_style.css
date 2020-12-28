@@ -98,3 +98,18 @@ table a {
   text-decoration:none;
   color: white;
 }
+
+/* Cell Highlighting
+ *******************/
+.highlight-green {
+  background-color: #67a75a;
+}
+
+.highlight-yellow {
+  background-color: #e3e388;
+}
+
+.highlight-red {
+  background-color: #912d2d;
+  color: white;
+}

@@ -40,10 +40,37 @@
           <td>${{ watchstock.get_current_share_price() }}</td>
           <td>${{ watchstock.get_fiftytwo_week_high() }}</td>
           <td>${{ watchstock.get_market_cap() }}</td>
-          <td>${{ watchstock.get_dividend_per_share() }}</td>
-          <td>{{ watchstock.get_pe_ratio() }}</td>
-          <td>{{ watchstock.get_peg_ratio() }}</td>
-          <td>{{ watchstock.get_profit_margin() }}%</td>
+
+          {% if watchstock.get_dividend_per_share() > 0.0 %}
+            <td class="highlight-green">${{ watchstock.get_dividend_per_share() }}</td>
+          {% else %}
+            <td>${{ watchstock.get_dividend_per_share() }}</td>
+          {% endif %}
+
+          {% if watchstock.get_pe_ratio() < 20 %}
+            <td class="highlight-green">{{ watchstock.get_pe_ratio() }}</td>
+          {% elif watchstock.get_pe_ratio() < 30 %}
+            <td class="highlight-yellow">{{ watchstock.get_pe_ratio() }}</td>
+          {% else %}
+            <td class="highlight-red">{{ watchstock.get_pe_ratio() }}</td>
+          {% endif %}
+
+          {% if watchstock.get_peg_ratio() < 1.5 %}
+            <td class="highlight-green">{{ watchstock.get_peg_ratio() }}</td>
+          {% elif watchstock.get_peg_ratio() < 2.0 %}
+            <td class="highlight-yellow">{{ watchstock.get_peg_ratio() }}</td>
+          {% else %}
+            <td class="highlight-red">{{ watchstock.get_peg_ratio() }}</td>
+          {% endif %}
+
+          {% if watchstock.get_profit_margin() > 10.0 %}
+            <td class="highlight-green">{{ watchstock.get_profit_margin() }}%</td>
+          {% elif watchstock.get_profit_margin() > 3.0 %}
+            <td class="highlight-yellow">{{ watchstock.get_profit_margin() }}</td>
+          {% else %}
+            <td class="highlight-red">{{ watchstock.get_profit_margin() }}</td>
+          {% endif %}
+
           <td>{{ watchstock.get_beta() }}</td>
           <td>
             <a class="stocks-actions-link" href="{{ url_for('watchlist.delete_watch_stock', id=watchstock.id) }}">Delete</a>
