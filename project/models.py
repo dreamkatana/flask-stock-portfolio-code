@@ -383,20 +383,31 @@ class WatchStock(database.Model):
             return
 
         self.company_name = data['Name']
-        self.fiftytwo_week_low = int(float(data['52WeekLow']) * 100)
-        self.fiftytwo_week_high = int(float(data['52WeekHigh']) * 100)
+        self.fiftytwo_week_low = self.parse_input_string_integer(data['52WeekLow'])
+        self.fiftytwo_week_high = self.parse_input_string_integer(data['52WeekHigh'])
         self.market_cap = data['MarketCapitalization']
-        if data['DividendPerShare'] != 'None':
-            self.dividend_per_share = int(float(data['DividendPerShare']) * 100)
-        else:
-            self.dividend_per_share = 0
-        self.pe_ratio = int(float(data['PERatio']) * 100)
-        self.peg_ratio = int(float(data['PEGRatio']) * 100)
-        self.profit_margin = int(float(data['ProfitMargin']) * 10000)
-        self.beta = int(float(data['Beta']) * 100)
+        self.dividend_per_share = self.parse_input_string_integer(data['DividendPerShare'])
+        self.pe_ratio = self.parse_input_string_integer(data['PERatio'])
+        self.peg_ratio = self.parse_input_string_integer(data['PEGRatio'])
+        self.profit_margin = self.parse_input_string_percentage(data['ProfitMargin'])
+        self.beta = self.parse_input_string_integer(data['Beta'])
         self.stock_data_date = datetime.now()
         current_app.logger.info(f'Retrieved valid stock analysis data for {self.stock_symbol} '
                                 f'at time {self.stock_data_date}.')
+
+    @staticmethod
+    def parse_input_string_integer(input_field: str) -> int:
+        if input_field == 'None' or input_field == '':
+            return 0
+
+        return int(float(input_field) * 100)
+
+    @staticmethod
+    def parse_input_string_percentage(input_field: str) -> int:
+        if input_field == 'None' or input_field == '':
+            return 0
+
+        return int(float(input_field) * 10000)
 
     def get_current_share_price(self):
         return self.current_share_price / 100
