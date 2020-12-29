@@ -25,7 +25,7 @@
         <th>P/E Ratio</th>
         <th>PEG Ratio</th>
         <th>Profit Margin</th>
-        <th>Beta</th>
+        <th>Price-to-Book Ratio</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -73,7 +73,13 @@
             <td class="highlight-red">{{ watchstock.get_profit_margin() }}</td>
           {% endif %}
 
-          <td>{{ watchstock.get_beta() }}</td>
+          {% if watchstock.get_price_to_book_ratio() < 2.5 %}
+            <td class="highlight-green">{{ watchstock.get_price_to_book_ratio() }}</td>
+          {% elif watchstock.get_price_to_book_ratio() < 5.0 %}
+            <td class="highlight-yellow">{{ watchstock.get_price_to_book_ratio() }}</td>
+          {% else %}
+            <td class="highlight-red">{{ watchstock.get_price_to_book_ratio() }}</td>
+          {% endif %}
           <td>
             <a class="stocks-actions-link" href="{{ url_for('watchlist.delete_watch_stock', id=watchstock.id) }}">Delete</a>
           </td>

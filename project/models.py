@@ -286,6 +286,7 @@ class WatchStock(database.Model):
         peg ratio (type: integer)
         profit margin (type: integer)
         beta (type: integer)
+        price-to-book ratio (type: integer)
         date when stock data was retrieved from the Alpha Vantage API (type: datetime)
         primary key of User that owns the watchstock (type: integer)
 
@@ -312,6 +313,7 @@ class WatchStock(database.Model):
     peg_ratio = database.Column(database.Integer)
     profit_margin = database.Column(database.Integer)
     beta = database.Column(database.Integer)
+    price_to_book_ratio = database.Column(database.Integer)
     stock_data_date = database.Column(database.DateTime)
     user_id = database.Column(database.Integer, database.ForeignKey('users.id'))
 
@@ -328,6 +330,7 @@ class WatchStock(database.Model):
         self.peg_ratio = 0
         self.profit_margin = 0
         self.beta = 0
+        self.price_to_book_ratio = 0
         self.stock_data_date = None
         self.user_id = user_id
 
@@ -391,6 +394,7 @@ class WatchStock(database.Model):
         self.peg_ratio = self.parse_input_string_integer(data['PEGRatio'])
         self.profit_margin = self.parse_input_string_percentage(data['ProfitMargin'])
         self.beta = self.parse_input_string_integer(data['Beta'])
+        self.price_to_book_ratio = self.parse_input_string_integer(data['PriceToBookRatio'])
         self.stock_data_date = datetime.now()
         current_app.logger.info(f'Retrieved valid stock analysis data for {self.stock_symbol} '
                                 f'at time {self.stock_data_date}.')
@@ -442,3 +446,8 @@ class WatchStock(database.Model):
 
     def get_beta(self) -> float:
         return self.beta / 100
+
+    def get_price_to_book_ratio(self) -> float:
+        if self.price_to_book_ratio is None:
+            return 0.0
+        return self.price_to_book_ratio / 100

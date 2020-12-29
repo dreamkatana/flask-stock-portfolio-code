@@ -83,10 +83,10 @@ def test_get_watchlist_page(test_client, add_watch_stocks_for_default_user, mock
     THEN check that the response is valid
     """
     headers = [b'Stock Symbol', b'52-Week Low', b'Share Price', b'52-Week High', b'Market Cap',
-               b'Dividend Per Share', b'P/E Ratio', b'PEG Ratio', b'Profit Margin', b'Beta']
-    data = [b'COST', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'0.67',
-            b'MSFT', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'0.67',
-            b'QCOM', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'0.67']
+               b'Dividend Per Share', b'P/E Ratio', b'PEG Ratio', b'Profit Margin', b'Price-to-Book Ratio']
+    data = [b'COST', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'5.23',
+            b'MSFT', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'5.23',
+            b'QCOM', b'$262.68', b'$0.0', b'$388.07', b'160.3B', b'$2.8', b'37.15', b'3.93', b'25.03', b'5.23']
 
     response = test_client.get('/watchlist', follow_redirects=True)
     assert response.status_code == 200

@@ -74,6 +74,7 @@ class MockSuccessResponseOverview(object):
             'MarketCapitalization': '160300990464',
             'PERatio': '37.155',
             'PEGRatio': '3.9329',
+            'PriceToBookRatio': '5.2343',
             'BookValue': '33.547',
             'DividendPerShare': '2.8',
             'DividendYield': '0.0077',
