@@ -273,6 +273,8 @@ def test_get_watchstock_data_success(new_watch_stock, mock_requests_get_success_
     assert new_watch_stock.get_profit_margin() == 25.03
     assert new_watch_stock.beta == 67
     assert new_watch_stock.get_beta() == 0.67
+    assert new_watch_stock.price_to_book_ratio == 523
+    assert new_watch_stock.get_price_to_book_ratio() == 5.23
     assert new_watch_stock.stock_data_date.date() == datetime.now().date()
 
 
@@ -295,6 +297,7 @@ def test_get_watchstock_data_api_rate_limit_exceeded(new_watch_stock, mock_reque
     assert new_watch_stock.peg_ratio == 0
     assert new_watch_stock.profit_margin == 0
     assert new_watch_stock.beta == 0
+    assert new_watch_stock.price_to_book_ratio == 0
     assert new_watch_stock.stock_data_date is None
 
 
@@ -317,4 +320,5 @@ def test_get_watchstock_data_failure(new_watch_stock, mock_requests_get_failure)
     assert new_watch_stock.peg_ratio == 0
     assert new_watch_stock.profit_margin == 0
     assert new_watch_stock.beta == 0
+    assert new_watch_stock.price_to_book_ratio == 0
     assert new_watch_stock.stock_data_date is None

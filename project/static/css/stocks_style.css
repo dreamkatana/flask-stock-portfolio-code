@@ -113,3 +113,8 @@ table a {
   background-color: #912d2d;
   color: white;
 }
+
+.highlight-brightred {
+  background-color: #f62222;
+  color: white;
+}
