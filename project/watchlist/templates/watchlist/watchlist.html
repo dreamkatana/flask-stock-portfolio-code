@@ -57,7 +57,9 @@
             <td class="highlight-red">{{ watchstock.get_pe_ratio() }}</td>
           {% endif %}
 
-          {% if watchstock.get_peg_ratio() < 1.5 %}
+          {% if watchstock.get_peg_ratio() < 0.1 %}
+            <td class="highlight-brightred">{{ watchstock.get_peg_ratio() }}</td>
+          {% elif watchstock.get_peg_ratio() < 1.5 %}
             <td class="highlight-green">{{ watchstock.get_peg_ratio() }}</td>
           {% elif watchstock.get_peg_ratio() < 2.0 %}
             <td class="highlight-yellow">{{ watchstock.get_peg_ratio() }}</td>
