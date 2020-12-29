@@ -47,7 +47,9 @@
             <td>${{ watchstock.get_dividend_per_share() }}</td>
           {% endif %}
 
-          {% if watchstock.get_pe_ratio() < 20 %}
+          {% if watchstock.get_pe_ratio() < 0.1 %}
+            <td class="highlight-brightred">{{ watchstock.get_pe_ratio() }}</td>
+          {% elif watchstock.get_pe_ratio() < 20 %}
             <td class="highlight-green">{{ watchstock.get_pe_ratio() }}</td>
           {% elif watchstock.get_pe_ratio() < 30 %}
             <td class="highlight-yellow">{{ watchstock.get_pe_ratio() }}</td>

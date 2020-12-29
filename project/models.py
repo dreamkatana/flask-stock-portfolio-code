@@ -409,16 +409,16 @@ class WatchStock(database.Model):
 
         return int(float(input_field) * 10000)
 
-    def get_current_share_price(self):
+    def get_current_share_price(self) -> float:
         return self.current_share_price / 100
 
-    def get_fiftytwo_week_low(self):
+    def get_fiftytwo_week_low(self) -> float:
         return self.fiftytwo_week_low / 100
 
-    def get_fiftytwo_week_high(self):
+    def get_fiftytwo_week_high(self) -> float:
         return self.fiftytwo_week_high / 100
 
-    def get_market_cap(self):
+    def get_market_cap(self) -> str:
         if self.market_cap is None:
             return '-'
 
@@ -426,17 +426,19 @@ class WatchStock(database.Model):
         market_cap_integer_billions = market_cap_integer / 1_000_000_000
         return str(round(market_cap_integer_billions, 1)) + 'B'
 
-    def get_dividend_per_share(self):
+    def get_dividend_per_share(self) -> float:
         return self.dividend_per_share / 100
 
-    def get_pe_ratio(self):
+    def get_pe_ratio(self) -> float:
         return self.pe_ratio / 100
 
-    def get_peg_ratio(self):
+    def get_peg_ratio(self) -> float:
+        if self.pe_ratio < 0.1:
+            return 0.0
         return self.peg_ratio / 100
 
-    def get_profit_margin(self):
+    def get_profit_margin(self) -> float:
         return self.profit_margin / 100
 
-    def get_beta(self):
+    def get_beta(self) -> float:
         return self.beta / 100
