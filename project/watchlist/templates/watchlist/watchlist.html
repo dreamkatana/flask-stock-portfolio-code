@@ -8,7 +8,10 @@
 <div class="stock-container">
   <div class="stock-table-heading">
     <h1>Watchlist</h1>
-    <a class="add-button" href="{{ url_for('watchlist.add_watch_stock') }}">Add Watch Stock</a>
+    <div class="stock-table-heading-links">
+      <a class="add-button-secondary" href="{{ url_for('watchlist.stock_analysis_guide') }}">Stock Analysis Guide</a>
+      <a class="add-button" href="{{ url_for('watchlist.add_watch_stock') }}">Add Watch Stock</a>
+    </div>
   </div>
 
   <table class="stock-table">

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block styling %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user_profile_style.css') }}">
+{% endblock %}
+
+{% block content %}
+  <h1>Stock Analysis Guide</h1>
+
+  <div class="card">
+    <div class="card-heading">
+      <h2>Overview</h2>
+    </div>
+    <div class="card-body">
+      <p>This guide provides an overview into how to analyze stocks, including the stock metrics that are displayed in the watchlist.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-heading">
+      <h2>Investing Philosophy</h2>
+    </div>
+    <div class="card-body">
+      <p>Investing in stocks in difficult, but it is a great long-term strategy for accumulating wealth.</p>
+    </div>
+  </div>
+
+{% endblock %}
