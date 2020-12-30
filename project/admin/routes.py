@@ -50,7 +50,7 @@ def admin_delete_user(id):
     user = User.query.filter_by(id=id).first_or_404()
 
     if user.user_type == 'Admin':
-        flash(f'Error! Admin users cannot be deleted!', 'error')
+        flash(f'Error! Admin user ({id}) cannot be deleted!', 'error')
     else:
         database.session.delete(user)
         database.session.commit()

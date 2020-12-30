@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, SubmitField, StringField
-from wtforms.validators import DataRequired, Email, Length
+from wtforms import SubmitField, StringField
+from wtforms.validators import DataRequired, Length
 
 
 class WatchStockForm(FlaskForm):
