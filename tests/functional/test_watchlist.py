@@ -153,11 +153,21 @@ def test_delete_watchlist_stock_not_logged_in(test_client):
 
 def test_delete_stock_invalid_stock(test_client, log_in_default_user):
     """
-    GIVEN a Flask application configured for testing, with the default user logged in
-          and the default set of stocks in the database
+    GIVEN a Flask application configured for testing with the default user logged in
     WHEN the '/watchlist/7329/delete' page is retrieved (GET)
     THEN check that an error message is displayed
     """
     response = test_client.get('/watchlist/7329/delete', follow_redirects=True)
     assert response.status_code == 404
     assert not re.search(r"Stock \(.*[A-Z]{4}.*was deleted!", str(response.data))
+
+
+def test_get_stock_analysis_guide_page(test_client, log_in_default_user):
+    """
+    GIVEN a Flask application configured for testing with the default user logged in
+    WHEN the '/stock_analysis_guide' page is retrieved (GET)
+    THEN check that the response is valid
+    """
+    response = test_client.get('/stock_analysis_guide', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Stock Analysis Guide' in response.data

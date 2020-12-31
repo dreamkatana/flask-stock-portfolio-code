@@ -50,3 +50,8 @@ def delete_watch_stock(id):
     flash(f'Stock ({watchstock.stock_symbol}) was deleted!', 'success')
     current_app.logger.info(f'Stock ({watchstock.stock_symbol}) was deleted for user: {current_user.id}!')
     return redirect(url_for('watchlist.watchlist'))
+
+
+@watchlist_blueprint.route('/stock_analysis_guide')
+def stock_analysis_guide():
+    return render_template('watchlist/stock_analysis_guide.html')

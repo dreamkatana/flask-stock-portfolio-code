@@ -33,7 +33,7 @@ stages:
 flake8:
   stage: Static Analysis
   script:
-  - flake8 --max-line-length=150 --ignore=E266 *.py project/*.py project/stocks/routes.py project/users/routes.py project/users/forms.py
+  - flake8 --max-line-length=150 --ignore=E266 *.py project/*.py project/*/routes.py project/*/forms.py
 
 pytest:
   stage: Test
