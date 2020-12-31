@@ -29,3 +29,16 @@
 .card-body p {
   margin-bottom: 0.5em;
 }
+
+.card-body ul {
+  margin-left: 2em;
+  margin-bottom: 0.5em;
+}
+
+.card-body h3 {
+  padding-bottom: 0.5em;
+}
+
+.card-body-heading {
+  margin-top: 1.5em;
+}
