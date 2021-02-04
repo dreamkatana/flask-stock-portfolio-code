@@ -119,6 +119,14 @@ def new_stock():
     return stock
 
 
+@pytest.fixture(scope='function')
+def new_stock_updated(new_stock):
+    new_stock.current_price = 14834  # $148.34 -> integer
+    new_stock.current_price_date = datetime.now()
+    new_stock.position_value = (14834*16)
+    return new_stock
+
+
 @pytest.fixture(scope='module')
 def new_user():
     flask_app = create_app()

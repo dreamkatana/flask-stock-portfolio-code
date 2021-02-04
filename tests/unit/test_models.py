@@ -3,7 +3,6 @@ This file (test_models.py) contains the unit tests for the models.py file.
 """
 from datetime import datetime
 from freezegun import freeze_time
-from project.models import get_current_stock_price
 
 
 def test_new_stock(new_stock):
@@ -322,3 +321,87 @@ def test_get_watchstock_data_failure(new_watch_stock, mock_requests_get_failure)
     assert new_watch_stock.beta == 0
     assert new_watch_stock.price_to_book_ratio == 0
     assert new_watch_stock.stock_data_date is None
+
+
+def test_update_stock_no_changes(new_stock_updated):
+    """
+    GIVEN an initialized Stock object
+    WHEN the stock data is updated but no fields are different
+    THEN check that the stock data is unchanged
+    """
+    new_stock_updated.update(number_of_shares='', purchase_price='', purchase_date='')
+    assert new_stock_updated.stock_symbol == 'AAPL'
+    assert new_stock_updated.number_of_shares == 16
+    assert new_stock_updated.purchase_price == 40678  # $406.78 -> integer
+    assert new_stock_updated.purchase_date.date() == datetime(2020, 7, 18).date()
+    assert new_stock_updated.current_price == 14834  # $148.34 -> integer
+    assert new_stock_updated.current_price_date.date() == datetime.now().date()
+    assert new_stock_updated.position_value == (14834*16)
+
+
+def test_update_stock_all_fields_changed(new_stock_updated):
+    """
+    GIVEN an initialized Stock object
+    WHEN the stock data is updated with all fields being changed
+    THEN check that the stock data is updated
+    """
+    new_stock_updated.update(number_of_shares='27',
+                             purchase_price='387.98',
+                             purchase_date=datetime.fromisoformat('2021-01-08'))
+    assert new_stock_updated.stock_symbol == 'AAPL'
+    assert new_stock_updated.number_of_shares == 27
+    assert new_stock_updated.purchase_price == 38798  # 387.98 -> integer
+    assert new_stock_updated.purchase_date.date() == datetime(2021, 1, 8).date()
+    assert new_stock_updated.current_price == 14834  # $148.34 -> integer
+    assert new_stock_updated.current_price_date.date() == datetime.now().date()
+    assert new_stock_updated.position_value == (14834*27)
+
+
+def test_update_stock_only_number_of_shares_changed(new_stock_updated):
+    """
+    GIVEN an initialized Stock object
+    WHEN the stock data is updated only the number of shares being changed
+    THEN check that the stock data is updated
+    """
+    new_stock_updated.update(number_of_shares='523', purchase_price='', purchase_date='')
+    assert new_stock_updated.stock_symbol == 'AAPL'
+    assert new_stock_updated.number_of_shares == 523
+    assert new_stock_updated.purchase_price == 40678  # $406.78 -> integer
+    assert new_stock_updated.purchase_date.date() == datetime(2020, 7, 18).date()
+    assert new_stock_updated.current_price == 14834  # $148.34 -> integer
+    assert new_stock_updated.current_price_date.date() == datetime.now().date()
+    assert new_stock_updated.position_value == (14834*523)
+
+
+def test_update_stock_only_purchase_price_changed(new_stock_updated):
+    """
+    GIVEN an initialized Stock object
+    WHEN the stock data is updated only the purchase price being changed
+    THEN check that the stock data is updated
+    """
+    new_stock_updated.update(number_of_shares='', purchase_price='564.98', purchase_date='')
+    assert new_stock_updated.stock_symbol == 'AAPL'
+    assert new_stock_updated.number_of_shares == 16
+    assert new_stock_updated.purchase_price == 56498  # $564.98 -> integer
+    assert new_stock_updated.purchase_date.date() == datetime(2020, 7, 18).date()
+    assert new_stock_updated.current_price == 14834  # $148.34 -> integer
+    assert new_stock_updated.current_price_date.date() == datetime.now().date()
+    assert new_stock_updated.position_value == (14834*16)
+
+
+def test_update_stock_only_purchase_date_changed(new_stock_updated):
+    """
+    GIVEN an initialized Stock object
+    WHEN the stock data is updated only the purchase date being changed
+    THEN check that the stock data is updated
+    """
+    new_stock_updated.update(number_of_shares='',
+                             purchase_price='',
+                             purchase_date=datetime.fromisoformat('2021-02-02'))
+    assert new_stock_updated.stock_symbol == 'AAPL'
+    assert new_stock_updated.number_of_shares == 16
+    assert new_stock_updated.purchase_price == 40678  # $406.78 -> integer
+    assert new_stock_updated.purchase_date.date() == datetime(2021, 2, 2).date()
+    assert new_stock_updated.current_price == 14834  # $148.34 -> integer
+    assert new_stock_updated.current_price_date.date() == datetime.now().date()
+    assert new_stock_updated.position_value == (14834*16)
