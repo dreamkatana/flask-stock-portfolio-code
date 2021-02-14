@@ -6,6 +6,8 @@ This project is developed as part of the "Developing Web Applications with Pytho
 
 * [https://testdriven.io/courses/learn-flask/](https://testdriven.io/courses/learn-flask/)
 
+![Developing Web Applications with Python and Flask](project/static/img/learn_flask.png?raw=true "Developing Web Applications with Python and Flask")
+
 ## How to Run
 
 In the top-level directory:
