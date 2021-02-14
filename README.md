@@ -8,6 +8,10 @@ This project is developed as part of the "Developing Web Applications with Pytho
 
 ![Developing Web Applications with Python and Flask](project/static/img/learn_flask.png?raw=true "Developing Web Applications with Python and Flask")
 
+## Website
+
+[https://flask-stock-portfolio-app.herokuapp.com/stocks](https://flask-stock-portfolio-app.herokuapp.com/stocks)
+
 ## How to Run
 
 In the top-level directory:
@@ -57,6 +61,8 @@ Run development server to serve the Flask application:
 ```sh
 (venv) $ flask run
 ```
+
+Navigate to 'http://localhost:5000' to view the website!
 
 ## Configuration
 
