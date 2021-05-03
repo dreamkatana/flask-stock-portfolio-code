@@ -106,9 +106,21 @@ input[type="checkbox"] {
   width: 1.0em;
 }
 
-.form__remember_me_checkbox {
-  margin-bottom: 1.0rem;
+.form__checkbox {
+  display: flex;
+  align-items: center;
+  padding-bottom: 1.0rem;
 }
+
+.form__checkbox label {
+  order: 1;
+  margin-left: 1ch;
+}
+
+.form__checkbox input {
+  order: 0;
+}
+
 
 .forgot-password {
   margin-top: 1.5rem;
