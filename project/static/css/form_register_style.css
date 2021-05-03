@@ -98,3 +98,18 @@ input:-webkit-autofill:focus {
   -webkit-text-fill-color: black;
   -webkit-box-shadow: 0 0 0px 1000px white inset;
 }
+
+
+input[type="checkbox"] {
+  height: 1.0em;
+  width: 1.0em;
+}
+
+.form__remember_me_checkbox {
+  margin-bottom: 1.0rem;
+}
+
+.forgot-password {
+  margin-top: 1.5rem;
+  font-size: 1.0rem;
+}
