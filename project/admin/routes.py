@@ -1,7 +1,7 @@
 import click
 from . import admin_blueprint
 from project import database
-from project.models import User
+from project.models import User, Stock, WatchStock
 from flask import render_template, current_app, abort, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from .forms import PasswordForm, EmailForm
@@ -42,6 +42,9 @@ def admin_before_request():
 @admin_blueprint.route('/users')
 def admin_list_users():
     users = User.query.order_by(User.id).all()
+    for user in users:
+        user.number_of_stocks_in_portfolio = len(Stock.query.filter_by(user_id=user.id).all())
+        user.number_of_stocks_in_watchlist = len(WatchStock.query.filter_by(user_id=user.id).all())
     return render_template('admin/users.html', users=users)
 
 

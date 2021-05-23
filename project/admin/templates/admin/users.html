@@ -17,6 +17,8 @@
         <th>Registration Date</th>
         <th>Email Confirmation Date</th>
         <th>User Type</th>
+        <th># of Stocks in Portfolio</th>
+        <th># of Stocks in Watchlist</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -34,6 +36,8 @@
             <td>-</td>
           {% endif %}
           <td>{{ user.user_type }}</td>
+          <td>{{ user.number_of_stocks_in_portfolio }}</td>
+          <td>{{ user.number_of_stocks_in_watchlist }}</td>
           <td class="users-actions">
             <a class="users-actions-link" href="{{ url_for('admin.admin_delete_user', id=user.id) }}">Delete User</a>
             {% if user.email_confirmed %}
