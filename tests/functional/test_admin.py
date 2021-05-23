@@ -43,6 +43,8 @@ def test_admin_view_users_valid(test_client_admin, log_in_admin_user):
     assert b'Registration Date' in response.data
     assert b'Email Confirmation Date' in response.data
     assert b'User Type' in response.data
+    assert b'# of Stocks in Portfolio' in response.data
+    assert b'# of Stocks in Watchlist' in response.data
     assert b'Actions' in response.data
     for expected_action in expected_actions:
         assert expected_action in response.data
