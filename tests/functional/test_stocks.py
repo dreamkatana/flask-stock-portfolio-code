@@ -156,7 +156,7 @@ def test_monkeypatch_get_success(monkeypatch):
     def mock_get(url):
         return MockSuccessResponse(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
     r = requests.get(url)
     assert r.status_code == 200
@@ -175,7 +175,7 @@ def test_monkeypatch_get_failure(monkeypatch):
     def mock_get(url):
         return MockFailedResponse(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
     r = requests.get(url)
     print(r.json())

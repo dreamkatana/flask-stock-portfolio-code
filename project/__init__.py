@@ -5,7 +5,6 @@ from flask.logging import default_handler
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_bcrypt import Bcrypt
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -20,7 +19,6 @@ from flask_mail import Mail
 # attached to the Flask application at this point.
 database = SQLAlchemy()
 db_migration = Migrate()
-bcrypt = Bcrypt()
 csrf_protection = CSRFProtect()
 login = LoginManager()
 login.login_view = "users.login"
@@ -56,7 +54,6 @@ def initialize_extensions(app):
     # extension instance to bind it to the Flask application instance (app)
     database.init_app(app)
     db_migration.init_app(app, database)
-    bcrypt.init_app(app)
     csrf_protection.init_app(app)
     login.init_app(app)
     mail.init_app(app)

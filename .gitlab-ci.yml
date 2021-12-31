@@ -44,4 +44,4 @@ coverage:
   stage: Test
   allow_failure: true
   script:
-  - pytest --cov-report term-missing --cov=project
+  - python -m pytest --cov-report term-missing --cov=project
