@@ -402,7 +402,7 @@ class WatchStock(database.Model):
 
     @staticmethod
     def parse_input_string_integer(input_field: str) -> int:
-        if input_field == 'None' or input_field == '':
+        if input_field == 'None' or input_field == '' or input_field == '-':
             return 0
 
         return int(float(input_field) * 100)
