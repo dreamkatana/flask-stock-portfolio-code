@@ -238,7 +238,7 @@ def mock_requests_get_success_daily(monkeypatch):
     def mock_get(url):
         return MockSuccessResponseDaily(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=AAPL&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
@@ -248,7 +248,7 @@ def mock_requests_get_success_weekly(monkeypatch):
     def mock_get(url):
         return MockSuccessResponseWeekly(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY_ADJUSTED&symbol=AAPL&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
@@ -267,7 +267,7 @@ def mock_requests_get_api_rate_limit_exceeded(monkeypatch):
     def mock_get(url):
         return MockApiRateLimitExceededResponse(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
@@ -276,7 +276,7 @@ def mock_requests_get_failure(monkeypatch):
     def mock_get(url):
         return MockFailedResponse(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 

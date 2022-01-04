@@ -12,17 +12,9 @@ This project is developed as part of the "Developing Web Applications with Pytho
 
 [https://flask-stock-portfolio-app.herokuapp.com/](https://flask-stock-portfolio-app.herokuapp.com/)
 
-## How to Run
-
-In the top-level directory:
-
-```sh
-$ export FLASK_APP=app.py
-$ export FLASK_ENV=development
-$ flask run
-```
-
 ## Installation Instructions
+
+### Installation
 
 Pull down the source code from this GitLab repository:
 
@@ -43,11 +35,26 @@ Activate the virtual environment:
 $ source venv/bin/activate
 ```
 
-Install the python packages in requirements.txt:
+Install the python packages specified in requirements.txt:
 
 ```sh
 (venv) $ pip install -r requirements.txt
 ```
+
+### Database Initialization
+
+This Flask application needs a SQLite database to store data.  The database should be initialized via the Flask shell:
+
+```
+(venv) $ flask shell
+>>> from project import database
+>>> database.drop_all()
+>>> database.create_all()
+>>> quit()
+(venv) $
+```
+
+### Running the Flask Application
 
 Set the file that contains the Flask application and specify that the development environment should be used:
 
@@ -62,7 +69,7 @@ Run development server to serve the Flask application:
 (venv) $ flask run
 ```
 
-Navigate to 'http://localhost:5000' to view the website!
+Navigate to 'http://127.0.0.1:5000/' in your favorite web browser to view the website!
 
 ## Configuration
 
@@ -106,27 +113,47 @@ When running in production on Heroku, the SendGrid API key needs to be configure
 
 ## Key Python Modules Used
 
-- Flask: micro-framework for web application development
-- pytest: framework for testing Python projects
-* SQLAlchemy - ORM (Object Relational Mapper)
-* Flask-Bcrypt - password hashing
-* Flask-Login - support for user management
-* Flask-Migrate - database migrations
-* Flask-WTF - forms
-* itsdangerous - helps with user management, especially tokens
+* **Flask**: micro-framework for web application development which includes the following dependencies:
+  * click: package for creating command-line interfaces (CLI)
+  * itsdangerous: cryptographically sign data 
+  * Jinja2: templating engine
+  * MarkupSafe: escapes characters so text is safe to use in HTML and XML
+  * Werkzeug: set of utilities for creating a Python application that can talk to a WSGI server
+* **pytest**: framework for testing Python projects
+* **flake8**: static analysis tool
+* **pytest-cov**: pytest extension for running coverage.py to check code coverage of tests
+* **Flask-SQLAlchemy**: ORM (Object Relational Mapper) for Flask
+* **Flask-Migrate**: relational database migration tool for Flask based on alembic
+* **Flask-WTF**: simplifies forms in Flask
+* **email_validator**: email syntax validation library for use with Flask-WTF
+* **Flask-Login**: support for user management (login/logout) in Flask
+* **Flask-Mail**: Flask extension for sending email
+* **requests**: Python library for HTTP
+* **freezegun**: library that allows your Python tests to travel through time by mocking the datetime module
+* **Gunicorn**: 'Green Unicorn’ is a Python WSGI HTTP Server 
 
-This application is written using Python 3.9.0.
+This application is written using Python 3.10.1.
 
-## Unit Testing
+## Testing
 
 To run all the tests:
 
 ```sh
-(venv) $ pytest -v
+(venv) $ python -m pytest -v
 ```
 
 To check the code coverage of the tests:
 
 ```sh
-(venv) $ pytest --cov-report term-missing --cov=project
+(venv) $ python -m pytest --cov-report term-missing --cov=project
 ```
+
+**IMPORTANT**:
+The following environment variables need to be configured in order for the tests to run successfully:
+
+```sh
+(venv) $ export MAIL_USERNAME=flaskstockportfolioapp@gmail.com
+(venv) $ export MAIL_PASSWORD=test_password
+```
+
+NOTE: If working on Windows, use `set` instead of `export`.

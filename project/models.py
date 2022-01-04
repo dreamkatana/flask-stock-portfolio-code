@@ -1,6 +1,7 @@
-from project import database, bcrypt
+from project import database
 from flask import current_app
 from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 
 
@@ -10,7 +11,7 @@ import requests
 
 def create_alpha_vantage_url_daily_compact(symbol: str) -> str:
     return 'https://www.alphavantage.co/query?function={}&symbol={}&outputsize={}&apikey={}'.format(
-        'TIME_SERIES_DAILY_ADJUSTED',
+        'TIME_SERIES_DAILY',
         symbol,
         'compact',
         current_app.config['ALPHA_VANTAGE_API_KEY']
@@ -188,7 +189,7 @@ class User(database.Model):
 
     The following attributes of a user are stored in this table:
         * email - email address of the user
-        * hashed password - hashed password (using Flask-Bcrypt)
+        * hashed password - hashed password (using werkzeug.security)
         * registered_on - date & time that the user registered
         * email_confirmation_sent_on - date & time that the confirmation email was sent
         * email_confirmed - flag indicating if the user's email address has been confirmed
@@ -200,7 +201,7 @@ class User(database.Model):
 
     id = database.Column(database.Integer, primary_key=True)
     email = database.Column(database.String, unique=True)
-    password_hashed = database.Column(database.String(60))
+    password_hashed = database.Column(database.String(128))
     registered_on = database.Column(database.DateTime)
     email_confirmation_sent_on = database.Column(database.DateTime)
     email_confirmed = database.Column(database.Boolean, default=False)
@@ -224,17 +225,14 @@ class User(database.Model):
         self.user_type = user_type
 
     def is_password_correct(self, password_plaintext: str):
-        return bcrypt.check_password_hash(self.password_hashed, password_plaintext)
+        return check_password_hash(self.password_hashed, password_plaintext)
 
     def set_password(self, password_plaintext: str):
         self.password_hashed = self._generate_password_hash(password_plaintext)
 
     @staticmethod
     def _generate_password_hash(password_plaintext):
-        return bcrypt.generate_password_hash(
-            password_plaintext,
-            current_app.config.get('BCRYPT_LOG_ROUNDS')
-        ).decode('utf-8')
+        return generate_password_hash(password_plaintext)
 
     def __repr__(self):
         return f'<User: {self.email}>'
