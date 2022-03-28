@@ -5,9 +5,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 
 
-##########################
-#### Helper Functions ####
-##########################
+# ----------------
+# Helper Functions
+# ----------------
 
 def create_alpha_vantage_url_daily_compact(symbol: str) -> str:
     return 'https://www.alphavantage.co/query?function={}&symbol={}&outputsize={}&apikey={}'.format(
@@ -52,9 +52,9 @@ def get_current_stock_price(symbol: str) -> float:
     return current_price
 
 
-################
-#### Models ####
-################
+# ---------------
+# Database Models
+# ---------------
 
 class Stock(database.Model):
     """

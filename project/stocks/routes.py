@@ -1,8 +1,6 @@
-#################
-#### imports ####
-#################
 from . import stocks_blueprint
 from flask import current_app, render_template, request, flash, redirect, url_for, abort
+from pydantic import BaseModel, validator, ValidationError
 from project.models import Stock
 from project import database
 # import click
@@ -10,9 +8,26 @@ from flask_login import login_required, current_user
 from datetime import datetime
 
 
-###########################
-#### request callbacks ####
-###########################
+# --------------
+# Helper Classes
+# --------------
+
+class StockModel(BaseModel):
+    """Class for parsing new stock data from a form."""
+    stock_symbol: str
+    number_of_shares: int
+    purchase_price: float
+
+    @validator('stock_symbol')
+    def stock_symbol_check(cls, value):
+        if not value.isalpha() or len(value) > 5:
+            raise ValueError('Stock symbol must be 1-5 characters')
+        return value.upper()
+
+
+# -----------------
+# Request Callbacks
+# -----------------
 
 # Request callback functions were provided as an example, but are now commented
 # out to avoid unnecessary logging.
@@ -33,9 +48,9 @@ from datetime import datetime
 #     current_app.logger.info('Calling teardown_request() for the stocks blueprint...')
 
 
-######################
-#### cli commands ####
-######################
+# ------------
+# CLI Commands
+# ------------
 
 # CLI commands were provided as an example of how to create CLI commands,
 # but they do not work after further updates to the `Stock` model.
@@ -63,9 +78,9 @@ from datetime import datetime
 #     database.session.commit()
 
 
-################
-#### routes ####
-################
+# ------
+# Routes
+# ------
 
 @stocks_blueprint.route('/')
 def index():
@@ -77,18 +92,28 @@ def index():
 @login_required
 def add_stock():
     if request.method == 'POST':
-        # Save the form data to the database
-        new_stock = Stock(request.form['stock_symbol'],
-                          request.form['number_of_shares'],
-                          request.form['purchase_price'],
-                          current_user.id,
-                          datetime.fromisoformat(request.form['purchase_date']))
-        database.session.add(new_stock)
-        database.session.commit()
+        try:
+            stock_data = StockModel(
+                stock_symbol=request.form['stock_symbol'],
+                number_of_shares=request.form['number_of_shares'],
+                purchase_price=request.form['purchase_price']
+            )
+            print(stock_data)
 
-        flash(f"Added new stock ({ request.form['stock_symbol'] })!", 'success')
-        current_app.logger.info(f"Added new stock ({ request.form['stock_symbol'] })!")
-        return redirect(url_for('stocks.list_stocks'))
+            # Save the form data to the database
+            new_stock = Stock(stock_data.stock_symbol,
+                              stock_data.number_of_shares,
+                              stock_data.purchase_price,
+                              current_user.id,
+                              datetime.fromisoformat(request.form['purchase_date']))
+            database.session.add(new_stock)
+            database.session.commit()
+
+            flash(f"Added new stock ({stock_data.stock_symbol})!", 'success')
+            current_app.logger.info(f"Added new stock ({request.form['stock_symbol']})!")
+            return redirect(url_for('stocks.list_stocks'))
+        except ValidationError as e:
+            print(e)
 
     return render_template('stocks/add_stock.html')
 

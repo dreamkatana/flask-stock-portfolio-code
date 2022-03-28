@@ -1,13 +1,13 @@
 """
-This file (test_stocks.py) contains the functional tests for the `stocks` blueprint.
+This file (test_stocks.py) contains the functional tests for the 'stocks' blueprint.
 """
 import requests
 import re
 
 
-########################
-#### Helper Classes ####
-########################
+# --------------
+# Helper Classes
+# --------------
 
 class MockSuccessResponse(object):
     def __init__(self, url):
@@ -42,9 +42,36 @@ class MockFailedResponse(object):
         return {'error': 'bad'}
 
 
-########################
-#### Test Functions ####
-########################
+# ----------------
+# Functional Tests
+# ----------------
+
+def test_index_page(test_client):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/' page is requested (GET)
+    THEN check the response is valid
+    """
+    response = test_client.get('/')
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'Welcome to the' in response.data
+    assert b'Flask Stock Portfolio App!' in response.data
+
+
+def test_about_page(test_client):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/users/about' page is requested (GET)
+    THEN check the response is valid
+    """
+    response = test_client.get('/users/about')
+    assert response.status_code == 200
+    assert b'Flask Stock Portfolio App' in response.data
+    assert b'About' in response.data
+    assert b'This application is built using the Flask web framework.' in response.data
+    assert b'Course developed by TestDriven.io.' in response.data
+
 
 def test_get_add_stock_page(test_client, log_in_default_user):
     """
@@ -62,8 +89,20 @@ def test_get_add_stock_page(test_client, log_in_default_user):
     assert b'Purchase Date' in response.data
 
 
-def test_post_add_stock_page(test_client, log_in_default_user, mock_requests_get_success_daily):
+def test_get_add_stock_page_not_logged_in(test_client):
     """
+    GIVEN a Flask application configured for testing
+    WHEN the '/add_stock' page is requested (GET) when the user is not logged in
+    THEN check that the user is redirected to the login page
+    """
+    response = test_client.get('/add_stock', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Add a Stock' not in response.data
+    assert b'Please log in to access this page.' in response.data
+
+
+def test_post_add_stock_page(test_client, log_in_default_user, mock_requests_get_success_daily):
+    """"
     GIVEN a Flask application configured for testing and the user logged in
     WHEN the '/add_stock' page is posted to (POST)
     THEN check that a message is displayed to the user that the stock was added
@@ -83,18 +122,6 @@ def test_post_add_stock_page(test_client, log_in_default_user, mock_requests_get
     assert b'23' in response.data
     assert b'432.17' in response.data
     assert b'Added new stock (AAPL)!' in response.data
-
-
-def test_get_add_stock_page_not_logged_in(test_client):
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the '/add_stock' page is requested (GET) when the user is not logged in
-    THEN check that the user is redirected to the login page
-    """
-    response = test_client.get('/add_stock', follow_redirects=True)
-    assert response.status_code == 200
-    assert b'Add a Stock' not in response.data
-    assert b'Please log in to access this page.' in response.data
 
 
 def test_post_add_stock_page_not_logged_in(test_client):

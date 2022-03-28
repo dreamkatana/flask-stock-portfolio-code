@@ -8,16 +8,27 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_mail import Mail
+from sqlalchemy import MetaData
 
 
-#######################
-#### Configuration ####
-#######################
+# -------------
+# Configuration
+# -------------
+
+# Create a naming convention for the database tables
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+metadata = MetaData(naming_convention=convention)
 
 # Create the instances of the Flask extensions in the global scope,
 # but without any arguments passed in. These instances are not
 # attached to the Flask application at this point.
-database = SQLAlchemy()
+database = SQLAlchemy(metadata=metadata)
 db_migration = Migrate()
 csrf_protection = CSRFProtect()
 login = LoginManager()
@@ -25,9 +36,9 @@ login.login_view = "users.login"
 mail = Mail()
 
 
-######################################
-#### Application Factory Function ####
-######################################
+# ----------------------------
+# Application Factory Function
+# ----------------------------
 
 def create_app():
     # Create the Flask application
@@ -45,15 +56,15 @@ def create_app():
     return app
 
 
-########################
-### Helper Functions ###
-########################
+# ----------------
+# Helper Functions
+# ----------------
 
 def initialize_extensions(app):
     # Since the application instance is now created, pass it to each Flask
     # extension instance to bind it to the Flask application instance (app)
     database.init_app(app)
-    db_migration.init_app(app, database)
+    db_migration.init_app(app, database, render_as_batch=True)
     csrf_protection.init_app(app)
     login.init_app(app)
     mail.init_app(app)
@@ -115,6 +126,7 @@ def register_app_callbacks(app):
     # @app.after_request
     # def app_after_request(response):
     #     app.logger.info('Calling after_request() for the Flask application...')
+    #     # print(response.headers)
     #     return response
     #
     # @app.teardown_request

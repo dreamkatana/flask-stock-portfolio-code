@@ -6,9 +6,9 @@ from datetime import datetime
 import requests
 
 
-########################
-#### Helper Classes ####
-########################
+# --------------
+# Helper Classes
+# --------------
 
 class MockSuccessResponseDaily(object):
     def __init__(self, url):
@@ -115,8 +115,16 @@ class MockFailedResponse(object):
 
 @pytest.fixture(scope='function')
 def new_stock():
-    stock = Stock('AAPL', '16', '406.78', 17, datetime(2020, 7, 18))
-    return stock
+    flask_app = create_app()
+    flask_app.config.from_object('config.TestingConfig')
+    flask_app.extensions['mail'].suppress = True
+
+    # Create a test client using the Flask application configured for testing
+    with flask_app.test_client() as testing_client:
+        # Establish an application context before accessing the logger and database
+        with flask_app.app_context():
+            stock = Stock('AAPL', '16', '406.78', 17, datetime(2020, 7, 18))
+            yield stock  # this is where the testing happens!
 
 
 @pytest.fixture(scope='function')

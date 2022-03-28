@@ -18,7 +18,9 @@
   <body>
     <header class="site-header">
       <nav class="nav">
-        <a class="nav-link logo" href="{{ url_for('stocks.index') }}">Flask Stock Portfolio App</a>
+        <ul class="nav-list">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('stocks.index') }}">Flask Stock Portfolio App</a></li>
+        </ul>
         <ul class="nav-list">
           {% if current_user.is_authenticated %}
             <li class="nav-item"><a class="nav-link" href="{{ url_for('stocks.list_stocks') }}">Portfolio</a></li>
@@ -61,7 +63,7 @@
     </main>
 
     <footer class="site-footer">
-        <small><a href="https://testdriven.io">TestDriven.io</a> - 2021</small>
+      <small><a href="https://testdriven.io">TestDriven.io</a> - 2022</small>
     </footer>
 
     {% block javascript %}

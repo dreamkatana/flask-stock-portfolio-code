@@ -1,6 +1,3 @@
-#################
-#### imports ####
-#################
 from . import users_blueprint
 from flask import render_template, flash, abort, request, current_app, redirect, url_for, escape, copy_current_request_context
 from .forms import RegistrationForm, LoginForm, EmailForm, PasswordForm, ChangePasswordForm
@@ -16,9 +13,9 @@ from itsdangerous.exc import BadSignature
 from datetime import datetime
 
 
-##########################
-#### helper functions ####
-##########################
+# ----------------
+# Helper Functions
+# ----------------
 
 def generate_confirmation_email(user_email):
     confirm_serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
@@ -44,9 +41,9 @@ def generate_password_reset_email(user_email):
                    recipients=[user_email])
 
 
-################
-#### routes ####
-################
+# ------
+# Routes
+# ------
 
 @users_blueprint.route('/about')
 def about():
@@ -113,7 +110,7 @@ def login():
             if user and user.is_password_correct(form.password.data):
                 # User's credentials have been validated, so log them in
                 login_user(user, remember=form.remember_me.data)
-                flash(f'Thanks for logging in, {current_user.email}!')
+                flash(f'Thanks for logging in, {current_user.email}!', 'success')
                 current_app.logger.info(f'Logged in user: {current_user.email}')
 
                 # If the next URL is not specified, redirect to the user profile

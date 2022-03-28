@@ -1,5 +1,5 @@
 """
-This file (test_users.py) contains the functional tests for the `users` blueprint.
+This file (test_users.py) contains the functional tests for the 'users' blueprint.
 """
 from project import mail
 from project.models import User
@@ -169,6 +169,7 @@ def test_invalid_logout_not_logged_in(test_client):
     WHEN the '/users/logout' page is requested (GET) when the user is not logged in
     THEN check that the user is redirected to the login page
     """
+    test_client.get('/users/logout', follow_redirects=True)  # Double-check that there are no logged in users!
     response = test_client.get('/users/logout', follow_redirects=True)
     assert response.status_code == 200
     assert b'Goodbye!' not in response.data
