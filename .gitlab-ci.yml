@@ -42,6 +42,6 @@ pytest:
 
 coverage:
   stage: Test
-  allow_failure: true
   script:
   - python -m pytest --cov-report term-missing --cov=project
+  coverage: '/^TOTAL.+?(\d+\%)$/'
