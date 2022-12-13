@@ -35,7 +35,7 @@ class Config(object):
     ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY', default='demo')
 
     # Logging
-    LOG_TO_STDOUT = os.getenv('LOG_TO_STDOUT', default=False)
+    LOG_WITH_GUNICORN = os.getenv('LOG_WITH_GUNICORN', default=False)
 
 
 class ProductionConfig(Config):

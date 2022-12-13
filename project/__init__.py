@@ -8,27 +8,16 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from flask_mail import Mail
-from sqlalchemy import MetaData
 
 
 # -------------
 # Configuration
 # -------------
 
-# Create a naming convention for the database tables
-convention = {
-    "ix": 'ix_%(column_0_label)s',
-    "uq": "uq_%(table_name)s_%(column_0_name)s",
-    "ck": "ck_%(table_name)s_%(constraint_name)s",
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s"
-}
-metadata = MetaData(naming_convention=convention)
-
 # Create the instances of the Flask extensions in the global scope,
 # but without any arguments passed in. These instances are not
 # attached to the Flask application at this point.
-database = SQLAlchemy(metadata=metadata)
+database = SQLAlchemy()
 db_migration = Migrate()
 csrf_protection = CSRFProtect()
 login = LoginManager()
@@ -53,6 +42,24 @@ def create_app():
     configure_logging(app)
     register_app_callbacks(app)
     register_error_pages(app)
+
+    ##############################################################################
+    # This section is only necessary in production when a command-line interface #
+    # is NOT available for running commands to initialize the database.          #
+    ##############################################################################
+    # import sqlalchemy as sa
+
+    # Check if the database needs to be initialized
+    # engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    # inspector = sa.inspect(engine)
+    # if not inspector.has_table("users"):
+    #     with app.app_context():
+    #         db.drop_all()
+    #         db.create_all()
+    #         app.logger.info('Initialized the database!')
+    # else:
+    #     app.logger.info('Database already contains the users table.')
+
     return app
 
 
@@ -94,10 +101,10 @@ def register_blueprints(app):
 
 def configure_logging(app):
     # Logging Configuration
-    if app.config['LOG_TO_STDOUT']:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.INFO)
-        app.logger.addHandler(stream_handler)
+    if app.config['LOG_WITH_GUNICORN']:
+        gunicorn_error_logger = logging.getLogger('gunicorn.error')
+        app.logger.handlers.extend(gunicorn_error_logger.handlers)
+        app.logger.setLevel(logging.DEBUG)
     else:
         file_handler = RotatingFileHandler('instance/flask-stock-portfolio.log',
                                            maxBytes=16384,

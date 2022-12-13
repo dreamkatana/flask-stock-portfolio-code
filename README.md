@@ -43,7 +43,9 @@ Install the python packages specified in requirements.txt:
 
 ### Database Initialization
 
-This Flask application needs a SQLite database to store data.  The database should be initialized via the Flask shell:
+#### Development
+
+This Flask application needs a SQLite database to store data.  The database can be initialized via the Flask shell:
 
 ```
 (venv) $ flask shell
@@ -54,19 +56,20 @@ This Flask application needs a SQLite database to store data.  The database shou
 (venv) $
 ```
 
-### Running the Flask Application
+#### Production
 
-Set the file that contains the Flask application and specify that the development environment should be used:
+When dealing with a database in production, the Flask-Migrate command should be utilized to initialize the database:
 
-```sh
-(venv) $ export FLASK_APP=app.py
-(venv) $ export FLASK_ENV=development
 ```
+$ flask db upgrade
+```
+
+### Running the Flask Application
 
 Run development server to serve the Flask application:
 
 ```sh
-(venv) $ flask run
+(venv) $ flask --app app --debug run
 ```
 
 Navigate to 'http://127.0.0.1:5000/' in your favorite web browser to view the website!
@@ -81,7 +84,6 @@ The following environment variables are recommended to be defined:
 * MAIL_USERNAME - username for the email account used for sending out emails from the app
 * MAIL_PASSWORD - password for email account
 * ALPHA_VANTAGE_API_KEY - API key for accessing Alpha Vantage service
-* SENDGRID_API_KEY - API key for sending email via Sendgrid (production only!)
 
 ### Secret Key
 
@@ -106,11 +108,6 @@ The Alpha Vantage API key is used to access the Alpha Vantage service to retriev
 In order to use the Alpha Vantage API, sign up for a free API key at:
 [Alpha Vantage API Key](https://www.alphavantage.co/support/#api-key)
 
-### SendGrid API Key
-
-When running in production on Heroku, the SendGrid API key needs to be configured. Review chapter 40
-(Deployment) on how to set up SendGrid and generate the API key.
-
 ## Key Python Modules Used
 
 * **Flask**: micro-framework for web application development which includes the following dependencies:
@@ -119,20 +116,22 @@ When running in production on Heroku, the SendGrid API key needs to be configure
   * Jinja2: templating engine
   * MarkupSafe: escapes characters so text is safe to use in HTML and XML
   * Werkzeug: set of utilities for creating a Python application that can talk to a WSGI server
+* **pydantic**: data validation and settings management
 * **pytest**: framework for testing Python projects
-* **flake8**: static analysis tool
 * **pytest-cov**: pytest extension for running coverage.py to check code coverage of tests
+* **flake8**: static analysis tool
 * **Flask-SQLAlchemy**: ORM (Object Relational Mapper) for Flask
 * **Flask-Migrate**: relational database migration tool for Flask based on alembic
-* **Flask-WTF**: simplifies forms in Flask
-* **email_validator**: email syntax validation library for use with Flask-WTF
-* **Flask-Login**: support for user management (login/logout) in Flask
-* **Flask-Mail**: Flask extension for sending email
-* **requests**: Python library for HTTP
-* **freezegun**: library that allows your Python tests to travel through time by mocking the datetime module
+* **Flask-WTF** - simplifies forms in Flask
+* **email_validator** - email syntax validation library for use with Flask-WTF
+* **Flask-Login** - support for user management (login/logout) in Flask
+* **Flask-Mail** - Flask extension for sending email
+* **requests** - Python library for HTTP
+* **freezegun** - library that allows your Python tests to travel through time by mocking the datetime module
 * **Gunicorn**: 'Green Unicorn’ is a Python WSGI HTTP Server 
+* **psycopg2-binary**: PostgreSQL database adapter for Python
 
-This application is written using Python 3.10.1.
+This application is written using Python 3.11.
 
 ## Testing
 
