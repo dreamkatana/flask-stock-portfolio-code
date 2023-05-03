@@ -1,7 +1,7 @@
 """
 This file (test_users.py) contains the functional tests for the 'users' blueprint.
 """
-from project import mail
+from project import mail, database
 from project.models import User
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
@@ -298,7 +298,8 @@ def test_confirm_email_valid(test_client):
     response = test_client.get('/users/confirm/'+token, follow_redirects=True)
     assert response.status_code == 200
     assert b'Thank you for confirming your email address!' in response.data
-    user = User.query.filter_by(email='patrick@gmail.com').first()
+    query = database.select(User).where(User.email == 'patrick@gmail.com')
+    user = database.session.execute(query).scalar_one()
     assert user.email_confirmed
 
 
@@ -320,7 +321,8 @@ def test_confirm_email_already_confirmed(test_client):
     response = test_client.get('/users/confirm/'+token, follow_redirects=True)
     assert response.status_code == 200
     assert b'Account already confirmed.' in response.data
-    user = User.query.filter_by(email='patrick@gmail.com').first()
+    query = database.select(User).where(User.email == 'patrick@gmail.com')
+    user = database.session.execute(query).scalar_one()
     assert user.email_confirmed
 
 
@@ -519,7 +521,8 @@ def test_post_change_password_logged_in_valid_current_password(test_client, log_
                                 follow_redirects=True)
     assert response.status_code == 200
     assert b'Password has been updated!' in response.data
-    user = User.query.filter_by(email='patrick@gmail.com').first()
+    query = database.select(User).where(User.email == 'patrick@gmail.com')
+    user = database.session.execute(query).scalar_one()
     assert not user.is_password_correct('FlaskIsAwesome123')
     assert user.is_password_correct('FlaskIsStillAwesome456')
 

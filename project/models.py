@@ -1,7 +1,10 @@
 from project import database
-from flask import current_app
-from datetime import datetime, timedelta
+from sqlalchemy import Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy.orm import mapped_column, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
+from flask import current_app
+import flask_login
 import requests
 
 
@@ -9,18 +12,16 @@ import requests
 # Helper Functions
 # ----------------
 
-def create_alpha_vantage_url_daily_compact(symbol: str) -> str:
-    return 'https://www.alphavantage.co/query?function={}&symbol={}&outputsize={}&apikey={}'.format(
-        'TIME_SERIES_DAILY',
+def create_alpha_vantage_url_quote(symbol: str) -> str:
+    return 'https://www.alphavantage.co/query?function={}&symbol={}&apikey={}'.format(
+        'GLOBAL_QUOTE',
         symbol,
-        'compact',
         current_app.config['ALPHA_VANTAGE_API_KEY']
     )
 
 
 def get_current_stock_price(symbol: str) -> float:
-    current_price = 0.0
-    url = create_alpha_vantage_url_daily_compact(symbol)
+    url = create_alpha_vantage_url_quote(symbol)
 
     # Attempt the GET call to Alpha Vantage and check that a ConnectionError does
     # not occur, which happens when the GET call fails due to a network issue
@@ -34,22 +35,26 @@ def get_current_stock_price(symbol: str) -> float:
     if r.status_code != 200:
         current_app.logger.warning(f'Error! Received unexpected status code ({r.status_code}) '
                                    f'when retrieving daily stock data ({symbol})!')
-        return current_price
+        return 0.0
 
-    daily_data = r.json()
+    stock_data = r.json()
 
-    # The key of 'Time Series (Daily)' needs to be present in order to process the stock data
+    # The key of 'Global Quote' needs to be present in order to process the stock data.
     # Typically, this key will not be present if the API rate limit has been exceeded.
-    if 'Time Series (Daily)' not in daily_data:
-        current_app.logger.warning(f'Could not find the Time Series (Daily) key when retrieving '
+    if 'Global Quote' not in stock_data:
+        current_app.logger.warning(f'Could not find the Global Quote key when retrieving '
                                    f'the daily stock data ({symbol})!')
-        return current_price
+        return 0.0
 
-    for element in daily_data['Time Series (Daily)']:
-        current_price = float(daily_data['Time Series (Daily)'][element]['4. close'])
-        break
+    return float(stock_data['Global Quote']['05. price'])
 
-    return current_price
+
+def create_alpha_vantage_get_url_weekly(symbol: str) -> str:
+    return 'https://www.alphavantage.co/query?function={}&symbol={}&apikey={}'.format(
+        'TIME_SERIES_WEEKLY_ADJUSTED',
+        symbol,
+        current_app.config['ALPHA_VANTAGE_API_KEY']
+    )
 
 
 # ---------------
@@ -79,15 +84,18 @@ class Stock(database.Model):
 
     __tablename__ = 'stocks'
 
-    id = database.Column(database.Integer, primary_key=True)
-    stock_symbol = database.Column(database.String, nullable=False)
-    number_of_shares = database.Column(database.Integer, nullable=False)
-    purchase_price = database.Column(database.Integer, nullable=False)
-    user_id = database.Column(database.Integer, database.ForeignKey('users.id'))
-    purchase_date = database.Column(database.DateTime)
-    current_price = database.Column(database.Integer)
-    current_price_date = database.Column(database.DateTime)
-    position_value = database.Column(database.Integer)
+    id = mapped_column(Integer(), primary_key=True)
+    stock_symbol = mapped_column(String())
+    number_of_shares = mapped_column(Integer())
+    purchase_price = mapped_column(Integer())
+    user_id = mapped_column(ForeignKey('users.id'))
+    purchase_date = mapped_column(DateTime())
+    current_price = mapped_column(Integer())
+    current_price_date = mapped_column(DateTime())
+    position_value = mapped_column(Integer())
+
+    # Define the relationship to the `User` class
+    user_relationship = relationship('User', back_populates='stocks_relationship')
 
     def __init__(self, stock_symbol: str, number_of_shares: str, purchase_price: str,
                  user_id: int, purchase_date=None):
@@ -116,18 +124,11 @@ class Stock(database.Model):
     def get_stock_position_value(self) -> float:
         return float(self.position_value / 100)
 
-    def create_alpha_vantage_get_url_weekly(self):
-        return 'https://www.alphavantage.co/query?function={}&symbol={}&apikey={}'.format(
-            'TIME_SERIES_WEEKLY_ADJUSTED',
-            self.stock_symbol,
-            current_app.config['ALPHA_VANTAGE_API_KEY']
-        )
-
     def get_weekly_stock_data(self):
         title = 'Stock chart is unavailable.'
         labels = []
         values = []
-        url = self.create_alpha_vantage_get_url_weekly()
+        url = create_alpha_vantage_get_url_weekly(self.stock_symbol)
 
         try:
             r = requests.get(url)
@@ -183,7 +184,7 @@ class Stock(database.Model):
             self.purchase_date = purchase_date
 
 
-class User(database.Model):
+class User(flask_login.UserMixin, database.Model):
     """
     Class that represents a user of the application
 
@@ -199,16 +200,20 @@ class User(database.Model):
     """
     __tablename__ = 'users'
 
-    id = database.Column(database.Integer, primary_key=True)
-    email = database.Column(database.String, unique=True)
-    password_hashed = database.Column(database.String(128))
-    registered_on = database.Column(database.DateTime)
-    email_confirmation_sent_on = database.Column(database.DateTime)
-    email_confirmed = database.Column(database.Boolean, default=False)
-    email_confirmed_on = database.Column(database.DateTime)
-    stocks = database.relationship('Stock', backref='user', lazy='dynamic')
-    user_type = database.Column(database.String(10), default='User')
-    watchstocks = database.relationship('WatchStock', backref='user', lazy='dynamic')
+    id = mapped_column(Integer(), primary_key=True)
+    email = mapped_column(String(), unique=True)
+    password_hashed = mapped_column(String(128))
+    registered_on = mapped_column(DateTime())
+    email_confirmation_sent_on = mapped_column(DateTime())
+    email_confirmed = mapped_column(Boolean(), default=False)
+    email_confirmed_on = mapped_column(DateTime())
+    user_type = mapped_column(String(10), default='User')
+
+    # Define the relationship to the `Stock` class
+    stocks_relationship = relationship('Stock', back_populates='user_relationship')
+
+    # Define the relationship to the `WatchStock` class
+    watchstocks_relationship = relationship('WatchStock', back_populates='user_relationship')
 
     def __init__(self, email: str, password_plaintext: str, user_type='User'):
         """Create a new User object
@@ -236,25 +241,6 @@ class User(database.Model):
 
     def __repr__(self):
         return f'<User: {self.email}>'
-
-    @property
-    def is_authenticated(self):
-        """Return True if the user has been successfully registered."""
-        return True
-
-    @property
-    def is_active(self):
-        """Always True, as all users are active."""
-        return True
-
-    @property
-    def is_anonymous(self):
-        """Always False, as anonymous users aren't supported."""
-        return False
-
-    def get_id(self):
-        """Return the user ID as a unicode string (`str`)."""
-        return str(self.id)
 
     def is_admin(self):
         return self.user_type == 'Admin'
@@ -299,22 +285,25 @@ class WatchStock(database.Model):
 
     __tablename__ = 'watchstocks'
 
-    id = database.Column(database.Integer, primary_key=True)
-    stock_symbol = database.Column(database.String, nullable=False)
-    company_name = database.Column(database.String)
-    current_share_price = database.Column(database.Integer)
-    current_share_price_date = database.Column(database.DateTime)
-    fiftytwo_week_low = database.Column(database.Integer)
-    fiftytwo_week_high = database.Column(database.Integer)
-    market_cap = database.Column(database.String)
-    dividend_per_share = database.Column(database.Integer)
-    pe_ratio = database.Column(database.Integer)
-    peg_ratio = database.Column(database.Integer)
-    profit_margin = database.Column(database.Integer)
-    beta = database.Column(database.Integer)
-    price_to_book_ratio = database.Column(database.Integer)
-    stock_data_date = database.Column(database.DateTime)
-    user_id = database.Column(database.Integer, database.ForeignKey('users.id'))
+    id = mapped_column(Integer(), primary_key=True)
+    stock_symbol = mapped_column(String(), nullable=False)
+    company_name = mapped_column(String())
+    current_share_price = mapped_column(Integer())
+    current_share_price_date = mapped_column(DateTime())
+    fiftytwo_week_low = mapped_column(Integer())
+    fiftytwo_week_high = mapped_column(Integer())
+    market_cap = mapped_column(String())
+    dividend_per_share = mapped_column(Integer())
+    pe_ratio = mapped_column(Integer())
+    peg_ratio = mapped_column(Integer())
+    profit_margin = mapped_column(Integer())
+    beta = mapped_column(Integer())
+    price_to_book_ratio = mapped_column(Integer())
+    stock_data_date = mapped_column(DateTime())
+    user_id = mapped_column(ForeignKey('users.id'))
+
+    # Define the relationship to the `User` class
+    user_relationship = relationship('User', back_populates='watchstocks_relationship')
 
     def __init__(self, stock_symbol: str, user_id: str):
         self.stock_symbol = stock_symbol

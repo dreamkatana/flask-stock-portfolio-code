@@ -17,17 +17,10 @@ class MockSuccessResponse(object):
 
     def json(self):
         return {
-            'Meta Data': {
-                "2. Symbol": "MSFT",
-                "3. Last Refreshed": "2020-03-24"
-            },
-            'Time Series (Daily)': {
-                "2020-03-24": {
-                    "4. close": "148.3400",
-                },
-                "2020-03-23": {
-                    "4. close": "135.9800",
-                }
+            "Global Quote": {
+                "01. symbol": "MSFT",
+                "05. price": "295.37",
+                "07. latest trading day": "2023-04-26",
             }
         }
 
@@ -83,7 +76,7 @@ def test_get_add_stock_page(test_client, log_in_default_user):
     assert response.status_code == 200
     assert b'Flask Stock Portfolio App' in response.data
     assert b'Add a Stock' in response.data
-    assert b'Stock Symbol <em>(required)</em>' in response.data
+    assert b'Stock Symbol <em>(required, 1-5 uppercase letters)</em>' in response.data
     assert b'Number of Shares <em>(required)</em>' in response.data
     assert b'Purchase Price ($) <em>(required)</em>' in response.data
     assert b'Purchase Date' in response.data
@@ -101,7 +94,7 @@ def test_get_add_stock_page_not_logged_in(test_client):
     assert b'Please log in to access this page.' in response.data
 
 
-def test_post_add_stock_page(test_client, log_in_default_user, mock_requests_get_success_daily):
+def test_post_add_stock_page(test_client, log_in_default_user, mock_requests_get_success_quote):
     """"
     GIVEN a Flask application configured for testing and the user logged in
     WHEN the '/add_stock' page is posted to (POST)
@@ -141,7 +134,7 @@ def test_post_add_stock_page_not_logged_in(test_client):
     assert b'Please log in to access this page.' in response.data
 
 
-def test_get_stock_list_logged_in(test_client, add_stocks_for_default_user, mock_requests_get_success_daily):
+def test_get_stock_list_logged_in(test_client, add_stocks_for_default_user, mock_requests_get_success_quote):
     """
     GIVEN a Flask application configured for testing, with the default user logged in
           and the default set of stocks in the database
@@ -183,14 +176,14 @@ def test_monkeypatch_get_success(monkeypatch):
     def mock_get(url):
         return MockSuccessResponse(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
     r = requests.get(url)
     assert r.status_code == 200
     assert r.url == url
-    assert 'MSFT' in r.json()['Meta Data']['2. Symbol']
-    assert '2020-03-24' in r.json()['Meta Data']['3. Last Refreshed']
-    assert '148.34' in r.json()['Time Series (Daily)']['2020-03-24']['4. close']
+    assert 'MSFT' in r.json()['Global Quote']['01. symbol']
+    assert '295.37' in r.json()['Global Quote']['05. price']
+    assert '2023-04-26' in r.json()['Global Quote']['07. latest trading day']
 
 
 def test_monkeypatch_get_failure(monkeypatch):
@@ -202,7 +195,7 @@ def test_monkeypatch_get_failure(monkeypatch):
     def mock_get(url):
         return MockFailedResponse(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
     r = requests.get(url)
     print(r.json())
