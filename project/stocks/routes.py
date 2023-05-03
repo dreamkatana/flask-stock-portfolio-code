@@ -121,7 +121,8 @@ def add_stock():
 @stocks_blueprint.route('/stocks')
 @login_required
 def list_stocks():
-    stocks = Stock.query.order_by(Stock.id).filter_by(user_id=current_user.id).all()
+    query = database.select(Stock).where(Stock.user_id == current_user.id).order_by(Stock.id)
+    stocks = database.session.execute(query).scalars().all()
 
     current_account_value = 0.0
     for stock in stocks:
@@ -164,7 +165,11 @@ def chartjs_demo3():
 @stocks_blueprint.route('/stocks/<id>')
 @login_required
 def stock_details(id):
-    stock = Stock.query.filter_by(id=id).first_or_404()
+    query = database.select(Stock).where(Stock.id == id)
+    stock = database.session.execute(query).scalar_one_or_none()
+
+    if stock is None:
+        abort(404)
 
     if stock.user_id != current_user.id:
         abort(403)
@@ -176,7 +181,11 @@ def stock_details(id):
 @stocks_blueprint.route('/stocks/<id>/delete')
 @login_required
 def delete_stock(id):
-    stock = Stock.query.filter_by(id=id).first_or_404()
+    query = database.select(Stock).where(Stock.id == id)
+    stock = database.session.execute(query).scalar_one_or_none()
+
+    if stock is None:
+        abort(404)
 
     if stock.user_id != current_user.id:
         abort(403)
@@ -191,7 +200,11 @@ def delete_stock(id):
 @stocks_blueprint.route('/stocks/<id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_stock(id):
-    stock = Stock.query.filter_by(id=id).first_or_404()
+    query = database.select(Stock).where(Stock.id == id)
+    stock = database.session.execute(query).scalar_one_or_none()
+
+    if stock is None:
+        abort(404)
 
     if stock.user_id != current_user.id:
         abort(403)

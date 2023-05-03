@@ -73,7 +73,7 @@ def test_unconfirm_email_address(new_user):
     assert new_user.email_confirmed_on is None
 
 
-def test_get_stock_data_success(new_stock, mock_requests_get_success_daily):
+def test_get_stock_data_success(new_stock, mock_requests_get_success_quote):
     """
     GIVEN a Flask application configured for testing and a monkeypatched version of requests.get()
     WHEN the HTTP response is set to successful
@@ -121,7 +121,7 @@ def test_get_stock_data_failure(new_stock, mock_requests_get_failure):
     assert new_stock.position_value == 0
 
 
-def test_get_stock_data_success_two_calls(new_stock, mock_requests_get_success_daily):
+def test_get_stock_data_success_two_calls(new_stock, mock_requests_get_success_quote):
     """
     GIVEN a Flask application configured for testing and a monkeypatched version of requests.get()
     WHEN the HTTP response is set to successful
@@ -208,7 +208,7 @@ def test_new_watchstock(new_watch_stock):
     assert new_watch_stock.user_id == 23
 
 
-def test_get_watchstock_current_share_price_success(new_watch_stock, mock_requests_get_success_daily):
+def test_get_watchstock_current_share_price_success(new_watch_stock, mock_requests_get_success_quote):
     """
     GIVEN a monkeypatched (successful response) version of requests.get()
     WHEN the current share price is retrieved

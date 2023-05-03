@@ -1,6 +1,6 @@
+import os
 import pytest
 from project import create_app, database
-from flask import current_app
 from project.models import Stock, User, WatchStock
 from datetime import datetime
 import requests
@@ -10,24 +10,17 @@ import requests
 # Helper Classes
 # --------------
 
-class MockSuccessResponseDaily(object):
+class MockSuccessResponseQuote(object):
     def __init__(self, url):
         self.status_code = 200
         self.url = url
 
     def json(self):
         return {
-            'Meta Data': {
-                "2. Symbol": "AAPL",
-                "3. Last Refreshed": "2020-03-24"
-            },
-            'Time Series (Daily)': {
-                "2020-03-24": {
-                    "4. close": "148.3400",
-                },
-                "2020-03-23": {
-                    "4. close": "135.9800",
-                }
+            "Global Quote": {
+                "01. symbol": "AAPL",
+                "05. price": "148.3400",
+                "07. latest trading day": "2020-03-24",
             }
         }
 
@@ -115,8 +108,9 @@ class MockFailedResponse(object):
 
 @pytest.fixture(scope='function')
 def new_stock():
+    # Set the Testing configuration prior to creating the Flask application
+    os.environ['CONFIG_TYPE'] = 'config.TestingConfig'
     flask_app = create_app()
-    flask_app.config.from_object('config.TestingConfig')
     flask_app.extensions['mail'].suppress = True
 
     # Create a test client using the Flask application configured for testing
@@ -137,8 +131,9 @@ def new_stock_updated(new_stock):
 
 @pytest.fixture(scope='module')
 def new_user():
+    # Set the Testing configuration prior to creating the Flask application
+    os.environ['CONFIG_TYPE'] = 'config.TestingConfig'
     flask_app = create_app()
-    flask_app.config.from_object('config.TestingConfig')
 
     # Establish an application context before creating the User object
     with flask_app.app_context():
@@ -148,8 +143,9 @@ def new_user():
 
 @pytest.fixture(scope='module')
 def test_client():
+    # Set the Testing configuration prior to creating the Flask application
+    os.environ['CONFIG_TYPE'] = 'config.TestingConfig'
     flask_app = create_app()
-    flask_app.config.from_object('config.TestingConfig')
     flask_app.extensions['mail'].suppress = True
 
     # Create a test client using the Flask application configured for testing
@@ -194,7 +190,8 @@ def log_in_default_user(test_client, register_default_user):
 @pytest.fixture(scope='function')
 def confirm_email_default_user(test_client, log_in_default_user):
     # Mark the user as having their email address confirmed
-    user = User.query.filter_by(email='patrick@gmail.com').first()
+    query = database.select(User).where(User.email == 'patrick@gmail.com')
+    user = database.session.execute(query).scalar_one()
     user.email_confirmed = True
     user.email_confirmed_on = datetime(2020, 7, 8)
     database.session.add(user)
@@ -203,7 +200,8 @@ def confirm_email_default_user(test_client, log_in_default_user):
     yield user  # this is where the testing happens!
 
     # Mark the user as not having their email address confirmed (clean up)
-    user = User.query.filter_by(email='patrick@gmail.com').first()
+    query = database.select(User).where(User.email == 'patrick@gmail.com')
+    user = database.session.execute(query).scalar_one()
     user.email_confirmed = False
     user.email_confirmed_on = None
     database.session.add(user)
@@ -216,7 +214,8 @@ def afterwards_reset_default_user_password():
 
     # Since a test using this fixture could change the password for the default user,
     # reset the password back to the default password
-    user = User.query.filter_by(email='patrick@gmail.com').first()
+    query = database.select(User).where(User.email == 'patrick@gmail.com')
+    user = database.session.execute(query).scalar_one()
     user.set_password('FlaskIsAwesome123')
     database.session.add(user)
     database.session.commit()
@@ -241,12 +240,12 @@ def add_stocks_for_default_user(test_client, log_in_default_user):
 
 
 @pytest.fixture(scope='function')
-def mock_requests_get_success_daily(monkeypatch):
+def mock_requests_get_success_quote(monkeypatch):
     # Create a mock for the requests.get() call to prevent making the actual API call
     def mock_get(url):
-        return MockSuccessResponseDaily(url)
+        return MockSuccessResponseQuote(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
@@ -275,7 +274,7 @@ def mock_requests_get_api_rate_limit_exceeded(monkeypatch):
     def mock_get(url):
         return MockApiRateLimitExceededResponse(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
@@ -284,7 +283,7 @@ def mock_requests_get_failure(monkeypatch):
     def mock_get(url):
         return MockFailedResponse(url)
 
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=MSFT&apikey=demo'
     monkeypatch.setattr(requests, 'get', mock_get)
 
 
@@ -311,8 +310,9 @@ def log_in_second_user(test_client, register_second_user):
 
 @pytest.fixture(scope='module')
 def new_admin_user():
+    # Set the Testing configuration prior to creating the Flask application
+    os.environ['CONFIG_TYPE'] = 'config.TestingConfig'
     flask_app = create_app()
-    flask_app.config.from_object('config.TestingConfig')
 
     # Establish an application context before creating the User object
     with flask_app.app_context():
@@ -322,8 +322,9 @@ def new_admin_user():
 
 @pytest.fixture(scope='function')
 def cli_test_runner():
+    # Set the Testing configuration prior to creating the Flask application
+    os.environ['CONFIG_TYPE'] = 'config.TestingConfig'
     flask_app = create_app()
-    flask_app.config.from_object('config.TestingConfig')
     flask_app.extensions['mail'].suppress = True
 
     # Create a test client using the Flask application configured for testing
@@ -341,8 +342,9 @@ def cli_test_runner():
 
 @pytest.fixture(scope='module')
 def test_client_admin():
+    # Set the Testing configuration prior to creating the Flask application
+    os.environ['CONFIG_TYPE'] = 'config.TestingConfig'
     flask_app = create_app()
-    flask_app.config.from_object('config.TestingConfig')
     flask_app.extensions['mail'].suppress = True
 
     # Create a test client using the Flask application configured for testing

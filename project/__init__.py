@@ -4,6 +4,7 @@ import logging
 from flask.logging import default_handler
 import os
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import MetaData
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
@@ -14,10 +15,20 @@ from flask_mail import Mail
 # Configuration
 # -------------
 
+# Create a naming convention for the database tables
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+metadata = MetaData(naming_convention=convention)
+
 # Create the instances of the Flask extensions in the global scope,
 # but without any arguments passed in. These instances are not
 # attached to the Flask application at this point.
-database = SQLAlchemy()
+database = SQLAlchemy(metadata=metadata)
 db_migration = Migrate()
 csrf_protection = CSRFProtect()
 login = LoginManager()
@@ -71,7 +82,7 @@ def initialize_extensions(app):
     # Since the application instance is now created, pass it to each Flask
     # extension instance to bind it to the Flask application instance (app)
     database.init_app(app)
-    db_migration.init_app(app, database, render_as_batch=True)
+    db_migration.init_app(app, database)
     csrf_protection.init_app(app)
     login.init_app(app)
     mail.init_app(app)
@@ -81,7 +92,8 @@ def initialize_extensions(app):
 
     @login.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        query = database.select(User).where(User.id == int(user_id))
+        return database.session.execute(query).scalar_one()
 
 
 def register_blueprints(app):

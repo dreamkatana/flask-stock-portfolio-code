@@ -106,7 +106,9 @@ def login():
 
     if request.method == 'POST':
         if form.validate_on_submit():
-            user = User.query.filter_by(email=form.email.data).first()
+            query = database.select(User).where(User.email == form.email.data)
+            user = database.session.execute(query).scalar_one()
+
             if user and user.is_password_correct(form.password.data):
                 # User's credentials have been validated, so log them in
                 login_user(user, remember=form.remember_me.data)
@@ -156,7 +158,8 @@ def confirm_email(token):
         current_app.logger.info(f'Invalid or expired confirmation link received from IP address: {request.remote_addr}')
         return redirect(url_for('users.login'))
 
-    user = User.query.filter_by(email=email).first()
+    query = database.select(User).where(User.email == email)
+    user = database.session.execute(query).scalar_one()
 
     if user.email_confirmed:
         flash('Account already confirmed. Please login.', 'info')
@@ -177,7 +180,8 @@ def password_reset_via_email():
     form = EmailForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        query = database.select(User).where(User.email == form.email.data)
+        user = database.session.execute(query).scalar()
 
         if user is None:
             flash('Error! Invalid email address!', 'error')
@@ -214,7 +218,8 @@ def process_password_reset_token(token):
     form = PasswordForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(email=email).first()
+        query = database.select(User).where(User.email == email)
+        user = database.session.execute(query).scalar()
 
         if user is None:
             flash('Invalid email address!', 'error')
