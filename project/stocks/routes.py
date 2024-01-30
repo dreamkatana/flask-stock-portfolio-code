@@ -1,6 +1,6 @@
 from . import stocks_blueprint
 from flask import current_app, render_template, request, flash, redirect, url_for, abort
-from pydantic import BaseModel, validator, ValidationError
+from pydantic import BaseModel, field_validator, ValidationError
 from project.models import Stock
 from project import database
 # import click
@@ -18,7 +18,7 @@ class StockModel(BaseModel):
     number_of_shares: int
     purchase_price: float
 
-    @validator('stock_symbol')
+    @field_validator('stock_symbol')
     def stock_symbol_check(cls, value):
         if not value.isalpha() or len(value) > 5:
             raise ValueError('Stock symbol must be 1-5 characters')

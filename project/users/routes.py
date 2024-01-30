@@ -1,6 +1,7 @@
 from . import users_blueprint
-from flask import render_template, flash, abort, request, current_app, redirect, url_for, escape, copy_current_request_context
+from flask import render_template, flash, abort, request, current_app, redirect, url_for, copy_current_request_context
 from .forms import RegistrationForm, LoginForm, EmailForm, PasswordForm, ChangePasswordForm
+from markupsafe import escape
 from project.models import User
 from project import database, mail
 from sqlalchemy.exc import IntegrityError
