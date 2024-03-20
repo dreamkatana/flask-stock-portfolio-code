@@ -202,7 +202,7 @@ class User(flask_login.UserMixin, database.Model):
 
     id = mapped_column(Integer(), primary_key=True)
     email = mapped_column(String(), unique=True)
-    password_hashed = mapped_column(String(128))
+    password_hashed = mapped_column(String(255))
     registered_on = mapped_column(DateTime())
     email_confirmation_sent_on = mapped_column(DateTime())
     email_confirmed = mapped_column(Boolean(), default=False)
